@@ -21,8 +21,8 @@ const translations = {
   // Hero
   'hero.title': { pt: 'Prepare-se para entrevistas de Big Tech', en: 'Prepare for Big Tech Interviews' },
   'hero.subtitle': { 
-    pt: 'Grupo de extensão do ICMC-USP focado em preparação técnica para entrevistas de software engineering com práticas semanais, mock interviews e produção de conteúdo.', 
-    en: 'ICMC-USP extension group focused on technical interview preparation for software engineering with weekly practice, mock interviews, and content production.' 
+    pt: 'Grupo de extensão do ICMC-USP focado em preparação técnica para entrevistas de computação com práticas semanais, mock interviews e produção de conteúdo.', 
+    en: 'ICMC-USP extension group focused on technical interview preparation for computer science with weekly practice, mock interviews, and content production.' 
   },
   'hero.cta.join': { pt: 'Participar', en: 'Join Us' },
   'hero.cta.github': { pt: 'GitHub', en: 'GitHub' },
@@ -42,6 +42,7 @@ const translations = {
   'about.goal3': { pt: 'Desenvolver comunicação técnica eficiente', en: 'Develop efficient technical communication' },
   'about.goal4': { pt: 'Produzir conteúdo público de alta qualidade', en: 'Produce high-quality public content' },
   'about.goal5': { pt: 'Atingir padrão de excelência Big Tech', en: 'Achieve Big Tech excellence standard' },
+  'about.goal6': { pt: 'Conexão com ex-membros em Big Techs', en: 'Connection with alumni at Big Techs' },
 
   // Tracks
   'tracks.title': { pt: 'Trilhas', en: 'Tracks' },

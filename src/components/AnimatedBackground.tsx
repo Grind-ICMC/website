@@ -47,7 +47,7 @@ const CodeSnippet = ({ text, startX, duration, delay }: { text: string; startX: 
 
   return (
     <div
-      className="absolute code-font text-primary/15 text-sm whitespace-nowrap pointer-events-none select-none code-snippet-float"
+      className="absolute code-font text-primary/25 text-sm whitespace-nowrap pointer-events-none select-none code-snippet-float"
       style={{ 
         left: `${startX}%`, 
         animationDuration: `${duration}s`,

@@ -1,5 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Target, TrendingUp, MessageCircle, BookOpen, Award } from "lucide-react";
+import { Target, TrendingUp, MessageCircle, BookOpen, Award, Users } from "lucide-react";
 
 const AboutSection = () => {
   const { t } = useLanguage();
@@ -10,6 +10,7 @@ const AboutSection = () => {
     { icon: MessageCircle, text: t("about.goal3") },
     { icon: BookOpen, text: t("about.goal4") },
     { icon: Award, text: t("about.goal5") },
+    { icon: Users, text: t("about.goal6") },
   ];
 
   return (
