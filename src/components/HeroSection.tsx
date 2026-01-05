@@ -11,7 +11,7 @@ const HeroSection = () => {
       <div className="section-container py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left content */}
-          <div className="space-y-8 animate-fade-up">
+          <div className="space-y-8">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-card text-sm">
               <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
@@ -58,7 +58,7 @@ const HeroSection = () => {
           </div>
 
           {/* Right content - Logo + Cadence Card */}
-          <div className="relative flex flex-col items-center gap-8 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <div className="relative flex flex-col items-center gap-8">
             {/* Logo */}
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-[60px] animate-pulse-slow" />
@@ -69,7 +69,7 @@ const HeroSection = () => {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 animate-fade-up" style={{ animationDelay: '1s' }}>
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2">
         <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
         </div>
