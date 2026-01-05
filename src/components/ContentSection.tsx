@@ -40,9 +40,12 @@ const ContentSection = () => {
 
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {contentCards.map((card, index) => (
-            <div
+            <a
               key={index}
-              className="glass-card-glow p-6 md:p-8 group"
+              href={card.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="glass-card-glow p-6 md:p-8 group block transition-transform hover:-translate-y-1"
             >
               <div className={`inline-flex p-3 rounded-xl ${card.bgColor} mb-5`}>
                 <card.icon className={`w-6 h-6 ${card.color}`} />
@@ -53,16 +56,13 @@ const ContentSection = () => {
                 {card.description}
               </p>
 
-              <a
-                href={card.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              <div
+                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors"
               >
                 {card.cta}
                 <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
+              </div>
+            </a>
           ))}
         </div>
       </div>
