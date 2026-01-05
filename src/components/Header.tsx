@@ -40,7 +40,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-3 group">
-            <GiIciclesAura className="w-8 h-8 text-primary hidden lg:block" />
+            <GiIciclesAura className="w-8 h-8 text-primary" />
 
             <span className="font-bold text-lg md:text-xl text-foreground hidden sm:block">
               Grind <span className="text-primary">ICMC</span>
