@@ -1,32 +1,44 @@
-# Grind ICMC Website
+# Grind ICMC - Website
 
-Official website for **Grind ICMC**, a university extension group at ICMC-USP focused on preparing students for Big Tech technical interviews.
+## What is this?
+This is the official website for **Grind ICMC**, a university extension group from the University of São Paulo (USP) - ICMC. We focus on preparing students for Big Tech technical interviews through weekly practice, mock interviews, algorithms, and system design, while also prioritizing soft skills and networking.
 
-## 🚀 About
+## Tech Stack
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Components:** Radix UI / Shadcn
+- **Icons:** Lucide React & React Icons
 
-Grind ICMC helps students master data structures, algorithms, system design, and behavioral interviews through weekly practice sessions, mock interviews, and high-quality content production.
+## How to Run Locally
 
-This website serves as the main hub for information about our tracks, methodology, and how to join the community.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Grind-ICMC/website.git
+   cd website
+   ```
 
-## 🏃‍♂️ Running Locally
+2. **Install dependencies:**
+   Make sure you have Node.js installed, then run:
+   ```bash
+   npm install
+   # or
+   pnpm install
+   # or
+   yarn install
+   ```
 
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/Grind-ICMC/website.git
-    ```
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   # or
+   yarn dev
+   ```
 
-2.  Install dependencies:
-    ```bash
-    npm install
-    # or
-    bun install
-    ```
+4. **View the app:**
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-3.  Start the development server:
-    ```bash
-    npm run dev
-    # or
-    bun dev
-    ```
-
-4.  Open `http://localhost:8080` in your browser.
+## Contributing
+Contributions are welcome! If you find any issues or want to add new features, feel free to open an issue or a Pull Request.
