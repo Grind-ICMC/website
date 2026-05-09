@@ -30,6 +30,17 @@ type GitHubWriteResponse = {
   }
 }
 
+type GitHubContentsResponseItem = {
+  path?: unknown
+  sha?: unknown
+  type?: unknown
+}
+
+type GitHubFileToDelete = {
+  path: string
+  sha: string
+}
+
 async function requireSession() {
   const session = await auth()
 
@@ -132,6 +143,52 @@ function revalidateMeeting(path: string) {
 function revalidateFolder(path: string) {
   revalidatePath("/admin/meetings")
   revalidatePath(getMeetingFolderHref(path))
+}
+
+async function fetchDirectoryContents(path: string) {
+  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
+    cache: "no-store",
+    headers: getGitHubHeaders(),
+  })
+
+  await assertGitHubResponse(response)
+
+  const contents = (await response.json()) as unknown
+
+  if (!Array.isArray(contents)) {
+    throw new Error("O caminho informado nao e uma pasta.")
+  }
+
+  return contents as GitHubContentsResponseItem[]
+}
+
+async function collectFolderFiles(path: string): Promise<GitHubFileToDelete[]> {
+  const contents = await fetchDirectoryContents(path)
+  const files: GitHubFileToDelete[] = []
+
+  for (const item of contents) {
+    if (item.type === "dir") {
+      if (typeof item.path !== "string") {
+        throw new Error("A API do GitHub retornou uma pasta sem caminho.")
+      }
+
+      files.push(...(await collectFolderFiles(item.path)))
+      continue
+    }
+
+    if (item.type === "file") {
+      if (typeof item.path !== "string" || typeof item.sha !== "string") {
+        throw new Error("A API do GitHub retornou um arquivo sem path ou sha.")
+      }
+
+      files.push({
+        path: item.path,
+        sha: item.sha,
+      })
+    }
+  }
+
+  return files
 }
 
 export async function createMeeting(
@@ -252,5 +309,41 @@ export async function createFolder(currentPath: string, folderName: string) {
 
   return {
     path: folderPath,
+  }
+}
+
+export async function deleteFolder(folderPath: string) {
+  await requireSession()
+  assertValidDirectoryPath(folderPath)
+
+  if (!folderPath.trim()) {
+    throw new Error("Nao e possivel excluir a pasta raiz do repositorio.")
+  }
+
+  const files = await collectFolderFiles(folderPath)
+
+  for (const file of files) {
+    const response = await fetch(
+      `${CONTENTS_URL}/${encodeGitHubPath(file.path)}`,
+      {
+        method: "DELETE",
+        headers: getActionHeaders(),
+        body: JSON.stringify({
+          message: `Delete file from folder ${folderPath}: ${file.path}`,
+          sha: file.sha,
+        }),
+      },
+    )
+
+    await assertGitHubResponse(response)
+  }
+
+  const parentPath = getParentPath(folderPath)
+
+  revalidateFolder(parentPath)
+  revalidatePath(getMeetingFolderHref(folderPath))
+
+  return {
+    success: true,
   }
 }

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
+import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
 import {
   GitHubContentNotFoundError,
@@ -7,6 +8,7 @@ import {
   getMeetingDirectory,
   getMeetingFolderHref,
   getMeetingHref,
+  getParentPath,
 } from "@/lib/github-meetings"
 import {
   CalendarDays,
@@ -71,6 +73,7 @@ export default async function MeetingsExplorerPage({
 }: MeetingsExplorerPageProps) {
   const { path } = await params
   const currentPath = getRoutePath(path)
+  const parentFolderHref = getMeetingFolderHref(getParentPath(currentPath))
 
   if (currentPath.toLowerCase().endsWith(".md")) {
     redirect(getMeetingHref(currentPath))
@@ -111,6 +114,12 @@ export default async function MeetingsExplorerPage({
               </Link>
             </Button>
             <CreateFolderDialog currentPath={currentPath} />
+            {currentPath ? (
+              <DeleteFolderDialog
+                folderPath={currentPath}
+                parentFolderHref={parentFolderHref}
+              />
+            ) : null}
           </div>
         </div>
 
