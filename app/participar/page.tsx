@@ -1,9 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, GraduationCap, Globe, Youtube, Calendar, MessageCircle } from "lucide-react"
+import { GraduationCap, Globe, Youtube, Calendar, MessageCircle } from "lucide-react"
 import { FaInstagram, FaLinkedin, FaDiscord, FaYoutube } from "react-icons/fa"
-import { GiIciclesAura } from "react-icons/gi"
+
 import { useLanguage } from "@/components/language-context"
 import { ParticlesBackground } from "@/components/particles-background"
 import { Navbar } from "@/components/navbar"
@@ -42,24 +42,10 @@ function ParticiparContent() {
 
   return (
     <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-20">
-      {/* Back Link */}
-      <Link 
-        href="/"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-12"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {language === "pt" ? "Voltar para a página inicial" : "Back to home"}
-      </Link>
+
 
       {/* Header */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-3 mb-6">
-          <GiIciclesAura className="h-10 w-10 text-primary" />
-          <span className="text-2xl font-bold">
-            <span className="text-foreground">Grind </span>
-            <span className="text-primary">ICMC</span>
-          </span>
-        </div>
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
           {language === "pt" ? "Como Participar" : "How to Participate"}
         </h1>
