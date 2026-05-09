@@ -28,7 +28,24 @@ This is the official website for **Grind ICMC**, a university extension group fr
    yarn install
    ```
 
-3. **Start the development server:**
+3. **Configure environment variables:**
+   Create a local `.env` file based on `.env.example`.
+   `AUTH_SECRET` is the Auth.js session secret and is different from
+   `GITHUB_ADMIN_TOKEN`.
+
+   Required variables:
+   - `AUTH_SECRET`: random secret used by Auth.js to sign/encrypt sessions.
+   - `AUTH_GITHUB_ID`: GitHub OAuth app client ID for the login flow.
+   - `AUTH_GITHUB_SECRET`: GitHub OAuth app client secret for the login flow.
+   - `GITHUB_ADMIN_TOKEN`: GitHub token used by the server to read the
+     `Grind-ICMC/meetings` repository.
+
+   For local development, create a GitHub OAuth App with:
+   - Homepage URL: `http://localhost:3000`
+   - Authorization callback URL:
+     `http://localhost:3000/api/auth/callback/github`
+
+4. **Start the development server:**
    ```bash
    npm run dev
    # or
@@ -37,7 +54,7 @@ This is the official website for **Grind ICMC**, a university extension group fr
    yarn dev
    ```
 
-4. **View the app:**
+5. **View the app:**
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Contributing
