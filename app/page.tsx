@@ -1,5 +1,3 @@
-"use client"
-
 import { ParticlesBackground } from "@/components/particles-background"
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
@@ -11,8 +9,13 @@ import { ContentSection } from "@/components/content-section"
 import { TeamSection } from "@/components/team-section"
 import { FAQSection } from "@/components/faq-section"
 import { Footer } from "@/components/footer"
+import { getOrganizationMembers } from "@/lib/github-members"
 
-export default function Home() {
+export const dynamic = "force-dynamic"
+
+export default async function Home() {
+  const members = await getOrganizationMembers().catch(() => [])
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <ParticlesBackground />
@@ -24,7 +27,7 @@ export default function Home() {
         <TracksSection />
         <HowItWorksSection />
         <ContentSection />
-        <TeamSection />
+        <TeamSection members={members} />
         <FAQSection />
       </main>
       <Footer />

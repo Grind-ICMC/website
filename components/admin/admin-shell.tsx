@@ -7,8 +7,11 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  ShieldCheck,
+  Users,
+  type LucideIcon,
 } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { GiIciclesAura } from "react-icons/gi"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,6 +26,25 @@ type AdminShellProps = {
   signOutAction: () => Promise<void>
 }
 
+type AdminNavItem = {
+  href: string
+  label: string
+  Icon: LucideIcon
+}
+
+const ADMIN_NAV_ITEMS: AdminNavItem[] = [
+  {
+    href: "/admin/meetings",
+    label: "Atas da Reunião",
+    Icon: FileText,
+  },
+  {
+    href: "/admin/members",
+    label: "Membros",
+    Icon: Users,
+  },
+]
+
 export function AdminShell({
   children,
   userName,
@@ -30,6 +52,7 @@ export function AdminShell({
   initials,
   signOutAction,
 }: AdminShellProps) {
+  const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
   const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
@@ -70,8 +93,8 @@ export function AdminShell({
                 isCollapsed && "lg:justify-center",
               )}
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-cyan-300 text-slate-950">
-                <ShieldCheck className="size-5" aria-hidden="true" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-cyan-400/20 bg-slate-900 text-cyan-400">
+                <GiIciclesAura className="size-6" aria-hidden="true" />
               </div>
               <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
                 <p className="truncate text-sm font-medium text-cyan-300">
@@ -96,21 +119,31 @@ export function AdminShell({
             </Button>
           </div>
 
-          <nav className="mt-8">
-            <Link
-              href="/admin/meetings"
-              aria-label="Atas da Reunião"
-              title="Atas da Reunião"
-              className={cn(
-                "flex h-10 items-center gap-3 rounded-md border border-cyan-400/20 bg-cyan-300/10 px-3 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/15 hover:text-white",
-                isCollapsed && "lg:justify-center lg:px-0",
-              )}
-            >
-              <FileText className="size-4" aria-hidden="true" />
-              <span className={cn(isCollapsed && "lg:hidden")}>
-                Atas da Reunião
-              </span>
-            </Link>
+          <nav className="mt-8 space-y-2">
+            {ADMIN_NAV_ITEMS.map(({ href, label, Icon }) => {
+              const isActive = pathname === href || pathname.startsWith(`${href}/`)
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-label={label}
+                  title={label}
+                  className={cn(
+                    "flex h-10 items-center gap-3 rounded-md border px-3 text-sm font-medium transition",
+                    isActive
+                      ? "border-cyan-400/20 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/15 hover:text-white"
+                      : "border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-slate-900 hover:text-white",
+                    isCollapsed && "lg:justify-center lg:px-0",
+                  )}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  <span className={cn(isCollapsed && "lg:hidden")}>
+                    {label}
+                  </span>
+                </Link>
+              )
+            })}
           </nav>
 
           <div
