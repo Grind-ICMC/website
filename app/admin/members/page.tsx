@@ -21,7 +21,9 @@ function MembersError() {
 
 export default async function MembersPage() {
   try {
-    const members = await getOrganizationMembers()
+    const members = await getOrganizationMembers({
+      cache: "no-store",
+    })
 
     return (
       <section>

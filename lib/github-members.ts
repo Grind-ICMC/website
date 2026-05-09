@@ -30,6 +30,13 @@ export type OrganizationMember = {
   }
 }
 
+type GitHubMembersFetchOptions = {
+  cache?: RequestCache
+  next?: {
+    revalidate?: number | false
+  }
+}
+
 const GITHUB_MEMBERS_URL = "https://api.github.com/orgs/Grind-ICMC/members"
 const DEFAULT_ROLE = {
   pt: "Membro",
@@ -54,10 +61,14 @@ function getGitHubHeaders(useToken: boolean) {
   return headers
 }
 
-async function fetchMembers(useToken = false) {
+async function fetchMembers(
+  useToken = false,
+  options: GitHubMembersFetchOptions = {},
+) {
   return fetch(GITHUB_MEMBERS_URL, {
-    cache: "no-store",
+    cache: options.cache,
     headers: getGitHubHeaders(useToken),
+    next: options.next,
   })
 }
 
@@ -74,11 +85,13 @@ function getMemberRole(login: string) {
   }
 }
 
-export async function getOrganizationMembers() {
-  let response = await fetchMembers(false)
+export async function getOrganizationMembers(
+  options: GitHubMembersFetchOptions = {},
+) {
+  let response = await fetchMembers(false, options)
 
   if (!response.ok && process.env.GITHUB_ADMIN_TOKEN) {
-    response = await fetchMembers(true)
+    response = await fetchMembers(true, options)
   }
 
   if (!response.ok) {

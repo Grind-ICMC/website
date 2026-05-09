@@ -11,10 +11,12 @@ import { FAQSection } from "@/components/faq-section"
 import { Footer } from "@/components/footer"
 import { getOrganizationMembers } from "@/lib/github-members"
 
-export const dynamic = "force-dynamic"
-
 export default async function Home() {
-  const members = await getOrganizationMembers().catch(() => [])
+  const members = await getOrganizationMembers({
+    next: {
+      revalidate: 3600,
+    },
+  }).catch(() => [])
 
   return (
     <div className="relative min-h-screen overflow-hidden">
