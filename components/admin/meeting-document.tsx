@@ -23,6 +23,10 @@ import {
   type MeetingEditorValues,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
+import {
+  getMeetingDocumentDirectory,
+  getMeetingImageSrc,
+} from "@/lib/meeting-image-src"
 
 type MeetingDocumentState = {
   path: string
@@ -52,6 +56,7 @@ export function MeetingDocument({
   const [isEditing, setIsEditing] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const documentDirectory = getMeetingDocumentDirectory(meeting.path)
 
   async function handleUpdate(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
@@ -182,11 +187,21 @@ export function MeetingDocument({
         />
       ) : (
         <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 px-5 py-6 sm:px-8">
-          <div className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-cyan-300 prose-a:no-underline hover:prose-a:text-cyan-100 prose-code:text-cyan-100 prose-pre:border prose-pre:border-cyan-400/15 prose-pre:bg-slate-950 prose-strong:text-white">
+          <div className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-cyan-300 prose-a:no-underline hover:prose-a:text-cyan-100 prose-code:text-cyan-100 prose-img:rounded-md prose-img:border prose-img:border-cyan-400/15 prose-pre:border prose-pre:border-cyan-400/15 prose-pre:bg-slate-950 prose-strong:text-white">
             <ReactMarkdown
               components={{
                 a: ({ node: _node, ...props }) => (
                   <a {...props} target="_blank" rel="noreferrer" />
+                ),
+                img: ({ node: _node, src, alt, ...props }) => (
+                  <img
+                    {...props}
+                    src={getMeetingImageSrc(
+                      documentDirectory,
+                      typeof src === "string" ? src : "",
+                    )}
+                    alt={alt ?? ""}
+                  />
                 ),
               }}
             >

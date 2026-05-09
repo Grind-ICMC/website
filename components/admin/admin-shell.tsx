@@ -1,0 +1,165 @@
+"use client"
+
+import { useEffect, useState, type ReactNode } from "react"
+import Link from "next/link"
+import {
+  FileText,
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ShieldCheck,
+} from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+const SIDEBAR_STORAGE_KEY = "grind-admin-sidebar-collapsed"
+
+type AdminShellProps = {
+  children: ReactNode
+  userName: string
+  userEmail?: string | null
+  initials: string
+  signOutAction: () => Promise<void>
+}
+
+export function AdminShell({
+  children,
+  userName,
+  userEmail,
+  initials,
+  signOutAction,
+}: AdminShellProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
+
+  useEffect(() => {
+    setIsCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true")
+    setHasHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return
+    }
+
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isCollapsed))
+  }, [hasHydrated, isCollapsed])
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="flex min-h-screen w-full flex-col lg:flex-row">
+        <aside
+          className={cn(
+            "border-b border-cyan-400/15 bg-slate-950/95 px-5 py-5 transition-[width,padding] duration-200 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0",
+            isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
+          )}
+        >
+          <div
+            className={cn(
+              "flex items-center gap-3",
+              isCollapsed
+                ? "justify-between lg:flex-col lg:justify-center"
+                : "justify-between",
+            )}
+          >
+            <div
+              className={cn(
+                "flex min-w-0 items-center gap-3",
+                isCollapsed && "lg:justify-center",
+              )}
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-cyan-300 text-slate-950">
+                <ShieldCheck className="size-5" aria-hidden="true" />
+              </div>
+              <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
+                <p className="truncate text-sm font-medium text-cyan-300">
+                  Grind ICMC
+                </p>
+                <p className="truncate text-base font-semibold text-white">
+                  Admin
+                </p>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
+              title={isCollapsed ? "Expandir menu" : "Recolher menu"}
+              onClick={() => setIsCollapsed((current) => !current)}
+              className="border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white"
+            >
+              <ToggleIcon className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+
+          <nav className="mt-8">
+            <Link
+              href="/admin/meetings"
+              aria-label="Atas da Reunião"
+              title="Atas da Reunião"
+              className={cn(
+                "flex h-10 items-center gap-3 rounded-md border border-cyan-400/20 bg-cyan-300/10 px-3 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/15 hover:text-white",
+                isCollapsed && "lg:justify-center lg:px-0",
+              )}
+            >
+              <FileText className="size-4" aria-hidden="true" />
+              <span className={cn(isCollapsed && "lg:hidden")}>
+                Atas da Reunião
+              </span>
+            </Link>
+          </nav>
+
+          <div
+            className={cn(
+              "mt-8 border-t border-cyan-400/15 pt-5 lg:absolute lg:bottom-5",
+              isCollapsed ? "lg:right-3 lg:left-3" : "lg:right-5 lg:left-5",
+            )}
+          >
+            <div
+              className={cn(
+                "mb-4 flex items-center gap-3",
+                isCollapsed && "lg:justify-center",
+              )}
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-800 text-sm font-semibold text-cyan-200">
+                {initials || "GI"}
+              </div>
+              <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
+                <p className="truncate text-sm font-medium text-white">
+                  {userName}
+                </p>
+                <p className="truncate text-xs text-slate-400">
+                  {userEmail ?? "GitHub autorizado"}
+                </p>
+              </div>
+            </div>
+
+            <form action={signOutAction}>
+              <Button
+                type="submit"
+                variant="ghost"
+                aria-label="Sair"
+                title="Sair"
+                className={cn(
+                  "w-full justify-start text-slate-300 hover:bg-slate-800 hover:text-white",
+                  isCollapsed && "lg:justify-center lg:px-0",
+                )}
+              >
+                <LogOut className="size-4" aria-hidden="true" />
+                <span className={cn(isCollapsed && "lg:hidden")}>Sair</span>
+              </Button>
+            </form>
+          </div>
+        </aside>
+
+        <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-10">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}

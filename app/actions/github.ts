@@ -145,6 +145,62 @@ function revalidateFolder(path: string) {
   revalidatePath(getMeetingFolderHref(path))
 }
 
+function sanitizeFileName(fileName: string) {
+  const normalized = fileName
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+
+  if (
+    !normalized ||
+    normalized === "." ||
+    normalized === ".." ||
+    normalized.includes("/") ||
+    normalized.includes("\\")
+  ) {
+    throw new Error("Nome de arquivo invalido.")
+  }
+
+  const extensionMatch = normalized.match(/\.([a-zA-Z0-9]+)$/)
+  const extension = extensionMatch?.[1]?.toLowerCase() ?? "png"
+  const baseName = normalized
+    .replace(/\.[^.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
+  return `${baseName || "image"}.${extension}`
+}
+
+function stripDataUrlPrefix(base64Content: string) {
+  const content = base64Content.trim()
+  const base64Marker = ";base64,"
+  const markerIndex = content.indexOf(base64Marker)
+
+  if (markerIndex >= 0) {
+    return content.slice(markerIndex + base64Marker.length)
+  }
+
+  return content
+}
+
+function assertValidImageRelativePath(path: string) {
+  const normalized = joinGitHubPath(path)
+  const segments = normalized.split("/")
+
+  if (
+    !normalized.startsWith("imgs/") ||
+    normalized === "imgs/" ||
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    segments.some((segment) => !segment || segment === "." || segment === "..")
+  ) {
+    throw new Error("Caminho de imagem invalido.")
+  }
+
+  return normalized
+}
+
 async function fetchDirectoryContents(path: string) {
   const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
     cache: "no-store",
@@ -309,6 +365,87 @@ export async function createFolder(currentPath: string, folderName: string) {
 
   return {
     path: folderPath,
+  }
+}
+
+export async function uploadImage(
+  currentPath: string,
+  fileName: string,
+  base64Content: string,
+) {
+  await requireSession()
+  assertValidDirectoryPath(currentPath)
+
+  const safeFileName = sanitizeFileName(fileName)
+  const content = stripDataUrlPrefix(base64Content)
+
+  if (!content) {
+    throw new Error("Conteudo da imagem nao informado.")
+  }
+
+  const relativePath = `imgs/${safeFileName}`
+  const imagePath = joinGitHubPath(currentPath, relativePath)
+  const response = await fetch(
+    `${CONTENTS_URL}/${encodeGitHubPath(imagePath)}`,
+    {
+      method: "PUT",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Upload image: ${imagePath}`,
+        content,
+      }),
+    },
+  )
+
+  await assertGitHubResponse(response)
+
+  const result = (await response.json()) as GitHubWriteResponse
+  const sha = result.content?.sha
+
+  if (!sha) {
+    throw new Error("O GitHub nao retornou o SHA da imagem.")
+  }
+
+  revalidateFolder(currentPath)
+
+  return {
+    path: relativePath,
+    sha,
+  }
+}
+
+export async function deleteUploadedImage(
+  currentPath: string,
+  relativePath: string,
+  sha: string,
+) {
+  await requireSession()
+  assertValidDirectoryPath(currentPath)
+  assertValidSha(sha)
+
+  const safeRelativePath = assertValidImageRelativePath(relativePath)
+  const imagePath = joinGitHubPath(currentPath, safeRelativePath)
+  const response = await fetch(
+    `${CONTENTS_URL}/${encodeGitHubPath(imagePath)}`,
+    {
+      method: "DELETE",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Delete unsaved uploaded image: ${imagePath}`,
+        sha,
+      }),
+    },
+  )
+
+  if (response.status !== 404) {
+    await assertGitHubResponse(response)
+  }
+
+  revalidateFolder(currentPath)
+  revalidateFolder(joinGitHubPath(currentPath, "imgs"))
+
+  return {
+    success: true,
   }
 }
 

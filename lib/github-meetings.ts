@@ -149,6 +149,10 @@ function getDirectory(path: string) {
   return segments.length > 1 ? segments.slice(0, -1).join("/") : "Raiz"
 }
 
+function isHiddenDirectory(item: GitHubContentItem) {
+  return item.name.toLowerCase() === "imgs"
+}
+
 async function getMeetingSummary(item: GitHubContentItem) {
   try {
     const meeting = await getMeetingMarkdown(item.path)
@@ -198,7 +202,10 @@ export async function getMeetingDirectory(
   }
 
   const directories = contents
-    .filter((item: GitHubContentItem) => item.type === "dir")
+    .filter(
+      (item: GitHubContentItem) =>
+        item.type === "dir" && !isHiddenDirectory(item),
+    )
     .sort((left, right) => left.name.localeCompare(right.name))
   const files = contents
     .filter(
