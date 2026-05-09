@@ -7,7 +7,7 @@ const REPO = "meetings"
 const GITHUB_API_VERSION = "2022-11-28"
 const CONTENTS_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
-type GitHubContentItem = {
+export type GitHubContentItem = {
   name: string
   path: string
   type: "file" | "dir" | string
@@ -16,6 +16,7 @@ type GitHubContentItem = {
 type GitHubFileContent = GitHubContentItem & {
   content?: string
   encoding?: string
+  sha?: string
 }
 
 export type MeetingSummary = {
@@ -28,12 +29,19 @@ export type MeetingSummary = {
 export type MeetingMarkdown = MeetingSummary & {
   content: string
   frontmatter: Record<string, unknown>
+  sha: string
+}
+
+export type MeetingDirectoryContents = {
+  path: string
+  directories: GitHubContentItem[]
+  files: GitHubContentItem[]
 }
 
 export class InvalidMeetingPathError extends Error {}
 export class GitHubContentNotFoundError extends Error {}
 
-function getGitHubHeaders() {
+export function getGitHubHeaders() {
   const token = process.env.GITHUB_ADMIN_TOKEN
 
   if (!token) {
@@ -48,7 +56,7 @@ function getGitHubHeaders() {
   }
 }
 
-function encodeGitHubPath(path: string) {
+export function encodeGitHubPath(path: string) {
   return path
     .split("/")
     .filter(Boolean)
@@ -56,7 +64,7 @@ function encodeGitHubPath(path: string) {
     .join("/")
 }
 
-function assertValidMarkdownPath(path: string) {
+export function assertValidMarkdownPath(path: string) {
   const segments = path.split("/")
 
   if (
@@ -68,6 +76,35 @@ function assertValidMarkdownPath(path: string) {
   ) {
     throw new InvalidMeetingPathError("Invalid meeting path")
   }
+}
+
+export function assertValidDirectoryPath(path: string) {
+  const segments = path.split("/").filter(Boolean)
+
+  if (
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    path.toLowerCase().endsWith(".md") ||
+    segments.some((segment) => segment === "." || segment === "..")
+  ) {
+    throw new InvalidMeetingPathError("Invalid directory path")
+  }
+}
+
+export function assertValidFolderName(folderName: string) {
+  const name = folderName.trim()
+
+  if (
+    !name ||
+    name === "." ||
+    name === ".." ||
+    name.includes("/") ||
+    name.includes("\\")
+  ) {
+    throw new InvalidMeetingPathError("Invalid folder name")
+  }
+
+  return name
 }
 
 async function fetchGitHubContents(path = "") {
@@ -132,7 +169,51 @@ async function getMeetingSummary(item: GitHubContentItem) {
 }
 
 export function getMeetingHref(path: string) {
-  return `/admin/meetings/${encodeGitHubPath(path)}`
+  return `/admin/meetings/doc/${encodeGitHubPath(path)}`
+}
+
+export function getMeetingFolderHref(path = "") {
+  const encodedPath = encodeGitHubPath(path)
+
+  if (!encodedPath) {
+    return "/admin/meetings"
+  }
+
+  return `/admin/meetings/${encodedPath}`
+}
+
+export function getParentPath(path: string) {
+  return path.split("/").filter(Boolean).slice(0, -1).join("/")
+}
+
+export async function getMeetingDirectory(
+  path = "",
+): Promise<MeetingDirectoryContents> {
+  assertValidDirectoryPath(path)
+
+  const contents = await fetchGitHubContents(path)
+
+  if (!Array.isArray(contents)) {
+    throw new GitHubContentNotFoundError("GitHub directory not found")
+  }
+
+  const directories = contents
+    .filter((item: GitHubContentItem) => item.type === "dir")
+    .sort((left, right) => left.name.localeCompare(right.name))
+  const files = contents
+    .filter(
+      (item: GitHubContentItem) =>
+        item.type === "file" &&
+        item.name !== ".gitkeep" &&
+        item.name.toLowerCase().endsWith(".md"),
+    )
+    .sort((left, right) => left.name.localeCompare(right.name))
+
+  return {
+    path,
+    directories,
+    files,
+  }
 }
 
 export async function getMeetingFiles(path = ""): Promise<MeetingSummary[]> {
@@ -181,6 +262,10 @@ export async function getMeetingMarkdown(path: string): Promise<MeetingMarkdown>
     throw new Error("GitHub file content is not base64 encoded")
   }
 
+  if (!file.sha) {
+    throw new Error("GitHub file sha is missing")
+  }
+
   const raw = Buffer.from(file.content.replace(/\n/g, ""), "base64").toString(
     "utf8",
   )
@@ -194,5 +279,6 @@ export async function getMeetingMarkdown(path: string): Promise<MeetingMarkdown>
     directory: getDirectory(file.path),
     content: parsed.content,
     frontmatter,
+    sha: file.sha,
   }
 }
