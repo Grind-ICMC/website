@@ -1,5 +1,6 @@
 import { auth, signOut } from "@/auth"
 import { AdminShell } from "@/components/admin/admin-shell"
+import { Navbar } from "@/components/navbar"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 
@@ -31,13 +32,16 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminShell
-      userName={userName}
-      userEmail={session.user.email}
-      initials={initials}
-      signOutAction={signOutAction}
-    >
-      {children}
-    </AdminShell>
+    <>
+      <Navbar />
+      <AdminShell
+        userName={userName}
+        userEmail={session.user.email}
+        initials={initials}
+        signOutAction={signOutAction}
+      >
+        {children}
+      </AdminShell>
+    </>
   )
 }

@@ -71,11 +71,11 @@ export function AdminShell({
   }, [hasHydrated, isCollapsed])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="flex min-h-screen w-full flex-col lg:flex-row">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pt-16">
+      <div className="flex min-h-[calc(100vh-4rem)] w-full flex-col lg:flex-row">
         <aside
           className={cn(
-            "border-b border-cyan-400/15 bg-slate-950/95 px-5 py-5 transition-[width,padding] duration-200 lg:sticky lg:top-0 lg:h-screen lg:border-r lg:border-b-0",
+            "border-b border-cyan-400/15 bg-slate-950/95 px-5 py-5 transition-[width,padding] duration-200 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-r lg:border-b-0 z-40",
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >

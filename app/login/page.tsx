@@ -1,5 +1,6 @@
 import { auth, getMissingGitHubAuthEnvVars, signIn } from "@/auth"
 import { Button } from "@/components/ui/button"
+import { Navbar } from "@/components/navbar"
 import { Github, LockKeyhole } from "lucide-react"
 import { redirect } from "next/navigation"
 
@@ -58,8 +59,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-16 text-slate-100">
-      <section className="w-full max-w-md rounded-lg border border-cyan-400/20 bg-slate-900/80 p-8 shadow-2xl shadow-cyan-950/30">
+    <>
+      <Navbar />
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 pt-24 pb-16 text-slate-100">
+        <section className="w-full max-w-md rounded-lg border border-cyan-400/20 bg-slate-900/80 p-8 shadow-2xl shadow-cyan-950/30">
         <div className="mb-8 flex items-center gap-3">
           <div className="flex size-11 items-center justify-center rounded-md bg-cyan-300 text-slate-950">
             <LockKeyhole className="size-5" aria-hidden="true" />
@@ -100,5 +103,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </form>
       </section>
     </main>
+    </>
   )
 }
