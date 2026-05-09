@@ -97,14 +97,14 @@ export function Navbar() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem 
                   onClick={() => setLanguage("pt")}
-                  className={language === "pt" ? "bg-accent" : ""}
+                  className={language === "pt" ? "bg-accent text-slate-950 font-medium" : ""}
                 >
                   <BrazilFlag className="h-4 w-5 mr-2 rounded-sm overflow-hidden" />
                   Português
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setLanguage("en")}
-                  className={language === "en" ? "bg-accent" : ""}
+                  className={language === "en" ? "bg-accent text-slate-950 font-medium" : ""}
                 >
                   <USAFlag className="h-4 w-5 mr-2 rounded-sm overflow-hidden" />
                   English
