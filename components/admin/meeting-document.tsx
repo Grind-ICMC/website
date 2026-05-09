@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { Edit3, FileText, FolderTree, Trash2 } from "lucide-react"
 
 import { deleteMeeting, updateMeeting } from "@/app/actions/github"
@@ -189,6 +190,7 @@ export function MeetingDocument({
         <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 px-5 py-6 sm:px-8">
           <div className="prose prose-invert max-w-none prose-headings:text-white prose-a:text-cyan-300 prose-a:no-underline hover:prose-a:text-cyan-100 prose-code:text-cyan-100 prose-img:rounded-md prose-img:border prose-img:border-cyan-400/15 prose-pre:border prose-pre:border-cyan-400/15 prose-pre:bg-slate-950 prose-strong:text-white">
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={{
                 a: ({ node: _node, ...props }) => (
                   <a {...props} target="_blank" rel="noreferrer" />
@@ -202,6 +204,35 @@ export function MeetingDocument({
                     )}
                     alt={alt ?? ""}
                   />
+                ),
+                table: ({ node: _node, ...props }) => (
+                  <div className="my-4 overflow-x-auto rounded-md border border-cyan-400/15">
+                    <table
+                      {...props}
+                      className="my-0 w-full border-collapse text-left text-sm"
+                    />
+                  </div>
+                ),
+                thead: ({ node: _node, ...props }) => (
+                  <thead
+                    {...props}
+                    className="bg-slate-900/80 text-cyan-200"
+                  />
+                ),
+                th: ({ node: _node, ...props }) => (
+                  <th
+                    {...props}
+                    className="border-b border-cyan-400/15 px-4 py-2 font-semibold"
+                  />
+                ),
+                td: ({ node: _node, ...props }) => (
+                  <td
+                    {...props}
+                    className="border-b border-cyan-400/10 px-4 py-2 align-top text-slate-200"
+                  />
+                ),
+                tr: ({ node: _node, ...props }) => (
+                  <tr {...props} className="hover:bg-slate-900/40" />
                 ),
               }}
             >
