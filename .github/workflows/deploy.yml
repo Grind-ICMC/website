@@ -1,0 +1,37 @@
+name: Deploy Vercel Produção
+
+on:
+  push:
+    branches:
+      - main # O deploy só acontece quando você manda código para a main
+
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências (npm install)
+        run: npm install
+
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Puxar Variáveis de Ambiente da Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Fazer o Build do Projeto (Next.js)
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Enviar para a Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
