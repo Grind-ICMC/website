@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
 import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
+import { Input } from "@/components/ui/input"
 import {
   GitHubContentNotFoundError,
   InvalidMeetingPathError,
@@ -16,6 +17,8 @@ import {
   FileText,
   Folder,
   FolderOpen,
+  Search,
+  X,
 } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -26,10 +29,35 @@ type MeetingsExplorerPageProps = {
   params: Promise<{
     path?: string[]
   }>
+  searchParams: Promise<{
+    q?: string | string[]
+  }>
 }
 
 function getRoutePath(path: string[] | undefined) {
   return path?.join("/") ?? ""
+}
+
+function getSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+function normalizeSearchTerm(value: string) {
+  return value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+}
+
+function matchesSearchTerm(values: string[], searchTerm: string) {
+  if (!searchTerm) {
+    return true
+  }
+
+  return values.some((value) =>
+    normalizeSearchTerm(value).includes(searchTerm),
+  )
 }
 
 function getNewDocumentHref(currentPath: string) {
@@ -68,12 +96,30 @@ function EmptyDirectory() {
   )
 }
 
+function EmptySearch({ searchTerm }: { searchTerm: string }) {
+  return (
+    <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-8 text-center">
+      <Search className="mx-auto size-10 text-cyan-300" aria-hidden="true" />
+      <h2 className="mt-4 text-lg font-semibold text-white">
+        Nenhum resultado encontrado
+      </h2>
+      <p className="mt-2 text-sm text-slate-400">
+        Não encontramos pastas ou documentos para "{searchTerm}".
+      </p>
+    </div>
+  )
+}
+
 export default async function MeetingsExplorerPage({
   params,
+  searchParams,
 }: MeetingsExplorerPageProps) {
   const { path } = await params
+  const paramsSearch = await searchParams
   const currentPath = getRoutePath(path)
   const parentFolderHref = getMeetingFolderHref(getParentPath(currentPath))
+  const rawSearchTerm = getSearchParam(paramsSearch.q)?.trim() ?? ""
+  const searchTerm = normalizeSearchTerm(rawSearchTerm)
 
   if (currentPath.toLowerCase().endsWith(".md")) {
     redirect(getMeetingHref(currentPath))
@@ -81,8 +127,16 @@ export default async function MeetingsExplorerPage({
 
   try {
     const directory = await getMeetingDirectory(currentPath)
+    const visibleDirectories = directory.directories.filter((item) =>
+      matchesSearchTerm([item.name, item.path], searchTerm),
+    )
+    const visibleFiles = directory.files.filter((item) =>
+      matchesSearchTerm([item.title, item.name, item.path], searchTerm),
+    )
     const hasContent =
       directory.directories.length > 0 || directory.files.length > 0
+    const hasVisibleContent =
+      visibleDirectories.length > 0 || visibleFiles.length > 0
 
     return (
       <section>
@@ -124,8 +178,51 @@ export default async function MeetingsExplorerPage({
         </div>
 
         {hasContent ? (
+          <form
+            role="search"
+            className="mb-5 flex flex-col gap-3 sm:flex-row"
+          >
+            <div className="relative flex-1">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500"
+                aria-hidden="true"
+              />
+              <Input
+                type="search"
+                name="q"
+                defaultValue={rawSearchTerm}
+                placeholder="Pesquisar atas e pastas"
+                className="h-11 border-cyan-400/15 bg-slate-900/75 pr-3 pl-10 text-slate-100 placeholder:text-slate-500 focus-visible:border-cyan-300/60 focus-visible:ring-cyan-300/20"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                className="h-11 bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+              >
+                <Search className="size-4" aria-hidden="true" />
+                Pesquisar
+              </Button>
+              {rawSearchTerm ? (
+                <Button
+                  asChild
+                  type="button"
+                  variant="outline"
+                  className="h-11 border-cyan-400/20 bg-slate-950/40 text-slate-200 hover:bg-slate-900 hover:text-white"
+                >
+                  <Link href={getMeetingFolderHref(currentPath)}>
+                    <X className="size-4" aria-hidden="true" />
+                    Limpar
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
+          </form>
+        ) : null}
+
+        {hasVisibleContent ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {directory.directories.map((item) => (
+            {visibleDirectories.map((item) => (
               <Link
                 key={item.path}
                 href={getMeetingFolderHref(item.path)}
@@ -139,18 +236,12 @@ export default async function MeetingsExplorerPage({
                     <h2 className="truncate text-base font-semibold text-white group-hover:text-cyan-200">
                       {item.name}
                     </h2>
-                    <p className="mt-2 truncate text-sm text-slate-400">
-                      Pasta
-                    </p>
                   </div>
                 </div>
-                <p className="mt-4 truncate rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
-                  {item.path}
-                </p>
               </Link>
             ))}
 
-            {directory.files.map((item) => (
+            {visibleFiles.map((item) => (
               <Link
                 key={item.path}
                 href={getMeetingHref(item.path)}
@@ -162,19 +253,15 @@ export default async function MeetingsExplorerPage({
                   </div>
                   <div className="min-w-0">
                     <h2 className="truncate text-base font-semibold text-white group-hover:text-cyan-200">
-                      {item.name}
+                      {item.title}
                     </h2>
-                    <p className="mt-2 truncate text-sm text-slate-400">
-                      Documento Markdown
-                    </p>
                   </div>
                 </div>
-                <p className="mt-4 truncate rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
-                  {item.path}
-                </p>
               </Link>
             ))}
           </div>
+        ) : hasContent ? (
+          <EmptySearch searchTerm={rawSearchTerm} />
         ) : (
           <EmptyDirectory />
         )}

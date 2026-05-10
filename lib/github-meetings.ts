@@ -35,7 +35,7 @@ export type MeetingMarkdown = MeetingSummary & {
 export type MeetingDirectoryContents = {
   path: string
   directories: GitHubContentItem[]
-  files: GitHubContentItem[]
+  files: MeetingSummary[]
 }
 
 export class InvalidMeetingPathError extends Error {}
@@ -207,7 +207,7 @@ export async function getMeetingDirectory(
         item.type === "dir" && !isHiddenDirectory(item),
     )
     .sort((left, right) => left.name.localeCompare(right.name))
-  const files = contents
+  const markdownFiles = contents
     .filter(
       (item: GitHubContentItem) =>
         item.type === "file" &&
@@ -215,6 +215,7 @@ export async function getMeetingDirectory(
         item.name.toLowerCase().endsWith(".md"),
     )
     .sort((left, right) => left.name.localeCompare(right.name))
+  const files = await Promise.all(markdownFiles.map(getMeetingSummary))
 
   return {
     path,
