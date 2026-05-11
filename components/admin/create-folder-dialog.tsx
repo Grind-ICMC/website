@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FolderPlus } from "lucide-react"
 
-import { createFolder } from "@/app/actions/github"
+import { createRepositoryFolder } from "@/app/actions/github"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,8 +16,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import {
+  getAdminRepositoryConfig,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
 
 type CreateFolderDialogProps = {
+  repository: AdminRepositorySlug
   currentPath: string
 }
 
@@ -27,8 +32,12 @@ function getErrorMessage(error: unknown) {
     : "Nao foi possivel criar a pasta."
 }
 
-export function CreateFolderDialog({ currentPath }: CreateFolderDialogProps) {
+export function CreateFolderDialog({
+  repository,
+  currentPath,
+}: CreateFolderDialogProps) {
   const router = useRouter()
+  const repositoryConfig = getAdminRepositoryConfig(repository)
   const [open, setOpen] = useState(false)
   const [folderName, setFolderName] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +49,7 @@ export function CreateFolderDialog({ currentPath }: CreateFolderDialogProps) {
     setIsSubmitting(true)
 
     try {
-      await createFolder(currentPath, folderName)
+      await createRepositoryFolder(repository, currentPath, folderName)
       setFolderName("")
       setOpen(false)
       router.refresh()
@@ -67,7 +76,8 @@ export function CreateFolderDialog({ currentPath }: CreateFolderDialogProps) {
         <DialogHeader>
           <DialogTitle>Nova pasta</DialogTitle>
           <DialogDescription className="text-slate-400">
-            A pasta sera criada no repositorio com um arquivo .gitkeep.
+            A pasta sera criada no repositorio {repositoryConfig.repo} com um
+            arquivo .gitkeep.
           </DialogDescription>
         </DialogHeader>
 

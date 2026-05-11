@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Trash2 } from "lucide-react"
 
-import { deleteFolder } from "@/app/actions/github"
+import { deleteRepositoryFolder } from "@/app/actions/github"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,8 +15,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import type { AdminRepositorySlug } from "@/lib/admin-repositories"
 
 type DeleteFolderDialogProps = {
+  repository: AdminRepositorySlug
   folderPath: string
   parentFolderHref: string
 }
@@ -28,6 +30,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function DeleteFolderDialog({
+  repository,
   folderPath,
   parentFolderHref,
 }: DeleteFolderDialogProps) {
@@ -42,7 +45,7 @@ export function DeleteFolderDialog({
     setIsDeleting(true)
 
     try {
-      await deleteFolder(folderPath)
+      await deleteRepositoryFolder(repository, folderPath)
       setOpen(false)
       router.push(parentFolderHref)
       router.refresh()

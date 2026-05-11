@@ -2,10 +2,12 @@ import "server-only"
 
 import matter from "gray-matter"
 
-const OWNER = "Grind-ICMC"
-const REPO = "meetings"
+import {
+  getAdminRepositoryConfig,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
+
 const GITHUB_API_VERSION = "2022-11-28"
-const CONTENTS_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
 export type GitHubContentItem = {
   name: string
@@ -19,27 +21,48 @@ type GitHubFileContent = GitHubContentItem & {
   sha?: string
 }
 
-export type MeetingSummary = {
+export type RepositoryDocumentSummary = {
   name: string
   path: string
   title: string
   directory: string
 }
 
-export type MeetingMarkdown = MeetingSummary & {
+export type RepositoryMarkdownDocument = RepositoryDocumentSummary & {
   content: string
   frontmatter: Record<string, unknown>
   sha: string
 }
 
-export type MeetingDirectoryContents = {
+export type RepositoryDirectoryContents = {
   path: string
   directories: GitHubContentItem[]
-  files: MeetingSummary[]
+  files: RepositoryDocumentSummary[]
 }
+
+export type MeetingSummary = RepositoryDocumentSummary
+export type MeetingMarkdown = RepositoryMarkdownDocument
+export type MeetingDirectoryContents = RepositoryDirectoryContents
 
 export class InvalidMeetingPathError extends Error {}
 export class GitHubContentNotFoundError extends Error {}
+export class InvalidAdminRepositoryError extends Error {}
+
+function getRepositoryConfig(repository: AdminRepositorySlug) {
+  const config = getAdminRepositoryConfig(repository)
+
+  if (!config) {
+    throw new InvalidAdminRepositoryError("Invalid admin repository")
+  }
+
+  return config
+}
+
+function getContentsUrl(repository: AdminRepositorySlug) {
+  const config = getRepositoryConfig(repository)
+
+  return `https://api.github.com/repos/${config.owner}/${config.repo}/contents`
+}
 
 export function getGitHubHeaders() {
   const token = process.env.GITHUB_ADMIN_TOKEN
@@ -74,7 +97,7 @@ export function assertValidMarkdownPath(path: string) {
     !path.toLowerCase().endsWith(".md") ||
     segments.some((segment) => !segment || segment === "." || segment === "..")
   ) {
-    throw new InvalidMeetingPathError("Invalid meeting path")
+    throw new InvalidMeetingPathError("Invalid markdown path")
   }
 }
 
@@ -107,10 +130,14 @@ export function assertValidFolderName(folderName: string) {
   return name
 }
 
-async function fetchGitHubContents(path = "") {
+async function fetchGitHubContents(
+  repository: AdminRepositorySlug,
+  path = "",
+) {
   const encodedPath = encodeGitHubPath(path)
+  const contentsUrl = getContentsUrl(repository)
   const response = await fetch(
-    encodedPath ? `${CONTENTS_URL}/${encodedPath}` : CONTENTS_URL,
+    encodedPath ? `${contentsUrl}/${encodedPath}` : contentsUrl,
     {
       cache: "no-store",
       headers: getGitHubHeaders(),
@@ -153,49 +180,59 @@ function isHiddenDirectory(item: GitHubContentItem) {
   return item.name.toLowerCase() === "imgs"
 }
 
-async function getMeetingSummary(item: GitHubContentItem) {
+async function getRepositoryDocumentSummary(
+  repository: AdminRepositorySlug,
+  item: GitHubContentItem,
+) {
   try {
-    const meeting = await getMeetingMarkdown(item.path)
+    const document = await getRepositoryMarkdown(repository, item.path)
     return {
-      name: meeting.name,
-      path: meeting.path,
-      title: meeting.title,
-      directory: meeting.directory,
-    } satisfies MeetingSummary
+      name: document.name,
+      path: document.path,
+      title: document.title,
+      directory: document.directory,
+    } satisfies RepositoryDocumentSummary
   } catch {
     return {
       name: item.name,
       path: item.path,
       title: getDisplayTitle(item.path, {}),
       directory: getDirectory(item.path),
-    } satisfies MeetingSummary
+    } satisfies RepositoryDocumentSummary
   }
 }
 
-export function getMeetingHref(path: string) {
-  return `/admin/meetings/doc/${encodeGitHubPath(path)}`
+export function getRepositoryDocumentHref(
+  repository: AdminRepositorySlug,
+  path: string,
+) {
+  return `/admin/${repository}/doc/${encodeGitHubPath(path)}`
 }
 
-export function getMeetingFolderHref(path = "") {
+export function getRepositoryFolderHref(
+  repository: AdminRepositorySlug,
+  path = "",
+) {
   const encodedPath = encodeGitHubPath(path)
 
   if (!encodedPath) {
-    return "/admin/meetings"
+    return `/admin/${repository}`
   }
 
-  return `/admin/meetings/${encodedPath}`
+  return `/admin/${repository}/${encodedPath}`
 }
 
 export function getParentPath(path: string) {
   return path.split("/").filter(Boolean).slice(0, -1).join("/")
 }
 
-export async function getMeetingDirectory(
+export async function getRepositoryDirectory(
+  repository: AdminRepositorySlug,
   path = "",
-): Promise<MeetingDirectoryContents> {
+): Promise<RepositoryDirectoryContents> {
   assertValidDirectoryPath(path)
 
-  const contents = await fetchGitHubContents(path)
+  const contents = await fetchGitHubContents(repository, path)
 
   if (!Array.isArray(contents)) {
     throw new GitHubContentNotFoundError("GitHub directory not found")
@@ -215,7 +252,9 @@ export async function getMeetingDirectory(
         item.name.toLowerCase().endsWith(".md"),
     )
     .sort((left, right) => left.name.localeCompare(right.name))
-  const files = await Promise.all(markdownFiles.map(getMeetingSummary))
+  const files = await Promise.all(
+    markdownFiles.map((item) => getRepositoryDocumentSummary(repository, item)),
+  )
 
   return {
     path,
@@ -224,36 +263,42 @@ export async function getMeetingDirectory(
   }
 }
 
-export async function getMeetingFiles(path = ""): Promise<MeetingSummary[]> {
-  const contents = await fetchGitHubContents(path)
+export async function getRepositoryFiles(
+  repository: AdminRepositorySlug,
+  path = "",
+): Promise<RepositoryDocumentSummary[]> {
+  const contents = await fetchGitHubContents(repository, path)
 
   if (!Array.isArray(contents)) {
     return []
   }
 
-  const meetings = await Promise.all(
+  const documents = await Promise.all(
     contents.map(async (item: GitHubContentItem) => {
       if (item.type === "dir") {
-        return getMeetingFiles(item.path)
+        return getRepositoryFiles(repository, item.path)
       }
 
       if (item.type === "file" && item.name.toLowerCase().endsWith(".md")) {
-        return [await getMeetingSummary(item)]
+        return [await getRepositoryDocumentSummary(repository, item)]
       }
 
       return []
     }),
   )
 
-  return meetings
+  return documents
     .flat()
     .sort((left, right) => right.path.localeCompare(left.path))
 }
 
-export async function getMeetingMarkdown(path: string): Promise<MeetingMarkdown> {
+export async function getRepositoryMarkdown(
+  repository: AdminRepositorySlug,
+  path: string,
+): Promise<RepositoryMarkdownDocument> {
   assertValidMarkdownPath(path)
 
-  const content = await fetchGitHubContents(path)
+  const content = await fetchGitHubContents(repository, path)
 
   if (
     Array.isArray(content) ||
@@ -289,4 +334,28 @@ export async function getMeetingMarkdown(path: string): Promise<MeetingMarkdown>
     frontmatter,
     sha: file.sha,
   }
+}
+
+export function getMeetingHref(path: string) {
+  return getRepositoryDocumentHref("meetings", path)
+}
+
+export function getMeetingFolderHref(path = "") {
+  return getRepositoryFolderHref("meetings", path)
+}
+
+export async function getMeetingDirectory(
+  path = "",
+): Promise<MeetingDirectoryContents> {
+  return getRepositoryDirectory("meetings", path)
+}
+
+export async function getMeetingFiles(path = ""): Promise<MeetingSummary[]> {
+  return getRepositoryFiles("meetings", path)
+}
+
+export async function getMeetingMarkdown(
+  path: string,
+): Promise<MeetingMarkdown> {
+  return getRepositoryMarkdown("meetings", path)
 }

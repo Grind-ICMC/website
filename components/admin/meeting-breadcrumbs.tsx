@@ -1,13 +1,18 @@
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 
-import { getMeetingFolderHref } from "@/lib/github-meetings"
+import type { AdminRepositorySlug } from "@/lib/admin-repositories"
+import { getRepositoryFolderHref } from "@/lib/github-meetings"
 
 type MeetingBreadcrumbsProps = {
+  repository: AdminRepositorySlug
   path: string
 }
 
-export function MeetingBreadcrumbs({ path }: MeetingBreadcrumbsProps) {
+export function MeetingBreadcrumbs({
+  repository,
+  path,
+}: MeetingBreadcrumbsProps) {
   const segments = path.split("/").filter(Boolean)
 
   return (
@@ -16,13 +21,16 @@ export function MeetingBreadcrumbs({ path }: MeetingBreadcrumbsProps) {
       className="mb-6 flex flex-wrap items-center gap-2 text-sm"
     >
       <Link
-        href="/admin/meetings"
+        href={getRepositoryFolderHref(repository)}
         className="font-medium text-cyan-300 transition hover:text-cyan-100"
       >
         Root
       </Link>
       {segments.map((segment, index) => {
-        const href = getMeetingFolderHref(segments.slice(0, index + 1).join("/"))
+        const href = getRepositoryFolderHref(
+          repository,
+          segments.slice(0, index + 1).join("/"),
+        )
 
         return (
           <div key={`${segment}-${index}`} className="flex items-center gap-2">

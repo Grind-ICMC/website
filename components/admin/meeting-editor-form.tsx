@@ -13,9 +13,13 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Image as ImageIcon } from "lucide-react"
 
-import { deleteUploadedImage, uploadImage } from "@/app/actions/github"
+import {
+  deleteRepositoryUploadedImage,
+  uploadRepositoryImage,
+} from "@/app/actions/github"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import type { AdminRepositorySlug } from "@/lib/admin-repositories"
 import {
   getGeneratedMeetingPath,
   MEETING_CATEGORIES,
@@ -24,9 +28,10 @@ import {
   type MeetingCategory,
   type MeetingEditorValues,
 } from "@/lib/meeting-cms"
-import { getMeetingImageSrc } from "@/lib/meeting-image-src"
+import { getRepositoryImageSrc } from "@/lib/meeting-image-src"
 
 type MeetingEditorFormProps = {
+  repository: AdminRepositorySlug
   initialValues: MeetingEditorValues
   submitLabel: string
   fixedPath?: string
@@ -116,6 +121,7 @@ function getClipboardImage(event: ClipboardEvent<HTMLTextAreaElement>) {
 }
 
 export function MeetingEditorForm({
+  repository,
   initialValues,
   submitLabel,
   fixedPath,
@@ -222,7 +228,12 @@ export function MeetingEditorForm({
       await Promise.all(
         uploads.map(async (upload) => {
           try {
-            await deleteUploadedImage(uploadDirectory, upload.path, upload.sha)
+            await deleteRepositoryUploadedImage(
+              repository,
+              uploadDirectory,
+              upload.path,
+              upload.sha,
+            )
           } catch {
             failedUploads.push(upload)
           }
@@ -291,7 +302,7 @@ export function MeetingEditorForm({
       return previewImageSources[source]
     }
 
-    return getMeetingImageSrc(uploadDirectory, source)
+    return getRepositoryImageSrc(repository, uploadDirectory, source)
   }
 
   async function uploadAndInsertImage(file: File, fileName: string) {
@@ -302,7 +313,12 @@ export function MeetingEditorForm({
 
     const uploadTask = (async () => {
       const dataUrl = await readFileAsDataUrl(file)
-      const result = await uploadImage(uploadDirectory, fileName, dataUrl)
+      const result = await uploadRepositoryImage(
+        repository,
+        uploadDirectory,
+        fileName,
+        dataUrl,
+      )
       const imageMarkdown = `![Image](${result.path})`
 
       pendingImageUploadsRef.current = [
