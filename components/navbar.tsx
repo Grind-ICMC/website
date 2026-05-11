@@ -87,7 +87,7 @@ export function Navbar() {
           {/* Actions */}
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Globe className="h-4 w-4" />
