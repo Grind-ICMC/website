@@ -3,7 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import {
+  BookOpenText,
   FileText,
+  GraduationCap,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -37,6 +39,16 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/meetings",
     label: "Atas da Reunião",
     Icon: FileText,
+  },
+  {
+    href: "/admin/docs",
+    label: "Docs",
+    Icon: BookOpenText,
+  },
+  {
+    href: "/admin/studies",
+    label: "Studies",
+    Icon: GraduationCap,
   },
   {
     href: "/admin/members",

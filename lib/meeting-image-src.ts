@@ -1,3 +1,5 @@
+import type { AdminRepositorySlug } from "@/lib/admin-repositories"
+
 function isPassthroughImageSrc(source: string) {
   return (
     source.startsWith("http://") ||
@@ -33,12 +35,20 @@ export function getMeetingDocumentDirectory(path: string) {
   return normalizeRepoPath(path).split("/").filter(Boolean).slice(0, -1).join("/")
 }
 
-export function getMeetingImageSrc(documentDirectory: string, source: string) {
+export function getRepositoryImageSrc(
+  repository: AdminRepositorySlug,
+  documentDirectory: string,
+  source: string,
+) {
   if (!source || isPassthroughImageSrc(source)) {
     return source
   }
 
   const imagePath = normalizeRepoPath(documentDirectory, source)
 
-  return `/api/admin/meetings/image?path=${encodeURIComponent(imagePath)}`
+  return `/api/admin/${repository}/image?path=${encodeURIComponent(imagePath)}`
+}
+
+export function getMeetingImageSrc(documentDirectory: string, source: string) {
+  return getRepositoryImageSrc("meetings", documentDirectory, source)
 }

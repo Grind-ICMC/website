@@ -1,9 +1,6 @@
 import { auth } from "@/auth"
+import { getAdminRepositoryConfig } from "@/lib/admin-repositories"
 import { encodeGitHubPath, getGitHubHeaders } from "@/lib/github-meetings"
-
-const OWNER = "Grind-ICMC"
-const REPO = "meetings"
-const CONTENTS_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
 const IMAGE_CONTENT_TYPES: Record<string, string> = {
   gif: "image/gif",
@@ -12,6 +9,12 @@ const IMAGE_CONTENT_TYPES: Record<string, string> = {
   png: "image/png",
   svg: "image/svg+xml",
   webp: "image/webp",
+}
+
+type ImageRouteContext = {
+  params: Promise<{
+    repository: string
+  }>
 }
 
 function getImageContentType(path: string) {
@@ -33,11 +36,18 @@ function isValidImagePath(path: string) {
   )
 }
 
-export async function GET(request: Request) {
+export async function GET(request: Request, context: ImageRouteContext) {
   const session = await auth()
 
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 })
+  }
+
+  const { repository } = await context.params
+  const repositoryConfig = getAdminRepositoryConfig(repository)
+
+  if (!repositoryConfig) {
+    return new Response("Repository not found", { status: 404 })
   }
 
   const { searchParams } = new URL(request.url)
@@ -48,13 +58,16 @@ export async function GET(request: Request) {
     return new Response("Invalid image path", { status: 400 })
   }
 
-  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
-    cache: "no-store",
-    headers: {
-      ...getGitHubHeaders(),
-      Accept: "application/vnd.github.raw",
+  const response = await fetch(
+    `https://api.github.com/repos/${repositoryConfig.owner}/${repositoryConfig.repo}/contents/${encodeGitHubPath(path)}`,
+    {
+      cache: "no-store",
+      headers: {
+        ...getGitHubHeaders(),
+        Accept: "application/vnd.github.raw",
+      },
     },
-  })
+  )
 
   if (response.status === 404) {
     return new Response("Image not found", { status: 404 })

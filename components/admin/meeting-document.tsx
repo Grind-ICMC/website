@@ -6,7 +6,10 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Edit3, FileText, FolderTree, Trash2 } from "lucide-react"
 
-import { deleteMeeting, updateMeeting } from "@/app/actions/github"
+import {
+  deleteRepositoryDocument,
+  updateRepositoryDocument,
+} from "@/app/actions/github"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
 import {
   AlertDialog,
@@ -21,12 +24,17 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
+  getAdminRepositoryConfig,
+  getRepositoryFullName,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
+import {
   type MeetingEditorValues,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
 import {
   getMeetingDocumentDirectory,
-  getMeetingImageSrc,
+  getRepositoryImageSrc,
 } from "@/lib/meeting-image-src"
 
 type MeetingDocumentState = {
@@ -38,6 +46,7 @@ type MeetingDocumentState = {
 }
 
 type MeetingDocumentProps = {
+  repository: AdminRepositorySlug
   initialMeeting: MeetingDocumentState
   parentFolderHref: string
 }
@@ -48,11 +57,17 @@ function getErrorMessage(error: unknown) {
     : "Nao foi possivel concluir a operacao."
 }
 
+function capitalizeLabel(label: string) {
+  return label.charAt(0).toLocaleUpperCase("pt-BR") + label.slice(1)
+}
+
 export function MeetingDocument({
+  repository,
   initialMeeting,
   parentFolderHref,
 }: MeetingDocumentProps) {
   const router = useRouter()
+  const repositoryConfig = getAdminRepositoryConfig(repository)
   const [meeting, setMeeting] = useState(initialMeeting)
   const [isEditing, setIsEditing] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -61,7 +76,8 @@ export function MeetingDocument({
 
   async function handleUpdate(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
-    const result = await updateMeeting(
+    const result = await updateRepositoryDocument(
+      repository,
       meeting.path,
       meeting.sha,
       frontmatter,
@@ -84,7 +100,7 @@ export function MeetingDocument({
     setIsDeleting(true)
 
     try {
-      await deleteMeeting(meeting.path, meeting.sha)
+      await deleteRepositoryDocument(repository, meeting.path, meeting.sha)
       router.push(parentFolderHref)
       router.refresh()
     } catch (error) {
@@ -101,7 +117,7 @@ export function MeetingDocument({
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-sm font-medium text-cyan-300">
               <FileText className="size-4" aria-hidden="true" />
-              Ata da reunião
+              {capitalizeLabel(repositoryConfig.documentLabel)}
             </p>
             <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
               {meeting.title}
@@ -140,9 +156,9 @@ export function MeetingDocument({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir documento?</AlertDialogTitle>
                   <AlertDialogDescription className="text-slate-400">
-                    Esta acao remove {meeting.path} do repositorio
-                    Grind-ICMC/meetings. Ela cria um commit de exclusao no
-                    GitHub.
+                    Esta acao remove {meeting.path} do repositorio{" "}
+                    {getRepositoryFullName(repositoryConfig)}. Ela cria um
+                    commit de exclusao no GitHub.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -177,6 +193,7 @@ export function MeetingDocument({
 
       {isEditing ? (
         <MeetingEditorForm
+          repository={repository}
           fixedPath={meeting.path}
           initialValues={{
             ...meeting.frontmatter,
@@ -198,7 +215,8 @@ export function MeetingDocument({
                 img: ({ node: _node, src, alt, ...props }) => (
                   <img
                     {...props}
-                    src={getMeetingImageSrc(
+                    src={getRepositoryImageSrc(
+                      repository,
                       documentDirectory,
                       typeof src === "string" ? src : "",
                     )}

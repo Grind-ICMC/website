@@ -2,8 +2,12 @@
 
 import { useRouter } from "next/navigation"
 
-import { createMeeting } from "@/app/actions/github"
+import { createRepositoryDocument } from "@/app/actions/github"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
+import {
+  getAdminRepositoryConfig,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
 import {
   getGeneratedMeetingPath,
   getTodayInputDate,
@@ -11,17 +15,20 @@ import {
 } from "@/lib/meeting-cms"
 
 type MeetingCreateFormProps = {
+  repository: AdminRepositorySlug
   defaultAuthor: string
   currentPath: string
   currentFolderHref: string
 }
 
 export function MeetingCreateForm({
+  repository,
   defaultAuthor,
   currentPath,
   currentFolderHref,
 }: MeetingCreateFormProps) {
   const router = useRouter()
+  const repositoryConfig = getAdminRepositoryConfig(repository)
 
   async function handleSubmit(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
@@ -31,13 +38,14 @@ export function MeetingCreateForm({
       .filter(Boolean)
       .join("/")
 
-    await createMeeting(path, frontmatter, content)
+    await createRepositoryDocument(repository, path, frontmatter, content)
     router.push(currentFolderHref)
     router.refresh()
   }
 
   return (
     <MeetingEditorForm
+      repository={repository}
       initialValues={{
         title: "",
         author: defaultAuthor,
@@ -46,7 +54,7 @@ export function MeetingCreateForm({
         tags: [],
         content: "",
       }}
-      submitLabel="Criar documento"
+      submitLabel={repositoryConfig.createSubmitLabel}
       pathPrefix={currentPath}
       onSubmit={handleSubmit}
     />

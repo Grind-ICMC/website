@@ -5,23 +5,24 @@ import { revalidatePath } from "next/cache"
 
 import { auth } from "@/auth"
 import {
+  getAdminRepositoryConfig,
+  type AdminRepositoryConfig,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
+import {
   assertValidDirectoryPath,
   assertValidFolderName,
   assertValidMarkdownPath,
   encodeGitHubPath,
   getGitHubHeaders,
-  getMeetingFolderHref,
-  getMeetingHref,
   getParentPath,
+  getRepositoryDocumentHref,
+  getRepositoryFolderHref,
 } from "@/lib/github-meetings"
 import {
   normalizeMeetingFrontmatter,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
-
-const OWNER = "Grind-ICMC"
-const REPO = "meetings"
-const CONTENTS_URL = `https://api.github.com/repos/${OWNER}/${REPO}/contents`
 
 type GitHubWriteResponse = {
   content?: {
@@ -47,6 +48,20 @@ async function requireSession() {
   if (!session?.user) {
     throw new Error("Voce precisa estar autenticado para alterar documentos.")
   }
+}
+
+function getRepositoryConfig(repository: AdminRepositorySlug) {
+  const config = getAdminRepositoryConfig(repository)
+
+  if (!config) {
+    throw new Error("Repositorio administrativo invalido.")
+  }
+
+  return config
+}
+
+function getContentsUrl(repository: AdminRepositoryConfig) {
+  return `https://api.github.com/repos/${repository.owner}/${repository.repo}/contents`
 }
 
 function getActionHeaders() {
@@ -132,17 +147,17 @@ function joinGitHubPath(...parts: string[]) {
     .join("/")
 }
 
-function revalidateMeeting(path: string) {
+function revalidateDocument(repository: AdminRepositorySlug, path: string) {
   const parentPath = getParentPath(path)
 
-  revalidatePath("/admin/meetings")
-  revalidatePath(getMeetingHref(path))
-  revalidatePath(getMeetingFolderHref(parentPath))
+  revalidatePath(getRepositoryFolderHref(repository))
+  revalidatePath(getRepositoryDocumentHref(repository, path))
+  revalidatePath(getRepositoryFolderHref(repository, parentPath))
 }
 
-function revalidateFolder(path: string) {
-  revalidatePath("/admin/meetings")
-  revalidatePath(getMeetingFolderHref(path))
+function revalidateFolder(repository: AdminRepositorySlug, path: string) {
+  revalidatePath(getRepositoryFolderHref(repository))
+  revalidatePath(getRepositoryFolderHref(repository, path))
 }
 
 function sanitizeFileName(fileName: string) {
@@ -201,11 +216,20 @@ function assertValidImageRelativePath(path: string) {
   return normalized
 }
 
-async function fetchDirectoryContents(path: string) {
-  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
-    cache: "no-store",
-    headers: getGitHubHeaders(),
-  })
+async function fetchDirectoryContents(
+  repository: AdminRepositorySlug,
+  path: string,
+) {
+  const config = getRepositoryConfig(repository)
+  const encodedPath = encodeGitHubPath(path)
+  const contentsUrl = getContentsUrl(config)
+  const response = await fetch(
+    encodedPath ? `${contentsUrl}/${encodedPath}` : contentsUrl,
+    {
+      cache: "no-store",
+      headers: getGitHubHeaders(),
+    },
+  )
 
   await assertGitHubResponse(response)
 
@@ -218,8 +242,11 @@ async function fetchDirectoryContents(path: string) {
   return contents as GitHubContentsResponseItem[]
 }
 
-async function collectFolderFiles(path: string): Promise<GitHubFileToDelete[]> {
-  const contents = await fetchDirectoryContents(path)
+async function collectFolderFiles(
+  repository: AdminRepositorySlug,
+  path: string,
+): Promise<GitHubFileToDelete[]> {
+  const contents = await fetchDirectoryContents(repository, path)
   const files: GitHubFileToDelete[] = []
 
   for (const item of contents) {
@@ -228,7 +255,7 @@ async function collectFolderFiles(path: string): Promise<GitHubFileToDelete[]> {
         throw new Error("A API do GitHub retornou uma pasta sem caminho.")
       }
 
-      files.push(...(await collectFolderFiles(item.path)))
+      files.push(...(await collectFolderFiles(repository, item.path)))
       continue
     }
 
@@ -247,22 +274,27 @@ async function collectFolderFiles(path: string): Promise<GitHubFileToDelete[]> {
   return files
 }
 
-export async function createMeeting(
+export async function createRepositoryDocument(
+  repository: AdminRepositorySlug,
   path: string,
   frontmatterData: MeetingFrontmatterData,
   markdownContent: string,
 ) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidMarkdownPath(path)
 
-  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
-    method: "PUT",
-    headers: getActionHeaders(),
-    body: JSON.stringify({
-      message: `Create meeting: ${path}`,
-      content: serializeMeetingContent(frontmatterData, markdownContent),
-    }),
-  })
+  const response = await fetch(
+    `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
+    {
+      method: "PUT",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Create ${config.repo} document: ${path}`,
+        content: serializeMeetingContent(frontmatterData, markdownContent),
+      }),
+    },
+  )
 
   await assertGitHubResponse(response)
 
@@ -273,7 +305,7 @@ export async function createMeeting(
     throw new Error("O GitHub nao retornou o novo SHA do arquivo.")
   }
 
-  revalidateMeeting(path)
+  revalidateDocument(repository, path)
 
   return {
     path: result.content?.path ?? path,
@@ -281,25 +313,30 @@ export async function createMeeting(
   }
 }
 
-export async function updateMeeting(
+export async function updateRepositoryDocument(
+  repository: AdminRepositorySlug,
   path: string,
   sha: string,
   frontmatterData: MeetingFrontmatterData,
   markdownContent: string,
 ) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidMarkdownPath(path)
   assertValidSha(sha)
 
-  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
-    method: "PUT",
-    headers: getActionHeaders(),
-    body: JSON.stringify({
-      message: `Update meeting: ${path}`,
-      content: serializeMeetingContent(frontmatterData, markdownContent),
-      sha,
-    }),
-  })
+  const response = await fetch(
+    `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
+    {
+      method: "PUT",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Update ${config.repo} document: ${path}`,
+        content: serializeMeetingContent(frontmatterData, markdownContent),
+        sha,
+      }),
+    },
+  )
 
   await assertGitHubResponse(response)
 
@@ -310,7 +347,7 @@ export async function updateMeeting(
     throw new Error("O GitHub nao retornou o novo SHA do arquivo.")
   }
 
-  revalidateMeeting(path)
+  revalidateDocument(repository, path)
 
   return {
     path: result.content?.path ?? path,
@@ -318,30 +355,43 @@ export async function updateMeeting(
   }
 }
 
-export async function deleteMeeting(path: string, sha: string) {
+export async function deleteRepositoryDocument(
+  repository: AdminRepositorySlug,
+  path: string,
+  sha: string,
+) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidMarkdownPath(path)
   assertValidSha(sha)
 
-  const response = await fetch(`${CONTENTS_URL}/${encodeGitHubPath(path)}`, {
-    method: "DELETE",
-    headers: getActionHeaders(),
-    body: JSON.stringify({
-      message: `Delete meeting: ${path}`,
-      sha,
-    }),
-  })
+  const response = await fetch(
+    `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
+    {
+      method: "DELETE",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Delete ${config.repo} document: ${path}`,
+        sha,
+      }),
+    },
+  )
 
   await assertGitHubResponse(response)
-  revalidateMeeting(path)
+  revalidateDocument(repository, path)
 
   return {
     path,
   }
 }
 
-export async function createFolder(currentPath: string, folderName: string) {
+export async function createRepositoryFolder(
+  repository: AdminRepositorySlug,
+  currentPath: string,
+  folderName: string,
+) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidDirectoryPath(currentPath)
 
   const name = assertValidFolderName(folderName)
@@ -349,31 +399,33 @@ export async function createFolder(currentPath: string, folderName: string) {
   const keepFilePath = joinGitHubPath(folderPath, ".gitkeep")
 
   const response = await fetch(
-    `${CONTENTS_URL}/${encodeGitHubPath(keepFilePath)}`,
+    `${getContentsUrl(config)}/${encodeGitHubPath(keepFilePath)}`,
     {
       method: "PUT",
       headers: getActionHeaders(),
       body: JSON.stringify({
-        message: `Create folder: ${folderPath}`,
+        message: `Create folder in ${config.repo}: ${folderPath}`,
         content: Buffer.from("Keep directory", "utf8").toString("base64"),
       }),
     },
   )
 
   await assertGitHubResponse(response)
-  revalidateFolder(currentPath)
+  revalidateFolder(repository, currentPath)
 
   return {
     path: folderPath,
   }
 }
 
-export async function uploadImage(
+export async function uploadRepositoryImage(
+  repository: AdminRepositorySlug,
   currentPath: string,
   fileName: string,
   base64Content: string,
 ) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidDirectoryPath(currentPath)
 
   const safeFileName = sanitizeFileName(fileName)
@@ -386,12 +438,12 @@ export async function uploadImage(
   const relativePath = `imgs/${safeFileName}`
   const imagePath = joinGitHubPath(currentPath, relativePath)
   const response = await fetch(
-    `${CONTENTS_URL}/${encodeGitHubPath(imagePath)}`,
+    `${getContentsUrl(config)}/${encodeGitHubPath(imagePath)}`,
     {
       method: "PUT",
       headers: getActionHeaders(),
       body: JSON.stringify({
-        message: `Upload image: ${imagePath}`,
+        message: `Upload image to ${config.repo}: ${imagePath}`,
         content,
       }),
     },
@@ -406,7 +458,7 @@ export async function uploadImage(
     throw new Error("O GitHub nao retornou o SHA da imagem.")
   }
 
-  revalidateFolder(currentPath)
+  revalidateFolder(repository, currentPath)
 
   return {
     path: relativePath,
@@ -414,24 +466,26 @@ export async function uploadImage(
   }
 }
 
-export async function deleteUploadedImage(
+export async function deleteRepositoryUploadedImage(
+  repository: AdminRepositorySlug,
   currentPath: string,
   relativePath: string,
   sha: string,
 ) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidDirectoryPath(currentPath)
   assertValidSha(sha)
 
   const safeRelativePath = assertValidImageRelativePath(relativePath)
   const imagePath = joinGitHubPath(currentPath, safeRelativePath)
   const response = await fetch(
-    `${CONTENTS_URL}/${encodeGitHubPath(imagePath)}`,
+    `${getContentsUrl(config)}/${encodeGitHubPath(imagePath)}`,
     {
       method: "DELETE",
       headers: getActionHeaders(),
       body: JSON.stringify({
-        message: `Delete unsaved uploaded image: ${imagePath}`,
+        message: `Delete unsaved uploaded image from ${config.repo}: ${imagePath}`,
         sha,
       }),
     },
@@ -441,32 +495,36 @@ export async function deleteUploadedImage(
     await assertGitHubResponse(response)
   }
 
-  revalidateFolder(currentPath)
-  revalidateFolder(joinGitHubPath(currentPath, "imgs"))
+  revalidateFolder(repository, currentPath)
+  revalidateFolder(repository, joinGitHubPath(currentPath, "imgs"))
 
   return {
     success: true,
   }
 }
 
-export async function deleteFolder(folderPath: string) {
+export async function deleteRepositoryFolder(
+  repository: AdminRepositorySlug,
+  folderPath: string,
+) {
   await requireSession()
+  const config = getRepositoryConfig(repository)
   assertValidDirectoryPath(folderPath)
 
   if (!folderPath.trim()) {
     throw new Error("Nao e possivel excluir a pasta raiz do repositorio.")
   }
 
-  const files = await collectFolderFiles(folderPath)
+  const files = await collectFolderFiles(repository, folderPath)
 
   for (const file of files) {
     const response = await fetch(
-      `${CONTENTS_URL}/${encodeGitHubPath(file.path)}`,
+      `${getContentsUrl(config)}/${encodeGitHubPath(file.path)}`,
       {
         method: "DELETE",
         headers: getActionHeaders(),
         body: JSON.stringify({
-          message: `Delete file from folder ${folderPath}: ${file.path}`,
+          message: `Delete file from ${config.repo} folder ${folderPath}: ${file.path}`,
           sha: file.sha,
         }),
       },
@@ -477,10 +535,76 @@ export async function deleteFolder(folderPath: string) {
 
   const parentPath = getParentPath(folderPath)
 
-  revalidateFolder(parentPath)
-  revalidatePath(getMeetingFolderHref(folderPath))
+  revalidateFolder(repository, parentPath)
+  revalidatePath(getRepositoryFolderHref(repository, folderPath))
 
   return {
     success: true,
   }
+}
+
+export async function createMeeting(
+  path: string,
+  frontmatterData: MeetingFrontmatterData,
+  markdownContent: string,
+) {
+  return createRepositoryDocument(
+    "meetings",
+    path,
+    frontmatterData,
+    markdownContent,
+  )
+}
+
+export async function updateMeeting(
+  path: string,
+  sha: string,
+  frontmatterData: MeetingFrontmatterData,
+  markdownContent: string,
+) {
+  return updateRepositoryDocument(
+    "meetings",
+    path,
+    sha,
+    frontmatterData,
+    markdownContent,
+  )
+}
+
+export async function deleteMeeting(path: string, sha: string) {
+  return deleteRepositoryDocument("meetings", path, sha)
+}
+
+export async function createFolder(currentPath: string, folderName: string) {
+  return createRepositoryFolder("meetings", currentPath, folderName)
+}
+
+export async function uploadImage(
+  currentPath: string,
+  fileName: string,
+  base64Content: string,
+) {
+  return uploadRepositoryImage(
+    "meetings",
+    currentPath,
+    fileName,
+    base64Content,
+  )
+}
+
+export async function deleteUploadedImage(
+  currentPath: string,
+  relativePath: string,
+  sha: string,
+) {
+  return deleteRepositoryUploadedImage(
+    "meetings",
+    currentPath,
+    relativePath,
+    sha,
+  )
+}
+
+export async function deleteFolder(folderPath: string) {
+  return deleteRepositoryFolder("meetings", folderPath)
 }
