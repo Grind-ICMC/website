@@ -11,7 +11,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { GiIciclesAura } from "react-icons/gi"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -22,6 +21,7 @@ type AdminShellProps = {
   children: ReactNode
   userName: string
   userEmail?: string | null
+  userImage?: string | null
   initials: string
   signOutAction: () => Promise<void>
 }
@@ -45,10 +45,38 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
 ]
 
+function UserAvatar({
+  image,
+  initials,
+  userName,
+}: {
+  image?: string | null
+  initials: string
+  userName: string
+}) {
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={`Foto de perfil de ${userName}`}
+        className="size-10 shrink-0 rounded-full border border-cyan-400/25 bg-slate-900 object-cover"
+        referrerPolicy="no-referrer"
+      />
+    )
+  }
+
+  return (
+    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-slate-800 text-sm font-semibold text-cyan-200">
+      {initials || "GI"}
+    </div>
+  )
+}
+
 export function AdminShell({
   children,
   userName,
   userEmail,
+  userImage,
   initials,
   signOutAction,
 }: AdminShellProps) {
@@ -71,11 +99,11 @@ export function AdminShell({
   }, [hasHydrated, isCollapsed])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pt-16">
+    <div className="min-h-screen bg-transparent text-slate-100 pt-16">
       <div className="flex min-h-[calc(100vh-4rem)] w-full flex-col lg:flex-row">
         <aside
           className={cn(
-            "border-b border-cyan-400/15 bg-slate-950/95 px-5 py-5 transition-[width,padding] duration-200 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-r lg:border-b-0 z-40",
+            "border-b border-cyan-400/15 bg-background/90 px-5 py-5 backdrop-blur-md transition-[width,padding] duration-200 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-r lg:border-b-0 z-40",
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >
@@ -93,9 +121,11 @@ export function AdminShell({
                 isCollapsed && "lg:justify-center",
               )}
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-cyan-400/20 bg-slate-900 text-cyan-400">
-                <GiIciclesAura className="size-6" aria-hidden="true" />
-              </div>
+              <UserAvatar
+                image={userImage}
+                initials={initials}
+                userName={userName}
+              />
               <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
                 <p className="truncate text-sm font-medium text-cyan-300">
                   Grind ICMC
@@ -158,9 +188,11 @@ export function AdminShell({
                 isCollapsed && "lg:justify-center",
               )}
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-slate-800 text-sm font-semibold text-cyan-200">
-                {initials || "GI"}
-              </div>
+              <UserAvatar
+                image={userImage}
+                initials={initials}
+                userName={userName}
+              />
               <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
                 <p className="truncate text-sm font-medium text-white">
                   {userName}

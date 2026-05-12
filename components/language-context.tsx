@@ -58,6 +58,14 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Team
     "team.title": "Nossa Equipe",
+    "team.currentMembers": "Membros Atuais",
+    "team.alumniMembers": "Membros Alumni",
+    "team.pagination": "Paginação da equipe",
+    "team.previous": "Anterior",
+    "team.next": "Próxima",
+    "team.previousPage": "Ir para a página anterior",
+    "team.nextPage": "Ir para a próxima página",
+    "team.page": "Ir para a página {page}",
 
     // ICMC
     "icmc.title": "Instituto de Ciências Matemáticas e de Computação",
@@ -146,6 +154,14 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Team
     "team.title": "Our Team",
+    "team.currentMembers": "Current Members",
+    "team.alumniMembers": "Alumni Members",
+    "team.pagination": "Team pagination",
+    "team.previous": "Previous",
+    "team.next": "Next",
+    "team.previousPage": "Go to previous page",
+    "team.nextPage": "Go to next page",
+    "team.page": "Go to page {page}",
 
     // ICMC
     "icmc.title": "Institute of Mathematics and Computer Sciences",
