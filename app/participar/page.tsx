@@ -1,13 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { GraduationCap, Globe, Youtube, Calendar, MessageCircle } from "lucide-react"
+import { GraduationCap, Globe, Youtube, Calendar, MessageCircle, ExternalLink } from "lucide-react"
 import { FaInstagram, FaLinkedin, FaDiscord, FaYoutube } from "react-icons/fa"
 
 import { useLanguage } from "@/components/language-context"
 import { ParticlesBackground } from "@/components/particles-background"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
+
+const signupFormUrl =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdfZe5K1Qb5GbPhmsphC-bGoqYCMOdELqJwVtLXMTr9eEThRg/viewform?usp=header"
 
 const socialLinks = [
   { icon: FaYoutube, href: "https://www.youtube.com/@GrindICMC", label: "YouTube", color: "hover:bg-red-600" },
@@ -76,12 +80,12 @@ function ParticiparContent() {
             }
           </p>
           <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <p className="text-sm text-primary font-medium">
-              {language === "pt" 
-                ? "Inscrições abertas no início de cada semestre letivo"
-                : "Applications open at the beginning of each semester"
-              }
-            </p>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={signupFormUrl} target="_blank" rel="noopener noreferrer">
+                {language === "pt" ? "Inscrever-se" : "Apply"}
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
 
