@@ -15,7 +15,7 @@ const signupFormUrl =
 
 const socialLinks = [
   { icon: FaYoutube, href: "https://www.youtube.com/@GrindICMC", label: "YouTube", color: "hover:bg-red-600" },
-  { icon: FaInstagram, href: "https://instagram.com/grindicmc", label: "Instagram", color: "hover:bg-pink-600" },
+  { icon: FaInstagram, href: "https://www.instagram.com/grind.icmc/", label: "Instagram", color: "hover:bg-pink-600" },
   { icon: FaLinkedin, href: "https://www.linkedin.com/company/grind-icmc", label: "LinkedIn", color: "hover:bg-blue-600" },
 ]
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { GiIciclesAura } from "react-icons/gi"
-import { FaGithub, FaYoutube, FaLinkedin } from "react-icons/fa"
+import { FaGithub, FaYoutube, FaLinkedin, FaInstagram } from "react-icons/fa"
 import { useLanguage } from "@/components/language-context"
 
 const socialLinks = [
@@ -15,6 +15,11 @@ const socialLinks = [
     name: "YouTube",
     href: "https://www.youtube.com/@GrindICMC",
     icon: FaYoutube,
+  },
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/grind.icmc/",
+    icon: FaInstagram,
   },
   {
     name: "LinkedIn",

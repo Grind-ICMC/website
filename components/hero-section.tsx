@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-context"
 
 export function HeroSection() {
-  const { language, t } = useLanguage()
+  const { t } = useLanguage()
 
   return (
     <section className="relative min-h-[85vh] flex items-center pt-16">
@@ -24,18 +24,8 @@ export function HeroSection() {
 
             {/* Headline */}
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
-              {language === "pt" ? (
-                <>
-                  {t("hero.title")}{" "}
-                  <span className="text-primary">{t("hero.titleHighlight")}</span>
-                </>
-              ) : (
-                <>
-                  {t("hero.title")}{" "}
-                  <span className="text-primary">{t("hero.titleHighlight")}</span>{" "}
-                  interviews
-                </>
-              )}
+              {t("hero.title")}{" "}
+              <span className="text-primary">{t("hero.titleHighlight")}</span>
             </h1>
 
             {/* Subtitle */}

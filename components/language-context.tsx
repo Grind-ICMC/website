@@ -23,8 +23,8 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Hero
     "hero.tag": "Grupo de Extensão ICMC-USP",
-    "hero.title": "Prepare-se para entrevistas de",
-    "hero.titleHighlight": "Big Tech",
+    "hero.title": "Prepare-se para entrevistas das",
+    "hero.titleHighlight": "Grandes Empresas de Tecnologia",
     "hero.subtitle": "Grupo de extensão do ICMC-USP focado na preparação completa para o mercado tech. Vamos além da técnica com algoritmos e System Design: nosso foco também é criar conexões, desenvolver soft skills e organizar ideias com clareza para você se destacar em entrevistas.",
     "hero.cta": "Participar",
     "hero.github": "GitHub",
@@ -118,9 +118,8 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Hero
     "hero.tag": "ICMC-USP Extension Group",
-    "hero.title": "Prepare for",
-    "hero.titleHighlight": "Big Tech",
-    "hero.titleEnd": "interviews",
+    "hero.title": "Ace Your Interviews at",
+    "hero.titleHighlight": "Leading Tech Companies",
     "hero.subtitle": "ICMC-USP extension group focused on complete preparation for the tech market. We go beyond technical skills like algorithms and System Design: our focus is also on building connections, developing soft skills, and organizing ideas clearly so you can stand out in interviews.",
     "hero.cta": "Join Us",
     "hero.github": "GitHub",
