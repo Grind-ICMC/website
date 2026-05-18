@@ -21,13 +21,13 @@ function readEnv(name: string) {
   return value
 }
 
-export function getMissingGitHubAuthEnvVars() {
-  return [
+export function getMissingGitHubAuthEnvVars(): string[] {
+  const requiredEnvVars: Array<[string, string | undefined]> = [
     [GITHUB_CLIENT_ID_ENV, readEnv(GITHUB_CLIENT_ID_ENV)],
     [GITHUB_CLIENT_SECRET_ENV, readEnv(GITHUB_CLIENT_SECRET_ENV)],
   ]
-    .filter(([, value]) => !value)
-    .map(([name]) => name)
+
+  return requiredEnvVars.filter(([, value]) => !value).map(([name]) => name)
 }
 
 export function isGitHubAuthConfigured() {

@@ -12,6 +12,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react"
+import { signOut as clientSignOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -25,7 +26,6 @@ type AdminShellProps = {
   userEmail?: string | null
   userImage?: string | null
   initials: string
-  signOutAction: () => Promise<void>
 }
 
 type AdminNavItem = {
@@ -90,12 +90,31 @@ export function AdminShell({
   userEmail,
   userImage,
   initials,
-  signOutAction,
 }: AdminShellProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
+
+  async function handleSignOut() {
+    if (isSigningOut) {
+      return
+    }
+
+    setIsSigningOut(true)
+
+    try {
+      const result = await clientSignOut({
+        redirect: false,
+        redirectTo: "/",
+      })
+
+      window.location.replace(result.url || "/")
+    } catch {
+      window.location.replace("/")
+    }
+  }
 
   useEffect(() => {
     setIsCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true")
@@ -215,21 +234,23 @@ export function AdminShell({
               </div>
             </div>
 
-            <form action={signOutAction}>
-              <Button
-                type="submit"
-                variant="ghost"
-                aria-label="Sair"
-                title="Sair"
-                className={cn(
-                  "w-full justify-start text-slate-300 hover:bg-slate-800 hover:text-white",
-                  isCollapsed && "lg:justify-center lg:px-0",
-                )}
-              >
-                <LogOut className="size-4" aria-hidden="true" />
-                <span className={cn(isCollapsed && "lg:hidden")}>Sair</span>
-              </Button>
-            </form>
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label={isSigningOut ? "Saindo" : "Sair"}
+              title={isSigningOut ? "Saindo" : "Sair"}
+              disabled={isSigningOut}
+              onClick={handleSignOut}
+              className={cn(
+                "w-full justify-start text-slate-300 hover:bg-slate-800 hover:text-white",
+                isCollapsed && "lg:justify-center lg:px-0",
+              )}
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              <span className={cn(isCollapsed && "lg:hidden")}>
+                {isSigningOut ? "Saindo..." : "Sair"}
+              </span>
+            </Button>
           </div>
         </aside>
 

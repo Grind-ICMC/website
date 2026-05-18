@@ -1,4 +1,4 @@
-import { auth, signOut } from "@/auth"
+import { auth } from "@/auth"
 import { AdminShell } from "@/components/admin/admin-shell"
 import { Navbar } from "@/components/navbar"
 import { ParticlesBackground } from "@/components/particles-background"
@@ -26,12 +26,6 @@ export default async function AdminLayout({
     .map((part) => part[0]?.toUpperCase())
     .join("")
 
-  async function signOutAction() {
-    "use server"
-
-    await signOut({ redirectTo: "/" })
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden">
       <ParticlesBackground />
@@ -41,7 +35,6 @@ export default async function AdminLayout({
         userEmail={session.user.email}
         userImage={session.user.image}
         initials={initials}
-        signOutAction={signOutAction}
       >
         {children}
       </AdminShell>

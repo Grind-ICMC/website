@@ -91,6 +91,23 @@ const translations: Record<Language, Record<string, string>> = {
     // Footer
     "footer.rights": "Todos os direitos reservados.",
 
+    // Login
+    "login.badge": "Acesso interno",
+    "login.title": "Entrada para pessoas membras do Grind ICMC",
+    "login.subtitle": "Esta página é reservada para quem já faz parte do grupo e precisa acessar os materiais, encontros e registros internos. O acesso acontece pelo GitHub usado na organização do Grind.",
+    "login.activeMembers.title": "Para membros ativos",
+    "login.activeMembers.description": "Entre com a conta GitHub vinculada ao grupo para continuar para a área administrativa.",
+    "login.join.title": "Quer participar?",
+    "login.join.description": "As novidades do processo seletivo aparecem primeiro nas nossas redes sociais.",
+    "login.memberArea.title": "Área de membros",
+    "login.memberArea.description": "Se você já é membro do grupo, entre com o GitHub para acessar o ambiente interno. Se ainda não é, acompanhe o Instagram para saber quando abrirem as inscrições para o processo seletivo.",
+    "login.error.unauthorized": "Acesso restrito a membros da organização Grind-ICMC no GitHub.",
+    "login.config.githubCredentials": "as credenciais OAuth do GitHub",
+    "login.config.prefix": "Configure",
+    "login.config.suffix": "no servidor e reinicie o Next para ativar o login com GitHub.",
+    "login.github": "Entrar com GitHub",
+    "login.instagram.description": "Ainda não faz parte? Fique de olho no nosso Instagram para não perder a abertura das próximas inscrições.",
+
     // Join Page
     "join.title": "Como Participar",
     "join.subtitle": "Entenda como funciona o Grind ICMC e as formas de participar",
@@ -185,6 +202,23 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Footer
     "footer.rights": "All rights reserved.",
+
+    // Login
+    "login.badge": "Internal access",
+    "login.title": "Login for Grind ICMC members",
+    "login.subtitle": "This page is reserved for people who are already part of the group and need to access internal materials, meetings, and records. Access uses the GitHub account connected to the Grind organization.",
+    "login.activeMembers.title": "For active members",
+    "login.activeMembers.description": "Sign in with the GitHub account linked to the group to continue to the admin area.",
+    "login.join.title": "Want to join?",
+    "login.join.description": "Selection process updates appear first on our social media.",
+    "login.memberArea.title": "Members area",
+    "login.memberArea.description": "If you are already a group member, sign in with GitHub to access the internal environment. If you are not a member yet, follow Instagram to know when applications open for the selection process.",
+    "login.error.unauthorized": "Access is restricted to members of the Grind-ICMC organization on GitHub.",
+    "login.config.githubCredentials": "the GitHub OAuth credentials",
+    "login.config.prefix": "Configure",
+    "login.config.suffix": "on the server and restart Next to enable GitHub login.",
+    "login.github": "Sign in with GitHub",
+    "login.instagram.description": "Not a member yet? Keep an eye on our Instagram so you do not miss the next application window.",
 
     // Join Page
     "join.title": "How to Join",
