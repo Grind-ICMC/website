@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { GraduationCap, Globe, Youtube, Calendar, MessageCircle, ExternalLink } from "lucide-react"
-import { FaInstagram, FaLinkedin, FaDiscord, FaYoutube } from "react-icons/fa"
+import { FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa"
 
 import { useLanguage } from "@/components/language-context"
 import { ParticlesBackground } from "@/components/particles-background"
@@ -16,8 +16,7 @@ const signupFormUrl =
 const socialLinks = [
   { icon: FaYoutube, href: "https://www.youtube.com/@GrindICMC", label: "YouTube", color: "hover:bg-red-600" },
   { icon: FaInstagram, href: "https://instagram.com/grindicmc", label: "Instagram", color: "hover:bg-pink-600" },
-  { icon: FaLinkedin, href: "https://linkedin.com/company/grindicmc", label: "LinkedIn", color: "hover:bg-blue-600" },
-  { icon: FaDiscord, href: "https://discord.gg/grindicmc", label: "Discord", color: "hover:bg-indigo-600" },
+  { icon: FaLinkedin, href: "https://www.linkedin.com/company/grind-icmc", label: "LinkedIn", color: "hover:bg-blue-600" },
 ]
 
 function ParticiparContent() {

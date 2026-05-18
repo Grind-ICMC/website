@@ -18,7 +18,7 @@ const socialLinks = [
   },
   {
     name: "LinkedIn",
-    href: "#",
+    href: "https://www.linkedin.com/company/grind-icmc",
     icon: FaLinkedin,
   },
 ]
