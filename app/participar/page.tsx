@@ -79,7 +79,7 @@ function ParticiparContent() {
               : "Grind ICMC is a university extension group organized by students from the University of São Paulo (USP). Applications for internal members are open at the beginning of each semester for regularly enrolled students."
             }
           </p>
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+          <div className="flex justify-center p-4 rounded-xl bg-primary/5 border border-primary/20">
             <Button asChild className="w-full sm:w-auto">
               <Link href={signupFormUrl} target="_blank" rel="noopener noreferrer">
                 {language === "pt" ? "Inscrever-se" : "Apply"}
