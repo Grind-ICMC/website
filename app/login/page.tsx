@@ -1,6 +1,16 @@
 import { auth, getMissingGitHubAuthEnvVars, signIn } from "@/auth"
 import { LoginPageContent } from "@/components/login-page-content"
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+
+export const metadata: Metadata = {
+  title: "Login interno",
+  description: "Acesso interno para membros do Grind ICMC.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 type LoginPageProps = {
   searchParams: Promise<{
