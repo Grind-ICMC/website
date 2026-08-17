@@ -1,13 +1,29 @@
-const rawSiteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined) ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-  "http://localhost:3000"
+const fallbackSiteUrl = "http://localhost:3000"
 
-export const siteUrl = new URL(rawSiteUrl)
+function parseSiteUrl(value: string | undefined) {
+  const candidate = value?.trim()
+
+  if (!candidate) {
+    return undefined
+  }
+
+  const url = /^[a-z][a-z\d+.-]*:\/\//i.test(candidate)
+    ? candidate
+    : `https://${candidate}`
+
+  try {
+    return new URL(url)
+  } catch {
+    return undefined
+  }
+}
+
+export const siteUrl =
+  parseSiteUrl(process.env.NEXT_PUBLIC_SITE_URL) ||
+  parseSiteUrl(process.env.URL) ||
+  parseSiteUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
+  parseSiteUrl(process.env.VERCEL_URL) ||
+  new URL(fallbackSiteUrl)
 
 export const siteConfig = {
   name: "Grind ICMC",
