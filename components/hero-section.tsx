@@ -1,13 +1,66 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import {
+  ArrowRight,
+  BarChart3,
+  BrainCircuit,
+  ClipboardCheck,
+  Code2,
+  MessageSquare,
+} from "lucide-react"
 import { FaGithub } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-context"
 
 export function HeroSection() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+
+  const selectionSteps = language === "pt"
+    ? [
+        {
+          icon: ClipboardCheck,
+          title: "Triagem e currículo",
+          description: "Projetos, GitHub, pesquisa e narrativa técnica",
+        },
+        {
+          icon: Code2,
+          title: "Entrevista técnica",
+          description: "Coding, System Design, dados, ML ou produto",
+        },
+        {
+          icon: BarChart3,
+          title: "Cases e experimentos",
+          description: "Métricas, trade-offs, modelagem e decisão",
+        },
+        {
+          icon: MessageSquare,
+          title: "Comunicação",
+          description: "Mocks, feedback, storytelling e comportamento",
+        },
+      ]
+    : [
+        {
+          icon: ClipboardCheck,
+          title: "Screening and resume",
+          description: "Projects, GitHub, research, and technical narrative",
+        },
+        {
+          icon: Code2,
+          title: "Technical interview",
+          description: "Coding, System Design, data, ML, or product",
+        },
+        {
+          icon: BarChart3,
+          title: "Cases and experiments",
+          description: "Metrics, trade-offs, modeling, and decisions",
+        },
+        {
+          icon: MessageSquare,
+          title: "Communication",
+          description: "Mocks, feedback, storytelling, and behavior",
+        },
+      ]
 
   return (
     <section className="relative min-h-[85vh] flex items-center pt-16">
@@ -63,62 +116,71 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Illustration - Code block without background */}
+          {/* Right Illustration */}
           <div className="relative hidden lg:block">
             <div className="relative">
-              {/* Code illustration - clean, no outer background */}
               <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6 shadow-2xl shadow-primary/5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="h-3 w-3 rounded-full bg-red-500" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500" />
                   <div className="h-3 w-3 rounded-full bg-green-500" />
-                  <span className="ml-2 text-xs text-muted-foreground font-mono">solution.js</span>
+                  <span className="ml-2 text-xs text-muted-foreground font-mono">
+                    {language === "pt" ? "processo seletivo" : "recruiting loop"}
+                  </span>
                 </div>
-                <pre className="text-sm font-mono text-muted-foreground overflow-hidden">
-                  <code>
-                    <span className="text-primary">{"function"}</span>{" "}
-                    <span className="text-foreground">{"twoSum"}</span>
-                    {"(nums, target) {\n"}
-                    {"  "}
-                    <span className="text-primary">{"const"}</span>
-                    {" map = "}
-                    <span className="text-primary">{"new"}</span>
-                    {" Map();\n\n"}
-                    {"  "}
-                    <span className="text-primary">{"for"}</span>
-                    {" ("}
-                    <span className="text-primary">{"let"}</span>
-                    {" i = 0; i < nums.length; i++) {\n"}
-                    {"    "}
-                    <span className="text-primary">{"const"}</span>
-                    {" complement = target - nums[i];\n\n"}
-                    {"    "}
-                    <span className="text-primary">{"if"}</span>
-                    {" (map.has(complement)) {\n"}
-                    {"      "}
-                    <span className="text-primary">{"return"}</span>
-                    {" [map.get(complement), i];\n"}
-                    {"    }\n\n"}
-                    {"    map.set(nums[i], i);\n"}
-                    {"  }\n\n"}
-                    {"  "}
-                    <span className="text-primary">{"return"}</span>
-                    {" [];\n"}
-                    {"}"}
-                  </code>
-                </pre>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center rounded bg-green-500/10 text-green-500 px-2 py-0.5 font-medium">
-                      O(n)
-                    </span>
-                    <span>Time Complexity</span>
-                    <span className="mx-2 text-border">|</span>
-                    <span className="inline-flex items-center rounded bg-primary/10 text-primary px-2 py-0.5 font-medium">
-                      O(n)
-                    </span>
-                    <span>Space</span>
+
+                <div className="border-b border-border pb-5">
+                  <div className="flex items-start justify-between gap-6">
+                    <div>
+                      <p className="text-xs font-semibold uppercase text-primary">
+                        {language === "pt" ? "Preparação" : "Preparation"}
+                      </p>
+                      <h3 className="mt-2 text-2xl font-bold text-foreground">
+                        {language === "pt"
+                          ? "Entrevistas, cases e carreira"
+                          : "Interviews, cases, and career"}
+                      </h3>
+                    </div>
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <span className="inline-flex items-center rounded-md bg-green-500/10 px-3 py-1 text-xs font-medium text-green-500">
+                        Engineering
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                        Science
+                      </span>
+                    </div>
                   </div>
+                </div>
+
+                <div className="mt-6 space-y-5">
+                  {selectionSteps.map((step) => {
+                    const Icon = step.icon
+
+                    return (
+                      <div key={step.title} className="flex items-start gap-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground">
+                            {step.title}
+                          </h4>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-6 flex items-center gap-3 border-t border-border pt-5 text-sm text-muted-foreground">
+                  <BrainCircuit className="h-5 w-5 text-primary" />
+                  <span>
+                    {language === "pt"
+                      ? "Engineering, Science e soft skills para processos reais"
+                      : "Engineering, Science, and soft skills for real processes"}
+                  </span>
                 </div>
               </div>
             </div>

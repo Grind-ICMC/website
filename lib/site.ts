@@ -12,7 +12,7 @@ export const siteUrl = new URL(rawSiteUrl)
 export const siteConfig = {
   name: "Grind ICMC",
   description:
-    "Grupo de extensao do ICMC-USP focado em preparacao tecnica para entrevistas de computacao, Big Tech, algoritmos, System Design e carreira em tecnologia.",
+    "Grupo de extensao do ICMC-USP focado em preparacao para processos seletivos em tecnologia, dados e IA, cobrindo Engineering, Science, entrevistas tecnicas, cases e soft skills.",
   url: siteUrl,
   links: {
     github: "https://github.com/Grind-ICMC",

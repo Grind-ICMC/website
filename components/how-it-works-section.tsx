@@ -10,45 +10,45 @@ export function HowItWorksSection() {
     ? [
         {
           icon: BookOpen,
-          title: "Estude os Fundamentos",
-          description: "Comece com algoritmos e estruturas de dados básicos através de nosso material curado.",
+          title: "Escolha uma Frente",
+          description: "Entre em Engineering ou Science de acordo com seus objetivos em software, ML, dados, análise ou pesquisa aplicada.",
         },
         {
           icon: Users,
-          title: "Pratique em Grupo",
-          description: "Participe das sessões semanais de prática com outros membros para resolver problemas juntos.",
+          title: "Evolua por Camadas",
+          description: "Use Starter, Pro e Soft Skills para organizar fundamentos, aprofundamento técnico e comunicação.",
         },
         {
           icon: Target,
-          title: "Mock Interviews",
-          description: "Simule entrevistas reais com membros atuando como entrevistadores e entrevistados.",
+          title: "Pratique com a Comunidade",
+          description: "Resolva problemas, discuta cases, leia papers, revise projetos e participe de mock interviews.",
         },
         {
           icon: Trophy,
-          title: "Conquiste sua Vaga",
-          description: "Aplique o conhecimento adquirido e conquiste sua vaga na Big Tech dos seus sonhos.",
+          title: "Aplique em Processos Reais",
+          description: "Use o repertório construído para entrevistas, estágios, vagas, pesquisa, projetos e oportunidades em tecnologia.",
         },
       ]
     : [
         {
           icon: BookOpen,
-          title: "Study the Fundamentals",
-          description: "Start with basic algorithms and data structures through our curated material.",
+          title: "Choose a Front",
+          description: "Join Engineering or Science according to your goals in software, ML, data, analysis, or applied research.",
         },
         {
           icon: Users,
-          title: "Practice in Groups",
-          description: "Join weekly practice sessions with other members to solve problems together.",
+          title: "Progress Through Layers",
+          description: "Use Starter, Pro, and Soft Skills to organize foundations, technical depth, and communication.",
         },
         {
           icon: Target,
-          title: "Mock Interviews",
-          description: "Simulate real interviews with members acting as interviewers and interviewees.",
+          title: "Practice with the Community",
+          description: "Solve problems, discuss cases, read papers, review projects, and join mock interviews.",
         },
         {
           icon: Trophy,
-          title: "Land Your Dream Job",
-          description: "Apply the knowledge gained and land your spot at your dream Big Tech company.",
+          title: "Apply in Real Processes",
+          description: "Use the repertoire you build for interviews, internships, jobs, research, projects, and tech opportunities.",
         },
       ]
 

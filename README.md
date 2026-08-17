@@ -1,7 +1,7 @@
 # Grind ICMC - Website
 
 ## What is this?
-This is the official website for **Grind ICMC**, a university extension group from the University of São Paulo (USP) - ICMC. We focus on preparing students for Big Tech technical interviews through weekly practice, mock interviews, algorithms, and system design, while also prioritizing soft skills and networking.
+This is the official website for **Grind ICMC**, a university extension group from the University of São Paulo (USP) - ICMC. We focus on preparing students for technical careers across Engineering and Science, covering software engineering, machine learning, data engineering, data science, applied science, research practice, soft skills, and networking.
 
 ## Tech Stack
 - **Framework:** Next.js (App Router)

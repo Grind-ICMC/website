@@ -26,14 +26,14 @@ function ParticiparContent() {
     { 
       icon: Youtube, 
       text: language === "pt" 
-        ? "Conteúdos educacionais no YouTube com videoaulas sobre algoritmos, estruturas de dados, System Design e dicas de carreira"
-        : "Educational content on YouTube with video lessons on algorithms, data structures, System Design and career tips"
+        ? "Conteúdos educacionais no YouTube sobre algoritmos, System Design, dados, machine learning, ciência aplicada e dicas de carreira"
+        : "Educational content on YouTube about algorithms, System Design, data, machine learning, applied science, and career tips"
     },
     { 
       icon: Calendar, 
       text: language === "pt"
-        ? "Eventos e palestras abertas ao público com profissionais de Big Techs compartilhando suas experiências"
-        : "Events and lectures open to the public with Big Tech professionals sharing their experiences"
+        ? "Eventos e palestras abertas ao público com profissionais, pesquisadores e alumni compartilhando experiências de mercado e pesquisa"
+        : "Events and lectures open to the public with professionals, researchers, and alumni sharing industry and research experiences"
     },
     { 
       icon: MessageCircle, 

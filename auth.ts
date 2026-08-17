@@ -6,6 +6,7 @@ const GITHUB_ORGS_URL = "https://api.github.com/user/orgs?per_page=100"
 const GITHUB_API_VERSION = "2022-11-28"
 const GITHUB_CLIENT_ID_ENV = "AUTH_GITHUB_ID"
 const GITHUB_CLIENT_SECRET_ENV = "AUTH_GITHUB_SECRET"
+const AUTH_SECRET_ENV = "AUTH_SECRET"
 
 type GitHubOrg = {
   login?: unknown
@@ -100,6 +101,11 @@ const providers = isGitHubAuthConfigured()
   : []
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret:
+    readEnv(AUTH_SECRET_ENV) ??
+    (process.env.NODE_ENV === "development"
+      ? "grind-icmc-development-auth-secret"
+      : undefined),
   pages: {
     signIn: "/login",
     error: "/login",
