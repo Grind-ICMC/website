@@ -8,6 +8,7 @@ type MeetingsExplorerPageProps = {
   }>
   searchParams: Promise<{
     q?: string | string[]
+    view?: string | string[]
   }>
 }
 
@@ -26,6 +27,7 @@ export default async function MeetingsExplorerPage({
       repository="meetings"
       path={path}
       rawSearchTerm={getSearchParam(paramsSearch.q)?.trim() ?? ""}
+      rawViewMode={getSearchParam(paramsSearch.view)?.trim() ?? ""}
     />
   )
 }

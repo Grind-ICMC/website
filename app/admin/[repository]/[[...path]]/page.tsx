@@ -12,6 +12,7 @@ type AdminRepositoryExplorerPageProps = {
   }>
   searchParams: Promise<{
     q?: string | string[]
+    view?: string | string[]
   }>
 }
 
@@ -38,6 +39,7 @@ export default async function AdminRepositoryExplorerPage({
       repository={repositoryConfig.slug}
       path={path}
       rawSearchTerm={getSearchParam(paramsSearch.q)?.trim() ?? ""}
+      rawViewMode={getSearchParam(paramsSearch.view)?.trim() ?? ""}
     />
   )
 }

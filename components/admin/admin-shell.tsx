@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import {
   BriefcaseBusiness,
@@ -8,6 +8,8 @@ import {
   FileText,
   GraduationCap,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -17,6 +19,8 @@ import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+
+const SIDEBAR_STORAGE_KEY = "grind-admin-sidebar-collapsed"
 
 type AdminShellProps = {
   children: ReactNode
@@ -64,7 +68,10 @@ export function AdminShell({
   userEmail,
 }: AdminShellProps) {
   const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [hasHydrated, setHasHydrated] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
 
   async function handleSignOut() {
     if (isSigningOut) {
@@ -85,19 +92,45 @@ export function AdminShell({
     }
   }
 
+  useEffect(() => {
+    setIsCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true")
+    setHasHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return
+    }
+
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isCollapsed))
+  }, [hasHydrated, isCollapsed])
+
   return (
     <div className="min-h-screen bg-transparent pt-16 text-slate-100">
       <div className="min-h-[calc(100vh-4rem)] w-full">
         <aside
-          className="z-40 border-b border-cyan-400/15 bg-slate-950/[0.94] px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:w-72 lg:flex-col lg:border-r lg:border-b-0 lg:px-5"
+          className={cn(
+            "z-40 border-b border-cyan-400/15 bg-slate-950/[0.94] px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl transition-[width,padding] duration-200 lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:border-r lg:border-b-0",
+            isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
+          )}
         >
-          <div className="flex h-full min-h-0 flex-col">
-            <div className="flex items-center justify-between gap-3">
+          <div
+            className={cn(
+              "flex h-full min-h-0 flex-col",
+              isCollapsed && "lg:items-center",
+            )}
+          >
+            <div
+              className={cn(
+                "flex items-center justify-between gap-3",
+                isCollapsed && "lg:flex-col lg:justify-center",
+              )}
+            >
               <div className="flex min-w-0 items-center gap-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.16)]">
                   <ShieldCheck className="size-5" aria-hidden="true" />
                 </div>
-                <div className="min-w-0">
+                <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
                   <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-cyan-300/75">
                     Grind ICMC
                   </p>
@@ -106,6 +139,21 @@ export function AdminShell({
                   </p>
                 </div>
               </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
+                title={isCollapsed ? "Expandir menu" : "Recolher menu"}
+                onClick={() => setIsCollapsed((current) => !current)}
+                className={cn(
+                  "hidden border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white lg:inline-flex",
+                  isCollapsed && "lg:mt-1",
+                )}
+              >
+                <ToggleIcon className="size-4" aria-hidden="true" />
+              </Button>
             </div>
 
             <nav className="mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
@@ -124,6 +172,7 @@ export function AdminShell({
                       isActive
                         ? "border-cyan-300/25 bg-cyan-300/[0.12] text-cyan-50 shadow-[inset_3px_0_0_rgba(103,232,249,0.9)]"
                         : "border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                      isCollapsed && "lg:w-11 lg:justify-center lg:px-0",
                     )}
                   >
                     <Icon
@@ -135,14 +184,26 @@ export function AdminShell({
                       )}
                       aria-hidden="true"
                     />
-                    <span className="truncate">{label}</span>
+                    <span className={cn("truncate", isCollapsed && "lg:hidden")}>
+                      {label}
+                    </span>
                   </Link>
                 )
               })}
             </nav>
 
-            <div className="mt-4 border-t border-cyan-400/15 pt-4">
-              <div className="mb-3 rounded-md border border-cyan-400/15 bg-white/[0.03] px-3 py-3">
+            <div
+              className={cn(
+                "mt-4 border-t border-cyan-400/15 pt-4",
+                isCollapsed && "lg:w-full",
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-3 rounded-md border border-cyan-400/15 bg-white/[0.03] px-3 py-3",
+                  isCollapsed && "lg:hidden",
+                )}
+              >
                 <div className="mb-1 flex items-center gap-2">
                   <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
                   <p className="truncate text-sm font-medium text-white">
@@ -161,16 +222,26 @@ export function AdminShell({
                 title={isSigningOut ? "Saindo" : "Sair"}
                 disabled={isSigningOut}
                 onClick={handleSignOut}
-                className="h-10 w-full justify-start border border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white"
+                className={cn(
+                  "h-10 w-full justify-start border border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                  isCollapsed && "lg:justify-center lg:px-0",
+                )}
               >
                 <LogOut className="size-4" aria-hidden="true" />
-                <span>{isSigningOut ? "Saindo..." : "Sair"}</span>
+                <span className={cn(isCollapsed && "lg:hidden")}>
+                  {isSigningOut ? "Saindo..." : "Sair"}
+                </span>
               </Button>
             </div>
           </div>
         </aside>
 
-        <main className="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:pl-[20rem]">
+        <main
+          className={cn(
+            "min-w-0 px-5 py-8 transition-[padding] duration-200 sm:px-8 lg:px-10",
+            isCollapsed ? "lg:pl-[7rem]" : "lg:pl-[20rem]",
+          )}
+        >
           {children}
         </main>
       </div>
