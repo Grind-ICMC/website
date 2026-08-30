@@ -10,6 +10,7 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  ShieldCheck,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -25,8 +26,6 @@ type AdminShellProps = {
   children: ReactNode
   userName: string
   userEmail?: string | null
-  userImage?: string | null
-  initials: string
 }
 
 type AdminNavItem = {
@@ -63,39 +62,10 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
 ]
 
-function UserAvatar({
-  image,
-  initials,
-  userName,
-}: {
-  image?: string | null
-  initials: string
-  userName: string
-}) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={`Foto de perfil de ${userName}`}
-        className="size-10 shrink-0 rounded-full border border-cyan-400/25 bg-slate-900 object-cover"
-        referrerPolicy="no-referrer"
-      />
-    )
-  }
-
-  return (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-slate-800 text-sm font-semibold text-cyan-200">
-      {initials || "GI"}
-    </div>
-  )
-}
-
 export function AdminShell({
   children,
   userName,
   userEmail,
-  userImage,
-  initials,
 }: AdminShellProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -136,131 +106,144 @@ export function AdminShell({
   }, [hasHydrated, isCollapsed])
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 pt-16">
-      <div className="flex min-h-[calc(100vh-4rem)] w-full flex-col lg:flex-row">
+    <div className="min-h-screen bg-transparent pt-16 text-slate-100">
+      <div className="min-h-[calc(100vh-4rem)] w-full">
         <aside
           className={cn(
-            "border-b border-cyan-400/15 bg-background/90 px-5 py-5 backdrop-blur-md transition-[width,padding] duration-200 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:border-r lg:border-b-0 z-40",
+            "z-40 border-b border-cyan-400/15 bg-slate-950/[0.92] px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl transition-[width,padding] duration-200 lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:border-r lg:border-b-0",
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >
           <div
             className={cn(
-              "flex items-center gap-3",
-              isCollapsed
-                ? "justify-between lg:flex-col lg:justify-center"
-                : "justify-between",
+              "flex h-full min-h-0 flex-col",
+              isCollapsed && "lg:items-center",
             )}
           >
-            <div
-              className={cn(
-                "flex min-w-0 items-center gap-3",
-                isCollapsed && "lg:justify-center",
-              )}
-            >
-              <UserAvatar
-                image={userImage}
-                initials={initials}
-                userName={userName}
-              />
-              <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
-                <p className="truncate text-sm font-medium text-cyan-300">
-                  Grind ICMC
-                </p>
-                <p className="truncate text-base font-semibold text-white">
-                  Admin
-                </p>
+            <div className="flex items-center justify-between gap-3">
+              <div
+                className={cn(
+                  "flex min-w-0 items-center gap-3",
+                  isCollapsed && "lg:justify-center",
+                )}
+              >
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.16)]">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                </div>
+                <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
+                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-cyan-300/75">
+                    Grind ICMC
+                  </p>
+                  <p className="truncate text-lg font-semibold text-white">
+                    Admin
+                  </p>
+                </div>
               </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
+                title={isCollapsed ? "Expandir menu" : "Recolher menu"}
+                onClick={() => setIsCollapsed((current) => !current)}
+                className="hidden border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white lg:inline-flex"
+              >
+                <ToggleIcon className="size-4" aria-hidden="true" />
+              </Button>
             </div>
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
-              title={isCollapsed ? "Expandir menu" : "Recolher menu"}
-              onClick={() => setIsCollapsed((current) => !current)}
-              className="border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white"
-            >
-              <ToggleIcon className="size-4" aria-hidden="true" />
-            </Button>
-          </div>
+            <nav className="mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
+              {ADMIN_NAV_ITEMS.map(({ href, label, Icon }) => {
+                const isActive =
+                  pathname === href || pathname.startsWith(`${href}/`)
 
-          <nav className="mt-8 space-y-2">
-            {ADMIN_NAV_ITEMS.map(({ href, label, Icon }) => {
-              const isActive = pathname === href || pathname.startsWith(`${href}/`)
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-label={label}
+                    title={label}
+                    className={cn(
+                      "group relative flex h-11 shrink-0 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition",
+                      isActive
+                        ? "border-cyan-300/25 bg-cyan-300/[0.12] text-cyan-50 shadow-[inset_3px_0_0_rgba(103,232,249,0.9)]"
+                        : "border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                      isCollapsed && "lg:w-11 lg:justify-center lg:px-0",
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "size-4 shrink-0 transition",
+                        isActive
+                          ? "text-cyan-200"
+                          : "text-slate-400 group-hover:text-cyan-200",
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={cn(
+                        "truncate",
+                        isCollapsed && "lg:sr-only",
+                      )}
+                    >
+                      {label}
+                    </span>
+                  </Link>
+                )
+              })}
+            </nav>
 
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-label={label}
-                  title={label}
-                  className={cn(
-                    "flex h-10 items-center gap-3 rounded-md border px-3 text-sm font-medium transition",
-                    isActive
-                      ? "border-cyan-400/20 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/15 hover:text-white"
-                      : "border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-slate-900 hover:text-white",
-                    isCollapsed && "lg:justify-center lg:px-0",
-                  )}
-                >
-                  <Icon className="size-4" aria-hidden="true" />
-                  <span className={cn(isCollapsed && "lg:hidden")}>
-                    {label}
-                  </span>
-                </Link>
-              )
-            })}
-          </nav>
-
-          <div
-            className={cn(
-              "mt-8 border-t border-cyan-400/15 pt-5 lg:absolute lg:bottom-5",
-              isCollapsed ? "lg:right-3 lg:left-3" : "lg:right-5 lg:left-5",
-            )}
-          >
             <div
               className={cn(
-                "mb-4 flex items-center gap-3",
-                isCollapsed && "lg:justify-center",
+                "mt-4 border-t border-cyan-400/15 pt-4",
+                isCollapsed && "lg:w-full",
               )}
             >
-              <UserAvatar
-                image={userImage}
-                initials={initials}
-                userName={userName}
-              />
-              <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
-                <p className="truncate text-sm font-medium text-white">
-                  {userName}
-                </p>
+              <div
+                className={cn(
+                  "mb-3 rounded-md border border-cyan-400/15 bg-white/[0.03] px-3 py-3",
+                  isCollapsed && "lg:hidden",
+                )}
+              >
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
+                  <p className="truncate text-sm font-medium text-white">
+                    {userName}
+                  </p>
+                </div>
                 <p className="truncate text-xs text-slate-400">
                   {userEmail ?? "GitHub autorizado"}
                 </p>
               </div>
-            </div>
 
-            <Button
-              type="button"
-              variant="ghost"
-              aria-label={isSigningOut ? "Saindo" : "Sair"}
-              title={isSigningOut ? "Saindo" : "Sair"}
-              disabled={isSigningOut}
-              onClick={handleSignOut}
-              className={cn(
-                "w-full justify-start text-slate-300 hover:bg-slate-800 hover:text-white",
-                isCollapsed && "lg:justify-center lg:px-0",
-              )}
-            >
-              <LogOut className="size-4" aria-hidden="true" />
-              <span className={cn(isCollapsed && "lg:hidden")}>
-                {isSigningOut ? "Saindo..." : "Sair"}
-              </span>
-            </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                aria-label={isSigningOut ? "Saindo" : "Sair"}
+                title={isSigningOut ? "Saindo" : "Sair"}
+                disabled={isSigningOut}
+                onClick={handleSignOut}
+                className={cn(
+                  "h-10 w-full justify-start border border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                  isCollapsed && "lg:justify-center lg:px-0",
+                )}
+              >
+                <LogOut className="size-4" aria-hidden="true" />
+                <span className={cn(isCollapsed && "lg:sr-only")}>
+                  {isSigningOut ? "Saindo..." : "Sair"}
+                </span>
+              </Button>
+            </div>
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-10">
+        <main
+          className={cn(
+            "min-w-0 px-5 py-8 transition-[padding] duration-200 sm:px-8 lg:px-10",
+            isCollapsed ? "lg:pl-[7rem]" : "lg:pl-[20rem]",
+          )}
+        >
           {children}
         </main>
       </div>

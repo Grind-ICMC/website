@@ -27,12 +27,6 @@ export default async function AdminLayout({
   }
 
   const userName = session.user.name ?? session.user.email ?? "Membro"
-  const initials = userName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("")
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -41,8 +35,6 @@ export default async function AdminLayout({
       <AdminShell
         userName={userName}
         userEmail={session.user.email}
-        userImage={session.user.image}
-        initials={initials}
       >
         {children}
       </AdminShell>
