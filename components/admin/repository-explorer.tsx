@@ -113,11 +113,13 @@ function RepositoryError({
   return (
     <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-6 text-destructive-foreground">
       <h2 className="text-lg font-semibold text-foreground">
-        Não foi possível carregar esta pasta.
+        Não foi possível acessar este repositório.
       </h2>
       <p className="mt-2 text-sm text-destructive-foreground/80">
-        Verifique se o token GitHub do servidor está configurado e tem acesso ao
-        repositório {repositoryFullName}.
+        O repositório {repositoryFullName} está configurado no admin, mas o
+        GitHub não liberou o conteúdo para o servidor. Verifique se o
+        GITHUB_ADMIN_TOKEN tem acesso a este repositório privado e permissão de
+        leitura/escrita em Contents.
       </p>
     </div>
   )
@@ -489,10 +491,11 @@ export async function RepositoryExplorer({
       </section>
     )
   } catch (error) {
-    if (
-      error instanceof InvalidMeetingPathError ||
-      error instanceof GitHubContentNotFoundError
-    ) {
+    if (error instanceof InvalidMeetingPathError) {
+      notFound()
+    }
+
+    if (error instanceof GitHubContentNotFoundError && currentPath) {
       notFound()
     }
 
