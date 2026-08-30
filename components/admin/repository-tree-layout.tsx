@@ -44,7 +44,7 @@ export function RepositoryTreeLayout({
       <aside
         className={cn(
           "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding,background-color,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          isCollapsed && "overflow-hidden xl:p-2",
+          isCollapsed && "overflow-hidden p-2",
         )}
       >
         <div
@@ -82,10 +82,10 @@ export function RepositoryTreeLayout({
             aria-label="Expandir árvore de arquivos"
             title="Expandir árvore de arquivos"
             onClick={() => setIsCollapsed(false)}
-            className="hidden h-56 w-full flex-col items-center justify-between rounded-md border border-border bg-secondary/35 px-2 py-3 text-muted-foreground transition hover:border-primary/30 hover:bg-primary/10 hover:text-foreground xl:flex"
+            className="flex h-14 w-full items-center justify-between rounded-md border border-border bg-secondary/35 px-3 py-2 text-muted-foreground transition hover:border-primary/30 hover:bg-primary/10 hover:text-foreground xl:h-56 xl:flex-col xl:px-2 xl:py-3"
           >
             <FolderTree className="size-5 text-primary" aria-hidden="true" />
-            <span className="rotate-180 text-xs font-semibold uppercase tracking-[0.16em] [writing-mode:vertical-rl]">
+            <span className="text-xs font-semibold uppercase tracking-[0.16em] xl:rotate-180 xl:[writing-mode:vertical-rl]">
               Arquivos
             </span>
             <PanelLeftOpen className="size-4" aria-hidden="true" />
