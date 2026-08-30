@@ -18,6 +18,7 @@ import { notFound, redirect } from "next/navigation"
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
 import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
+import { RepositoryTreeLayout } from "@/components/admin/repository-tree-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -450,8 +451,9 @@ export async function RepositoryExplorer({
           </form>
         ) : null}
 
-        <div className="grid gap-5 xl:grid-cols-[19rem_minmax(0,1fr)]">
-          <aside className="max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-cyan-400/15 bg-slate-950/70 p-3">
+        <RepositoryTreeLayout
+          tree={
+            <>
             <Link
               href={withSearchParam(
                 getRepositoryFolderHref(repository),
@@ -479,9 +481,11 @@ export async function RepositoryExplorer({
                 Nenhum arquivo encontrado.
               </p>
             )}
-          </aside>
-          <div className="min-w-0">{contentGrid}</div>
-        </div>
+            </>
+          }
+        >
+          {contentGrid}
+        </RepositoryTreeLayout>
       </section>
     )
   } catch (error) {

@@ -7,6 +7,7 @@ import {
   BookOpenText,
   FileText,
   GraduationCap,
+  LayoutDashboard,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -35,6 +36,11 @@ type AdminNavItem = {
 }
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
+  {
+    href: "/admin",
+    label: "Início",
+    Icon: LayoutDashboard,
+  },
   {
     href: "/admin/meetings",
     label: "Atas da Reunião",
@@ -159,7 +165,9 @@ export function AdminShell({
             <nav className="mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
               {ADMIN_NAV_ITEMS.map(({ href, label, Icon }) => {
                 const isActive =
-                  pathname === href || pathname.startsWith(`${href}/`)
+                  href === "/admin"
+                    ? pathname === href
+                    : pathname === href || pathname.startsWith(`${href}/`)
 
                 return (
                   <Link
