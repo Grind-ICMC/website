@@ -43,7 +43,7 @@ const highlights = [
 
 export default function AdminPage() {
   return (
-    <section className="mx-auto max-w-6xl">
+    <section>
       <div className="mb-10 max-w-3xl">
         <p className="flex items-center gap-2 text-sm font-medium text-primary">
           <ShieldCheck className="size-4" aria-hidden="true" />

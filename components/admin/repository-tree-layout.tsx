@@ -37,13 +37,13 @@ export function RepositoryTreeLayout({
   return (
     <div
       className={cn(
-        "grid gap-5 transition-[grid-template-columns] duration-200 xl:grid-cols-[19rem_minmax(0,1fr)]",
-        isCollapsed && "xl:grid-cols-[3.5rem_minmax(0,1fr)]",
+        "grid gap-5 transition-[grid-template-columns] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:grid-cols-[19rem_minmax(0,1fr)]",
+        isCollapsed && "xl:grid-cols-[4.25rem_minmax(0,1fr)]",
       )}
     >
       <aside
         className={cn(
-          "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding] duration-200",
+          "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding,background-color,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isCollapsed && "overflow-hidden xl:p-2",
         )}
       >
@@ -75,6 +75,22 @@ export function RepositoryTreeLayout({
             <ToggleIcon className="size-4" aria-hidden="true" />
           </Button>
         </div>
+
+        {isCollapsed ? (
+          <button
+            type="button"
+            aria-label="Expandir árvore de arquivos"
+            title="Expandir árvore de arquivos"
+            onClick={() => setIsCollapsed(false)}
+            className="hidden h-56 w-full flex-col items-center justify-between rounded-md border border-border bg-secondary/35 px-2 py-3 text-muted-foreground transition hover:border-primary/30 hover:bg-primary/10 hover:text-foreground xl:flex"
+          >
+            <FolderTree className="size-5 text-primary" aria-hidden="true" />
+            <span className="rotate-180 text-xs font-semibold uppercase tracking-[0.16em] [writing-mode:vertical-rl]">
+              Arquivos
+            </span>
+            <PanelLeftOpen className="size-4" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <div className={cn(isCollapsed && "hidden")}>{tree}</div>
       </aside>

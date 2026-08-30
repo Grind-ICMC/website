@@ -1,6 +1,11 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import {
+  useEffect,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from "react"
 import Link from "next/link"
 import {
   BriefcaseBusiness,
@@ -98,6 +103,24 @@ export function AdminShell({
     }
   }
 
+  function handleSidebarClick(event: MouseEvent<HTMLElement>) {
+    const target = event.target
+
+    if (!(target instanceof HTMLElement)) {
+      return
+    }
+
+    if (
+      target.closest(
+        'a, button, input, textarea, select, [role="button"], [role="dialog"]',
+      )
+    ) {
+      return
+    }
+
+    setIsCollapsed((current) => !current)
+  }
+
   useEffect(() => {
     setIsCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true")
     setHasHydrated(true)
@@ -115,8 +138,9 @@ export function AdminShell({
     <div className="min-h-screen bg-transparent pt-16 text-foreground">
       <div className="min-h-[calc(100vh-4rem)] w-full">
         <aside
+          onClick={handleSidebarClick}
           className={cn(
-            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding] duration-200 lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:border-r lg:border-b-0",
+            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >
@@ -154,7 +178,7 @@ export function AdminShell({
                 title={isCollapsed ? "Expandir menu" : "Recolher menu"}
                 onClick={() => setIsCollapsed((current) => !current)}
                 className={cn(
-                  "hidden border border-border text-muted-foreground hover:bg-primary/10 hover:text-foreground lg:inline-flex",
+                  "hidden border border-border text-muted-foreground transition-colors duration-300 hover:bg-primary/10 hover:text-foreground lg:inline-flex",
                   isCollapsed && "lg:mt-1",
                 )}
               >
@@ -246,7 +270,7 @@ export function AdminShell({
 
         <main
           className={cn(
-            "min-w-0 px-5 py-8 transition-[padding] duration-200 sm:px-8 lg:px-10",
+            "min-w-0 px-5 py-8 transition-[padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 lg:px-10",
             isCollapsed ? "lg:pl-[7rem]" : "lg:pl-[20rem]",
           )}
         >
