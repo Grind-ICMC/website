@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import 'highlight.js/styles/github-dark.css'
 import './globals.css'
 import { absoluteUrl, siteConfig } from "@/lib/site"
 

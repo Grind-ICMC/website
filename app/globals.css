@@ -131,3 +131,19 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
+
+.admin-markdown pre {
+  overflow-x: auto;
+}
+
+.admin-markdown pre code.hljs {
+  background: transparent;
+  padding: 0;
+}
+
+.admin-markdown :not(pre) > code {
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: color-mix(in oklab, var(--secondary) 65%, transparent);
+  padding: 0.125rem 0.35rem;
+}
