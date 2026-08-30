@@ -2,7 +2,6 @@ import {
   BookOpenText,
   BriefcaseBusiness,
   CalendarDays,
-  ChevronRight,
   FilePlus2,
   FileText,
   Folder,
@@ -18,6 +17,7 @@ import { notFound, redirect } from "next/navigation"
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
 import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
+import { RepositoryFileTree } from "@/components/admin/repository-file-tree"
 import { RepositoryTreeLayout } from "@/components/admin/repository-tree-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,13 +50,6 @@ const REPOSITORY_ICONS: Record<AdminRepositorySlug, LucideIcon> = {
   docs: BookOpenText,
   studies: GraduationCap,
   "psel-empresas": BriefcaseBusiness,
-}
-
-type RepositoryTreeNode = {
-  name: string
-  path: string
-  folders: RepositoryTreeNode[]
-  files: RepositoryDocumentSummary[]
 }
 
 function getRoutePath(path: string[] | undefined) {
@@ -121,115 +114,6 @@ function RepositoryError({
         GITHUB_ADMIN_TOKEN tem acesso a este repositório privado e permissão de
         leitura/escrita em Contents.
       </p>
-    </div>
-  )
-}
-
-function createTreeNode(name: string, path: string): RepositoryTreeNode {
-  return {
-    name,
-    path,
-    folders: [],
-    files: [],
-  }
-}
-
-function buildRepositoryTree(files: RepositoryDocumentSummary[]) {
-  const root = createTreeNode("Root", "")
-  const foldersByPath = new Map<string, RepositoryTreeNode>([["", root]])
-
-  for (const file of files) {
-    const segments = file.path.split("/")
-    let parent = root
-    let currentPath = ""
-
-    for (const segment of segments.slice(0, -1)) {
-      currentPath = currentPath ? `${currentPath}/${segment}` : segment
-      let folder = foldersByPath.get(currentPath)
-
-      if (!folder) {
-        folder = createTreeNode(segment, currentPath)
-        foldersByPath.set(currentPath, folder)
-        parent.folders.push(folder)
-      }
-
-      parent = folder
-    }
-
-    parent.files.push(file)
-  }
-
-  function sortNode(node: RepositoryTreeNode) {
-    node.folders.sort((left, right) => left.name.localeCompare(right.name))
-    node.files.sort((left, right) => left.title.localeCompare(right.title))
-    node.folders.forEach(sortNode)
-  }
-
-  sortNode(root)
-  return root
-}
-
-function RepositoryTree({
-  node,
-  repository,
-  currentPath,
-  rawSearchTerm,
-  depth = 0,
-}: {
-  node: RepositoryTreeNode
-  repository: AdminRepositorySlug
-  currentPath: string
-  rawSearchTerm: string
-  depth?: number
-}) {
-  return (
-    <div className={depth ? "mt-1" : undefined}>
-      {node.folders.map((folder) => {
-        const isActive = folder.path === currentPath
-
-        return (
-          <div key={folder.path} className="mt-1">
-            <Link
-              href={withSearchParam(
-                getRepositoryFolderHref(repository, folder.path),
-                rawSearchTerm,
-              )}
-              title={folder.path}
-              className={cn(
-                "flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm transition",
-                isActive
-                  ? "bg-primary/10 text-foreground"
-                  : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
-              )}
-              style={{ paddingLeft: `${8 + depth * 16}px` }}
-            >
-              <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
-              <Folder className="size-4 shrink-0 text-primary" />
-              <span className="truncate">{folder.name}</span>
-            </Link>
-            <RepositoryTree
-              node={folder}
-              repository={repository}
-              currentPath={currentPath}
-              rawSearchTerm={rawSearchTerm}
-              depth={depth + 1}
-            />
-          </div>
-        )
-      })}
-
-      {node.files.map((file) => (
-        <Link
-          key={file.path}
-          href={getRepositoryDocumentHref(repository, file.path)}
-          title={file.path}
-          className="mt-1 flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition hover:bg-secondary/70 hover:text-foreground"
-          style={{ paddingLeft: `${24 + depth * 16}px` }}
-        >
-          <FileText className="size-4 shrink-0 text-muted-foreground/70" />
-          <span className="truncate">{file.title}</span>
-        </Link>
-      ))}
     </div>
   )
 }
@@ -308,7 +192,6 @@ export async function RepositoryExplorer({
     const visibleTreeFiles = repositoryFiles.filter((item) =>
       matchesSearchTerm([item.title, item.name, item.path], searchTerm),
     )
-    const repositoryTree = buildRepositoryTree(visibleTreeFiles)
 
     const contentGrid = hasVisibleContent ? (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -455,35 +338,12 @@ export async function RepositoryExplorer({
 
         <RepositoryTreeLayout
           tree={
-            <>
-            <Link
-              href={withSearchParam(
-                getRepositoryFolderHref(repository),
-                rawSearchTerm,
-              )}
-              className={cn(
-                "mb-2 flex h-9 items-center gap-2 rounded-md px-2 text-sm font-medium transition",
-                currentPath
-                  ? "text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
-                  : "bg-primary/10 text-foreground",
-              )}
-            >
-              <FolderOpen className="size-4 text-primary" aria-hidden="true" />
-              Root
-            </Link>
-            {visibleTreeFiles.length ? (
-              <RepositoryTree
-                node={repositoryTree}
-                repository={repository}
-                currentPath={currentPath}
-                rawSearchTerm={rawSearchTerm}
-              />
-            ) : (
-              <p className="px-2 py-3 text-sm text-muted-foreground">
-                Nenhum arquivo encontrado.
-              </p>
-            )}
-            </>
+            <RepositoryFileTree
+              files={visibleTreeFiles}
+              repository={repository}
+              currentFolderPath={currentPath}
+              rawSearchTerm={rawSearchTerm}
+            />
           }
         >
           {contentGrid}

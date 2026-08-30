@@ -42,9 +42,14 @@ export function RepositoryTreeLayout({
       )}
     >
       <aside
+        onClick={() => {
+          if (isCollapsed) {
+            setIsCollapsed(false)
+          }
+        }}
         className={cn(
           "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding,background-color,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          isCollapsed && "overflow-hidden p-2",
+          isCollapsed && "cursor-pointer overflow-hidden p-2",
         )}
       >
         <div
@@ -69,7 +74,10 @@ export function RepositoryTreeLayout({
             size="icon-sm"
             aria-label={isCollapsed ? "Expandir árvore" : "Minimizar árvore"}
             title={isCollapsed ? "Expandir árvore" : "Minimizar árvore"}
-            onClick={() => setIsCollapsed((current) => !current)}
+            onClick={(event) => {
+              event.stopPropagation()
+              setIsCollapsed((current) => !current)
+            }}
             className="shrink-0 border border-border text-muted-foreground hover:bg-primary/10 hover:text-foreground"
           >
             <ToggleIcon className="size-4" aria-hidden="true" />

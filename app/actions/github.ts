@@ -72,10 +72,13 @@ function getActionHeaders() {
 }
 
 function serializeMeetingContent(
+  repository: AdminRepositoryConfig,
   frontmatterData: MeetingFrontmatterData,
   markdownContent: string,
 ) {
-  const frontmatter = normalizeMeetingFrontmatter(frontmatterData)
+  const frontmatter = normalizeMeetingFrontmatter(frontmatterData, {
+    requireAuthor: repository.repo !== "psel-empresas",
+  })
 
   if (!markdownContent.trim()) {
     throw new Error("Informe o conteudo Markdown do documento.")
@@ -291,7 +294,11 @@ export async function createRepositoryDocument(
       headers: getActionHeaders(),
       body: JSON.stringify({
         message: `Create ${config.repo} document: ${path}`,
-        content: serializeMeetingContent(frontmatterData, markdownContent),
+        content: serializeMeetingContent(
+          config,
+          frontmatterData,
+          markdownContent,
+        ),
       }),
     },
   )
@@ -332,7 +339,11 @@ export async function updateRepositoryDocument(
       headers: getActionHeaders(),
       body: JSON.stringify({
         message: `Update ${config.repo} document: ${path}`,
-        content: serializeMeetingContent(frontmatterData, markdownContent),
+        content: serializeMeetingContent(
+          config,
+          frontmatterData,
+          markdownContent,
+        ),
         sha,
       }),
     },

@@ -162,6 +162,7 @@ export function MeetingEditorForm({
   const uploadDirectory = normalizePath(
     fixedPath ? getParentPath(fixedPath) : pathPrefix,
   )
+  const hideAuthorField = repository === "psel-empresas"
 
   useLayoutEffect(() => {
     resizeMarkdownTextarea()
@@ -410,13 +411,18 @@ export function MeetingEditorForm({
     setIsSubmitting(true)
 
     try {
-      const frontmatter = normalizeMeetingFrontmatter({
-        title,
-        author,
-        date,
-        category,
-        tags,
-      })
+      const frontmatter = normalizeMeetingFrontmatter(
+        {
+          title,
+          author: hideAuthorField ? "" : author,
+          date,
+          category,
+          tags,
+        },
+        {
+          requireAuthor: !hideAuthorField,
+        },
+      )
 
       if (!content.trim()) {
         throw new Error("Informe o conteudo Markdown do documento.")
@@ -459,16 +465,18 @@ export function MeetingEditorForm({
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-200">Autor</span>
-          <Input
-            required
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-            className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
-            placeholder="Nome do autor"
-          />
-        </label>
+        {hideAuthorField ? null : (
+          <label className="block">
+            <span className="text-sm font-medium text-slate-200">Autor</span>
+            <Input
+              required
+              value={author}
+              onChange={(event) => setAuthor(event.target.value)}
+              className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
+              placeholder="Nome do autor"
+            />
+          </label>
+        )}
 
         <label className="block">
           <span className="text-sm font-medium text-slate-200">Data</span>

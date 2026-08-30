@@ -8,7 +8,7 @@ export type MeetingCategory = (typeof MEETING_CATEGORIES)[number]
 
 export type MeetingFrontmatterData = {
   title: string
-  author: string
+  author?: string
   date: string
   category: MeetingCategory
   tags: string[]
@@ -20,6 +20,10 @@ export type MeetingEditorValues = MeetingFrontmatterData & {
 
 type MeetingFrontmatterInput = Omit<MeetingFrontmatterData, "tags"> & {
   tags: string | string[]
+}
+
+type NormalizeMeetingFrontmatterOptions = {
+  requireAuthor?: boolean
 }
 
 export function isMeetingCategory(value: unknown): value is MeetingCategory {
@@ -78,9 +82,11 @@ function assertValidDate(value: string) {
 
 export function normalizeMeetingFrontmatter(
   input: MeetingFrontmatterInput,
+  options: NormalizeMeetingFrontmatterOptions = {},
 ): MeetingFrontmatterData {
+  const requireAuthor = options.requireAuthor ?? true
   const title = input.title.trim()
-  const author = input.author.trim()
+  const author = readString(input.author)
   const date = input.date.trim()
   const category = input.category
   const tags = parseTags(input.tags)
@@ -89,7 +95,7 @@ export function normalizeMeetingFrontmatter(
     throw new Error("Informe o titulo do documento.")
   }
 
-  if (!author) {
+  if (requireAuthor && !author) {
     throw new Error("Informe o autor do documento.")
   }
 
@@ -99,13 +105,18 @@ export function normalizeMeetingFrontmatter(
     throw new Error("Selecione uma categoria valida.")
   }
 
-  return {
+  const frontmatter: MeetingFrontmatterData = {
     title,
-    author,
     date,
     category,
     tags,
   }
+
+  if (author) {
+    frontmatter.author = author
+  }
+
+  return frontmatter
 }
 
 export function getMeetingFrontmatterForForm(
