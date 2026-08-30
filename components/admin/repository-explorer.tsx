@@ -8,9 +8,7 @@ import {
   Folder,
   FolderOpen,
   GraduationCap,
-  LayoutGrid,
   Search,
-  ListTree,
   X,
   type LucideIcon,
 } from "lucide-react"
@@ -40,13 +38,10 @@ import {
 } from "@/lib/github-meetings"
 import { cn } from "@/lib/utils"
 
-type ExplorerViewMode = "cards" | "tree"
-
 type RepositoryExplorerProps = {
   repository: AdminRepositorySlug
   path?: string[]
   rawSearchTerm: string
-  rawViewMode: string
 }
 
 const REPOSITORY_ICONS: Record<AdminRepositorySlug, LucideIcon> = {
@@ -85,20 +80,8 @@ function matchesSearchTerm(values: string[], searchTerm: string) {
   )
 }
 
-function getViewMode(rawViewMode: string): ExplorerViewMode {
-  return rawViewMode === "tree" ? "tree" : "cards"
-}
-
-function withExplorerParams(
-  href: string,
-  viewMode: ExplorerViewMode,
-  rawSearchTerm: string,
-) {
+function withSearchParam(href: string, rawSearchTerm: string) {
   const params = new URLSearchParams()
-
-  if (viewMode === "tree") {
-    params.set("view", "tree")
-  }
 
   if (rawSearchTerm) {
     params.set("q", rawSearchTerm)
@@ -204,9 +187,8 @@ function RepositoryTree({
         return (
           <div key={folder.path} className="mt-1">
             <Link
-              href={withExplorerParams(
+              href={withSearchParam(
                 getRepositoryFolderHref(repository, folder.path),
-                "tree",
                 rawSearchTerm,
               )}
               title={folder.path}
@@ -290,7 +272,6 @@ export async function RepositoryExplorer({
   repository,
   path,
   rawSearchTerm,
-  rawViewMode,
 }: RepositoryExplorerProps) {
   const repositoryConfig = getAdminRepositoryConfig(repository)
   const repositoryFullName = getRepositoryFullName(repositoryConfig)
@@ -301,7 +282,6 @@ export async function RepositoryExplorer({
     getParentPath(currentPath),
   )
   const searchTerm = normalizeSearchTerm(rawSearchTerm)
-  const viewMode = getViewMode(rawViewMode)
 
   if (currentPath.toLowerCase().endsWith(".md")) {
     redirect(getRepositoryDocumentHref(repository, currentPath))
@@ -310,9 +290,7 @@ export async function RepositoryExplorer({
   try {
     const [directory, repositoryFiles] = await Promise.all([
       getRepositoryDirectory(repository, currentPath),
-      viewMode === "tree"
-        ? getRepositoryFiles(repository)
-        : Promise.resolve([] as RepositoryDocumentSummary[]),
+      getRepositoryFiles(repository),
     ])
     const visibleDirectories = directory.directories.filter((item) =>
       matchesSearchTerm([item.name, item.path], searchTerm),
@@ -334,9 +312,8 @@ export async function RepositoryExplorer({
         {visibleDirectories.map((item) => (
           <Link
             key={item.path}
-            href={withExplorerParams(
+            href={withSearchParam(
               getRepositoryFolderHref(repository, item.path),
-              viewMode,
               rawSearchTerm,
             )}
             className="group rounded-lg border border-cyan-400/15 bg-slate-900/75 p-5 transition hover:border-cyan-300/50 hover:bg-slate-900"
@@ -402,48 +379,6 @@ export async function RepositoryExplorer({
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex h-10 rounded-md border border-cyan-400/15 bg-slate-950/50 p-1">
-              <Button
-                asChild
-                size="sm"
-                variant="ghost"
-                className={cn(
-                  "h-8 px-3 text-slate-300 hover:bg-cyan-300/10 hover:text-white",
-                  viewMode === "cards" && "bg-cyan-300 text-slate-950 hover:bg-cyan-200 hover:text-slate-950",
-                )}
-              >
-                <Link
-                  href={withExplorerParams(
-                    getRepositoryFolderHref(repository, currentPath),
-                    "cards",
-                    rawSearchTerm,
-                  )}
-                >
-                  <LayoutGrid className="size-4" aria-hidden="true" />
-                  Cards
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                variant="ghost"
-                className={cn(
-                  "h-8 px-3 text-slate-300 hover:bg-cyan-300/10 hover:text-white",
-                  viewMode === "tree" && "bg-cyan-300 text-slate-950 hover:bg-cyan-200 hover:text-slate-950",
-                )}
-              >
-                <Link
-                  href={withExplorerParams(
-                    getRepositoryFolderHref(repository, currentPath),
-                    "tree",
-                    rawSearchTerm,
-                  )}
-                >
-                  <ListTree className="size-4" aria-hidden="true" />
-                  Árvore
-                </Link>
-              </Button>
-            </div>
             <Button
               asChild
               className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
@@ -472,7 +407,6 @@ export async function RepositoryExplorer({
             role="search"
             className="mb-5 flex flex-col gap-3 sm:flex-row"
           >
-            <input type="hidden" name="view" value={viewMode} />
             <div className="relative flex-1">
               <Search
                 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500"
@@ -502,9 +436,8 @@ export async function RepositoryExplorer({
                   className="h-11 border-cyan-400/20 bg-slate-950/40 text-slate-200 hover:bg-slate-900 hover:text-white"
                 >
                   <Link
-                    href={withExplorerParams(
+                    href={withSearchParam(
                       getRepositoryFolderHref(repository, currentPath),
-                      viewMode,
                       "",
                     )}
                   >
@@ -517,43 +450,38 @@ export async function RepositoryExplorer({
           </form>
         ) : null}
 
-        {viewMode === "tree" ? (
-          <div className="grid gap-5 xl:grid-cols-[19rem_minmax(0,1fr)]">
-            <aside className="max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-cyan-400/15 bg-slate-950/70 p-3">
-              <Link
-                href={withExplorerParams(
-                  getRepositoryFolderHref(repository),
-                  "tree",
-                  rawSearchTerm,
-                )}
-                className={cn(
-                  "mb-2 flex h-9 items-center gap-2 rounded-md px-2 text-sm font-medium transition",
-                  currentPath
-                    ? "text-slate-300 hover:bg-white/[0.04] hover:text-white"
-                    : "bg-cyan-300/12 text-cyan-100",
-                )}
-              >
-                <FolderOpen className="size-4 text-cyan-300" aria-hidden="true" />
-                Root
-              </Link>
-              {visibleTreeFiles.length ? (
-                <RepositoryTree
-                  node={repositoryTree}
-                  repository={repository}
-                  currentPath={currentPath}
-                  rawSearchTerm={rawSearchTerm}
-                />
-              ) : (
-                <p className="px-2 py-3 text-sm text-slate-500">
-                  Nenhum arquivo encontrado.
-                </p>
+        <div className="grid gap-5 xl:grid-cols-[19rem_minmax(0,1fr)]">
+          <aside className="max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-cyan-400/15 bg-slate-950/70 p-3">
+            <Link
+              href={withSearchParam(
+                getRepositoryFolderHref(repository),
+                rawSearchTerm,
               )}
-            </aside>
-            <div className="min-w-0">{contentGrid}</div>
-          </div>
-        ) : (
-          contentGrid
-        )}
+              className={cn(
+                "mb-2 flex h-9 items-center gap-2 rounded-md px-2 text-sm font-medium transition",
+                currentPath
+                  ? "text-slate-300 hover:bg-white/[0.04] hover:text-white"
+                  : "bg-cyan-300/12 text-cyan-100",
+              )}
+            >
+              <FolderOpen className="size-4 text-cyan-300" aria-hidden="true" />
+              Root
+            </Link>
+            {visibleTreeFiles.length ? (
+              <RepositoryTree
+                node={repositoryTree}
+                repository={repository}
+                currentPath={currentPath}
+                rawSearchTerm={rawSearchTerm}
+              />
+            ) : (
+              <p className="px-2 py-3 text-sm text-slate-500">
+                Nenhum arquivo encontrado.
+              </p>
+            )}
+          </aside>
+          <div className="min-w-0">{contentGrid}</div>
+        </div>
       </section>
     )
   } catch (error) {
