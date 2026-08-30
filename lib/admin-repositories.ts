@@ -47,6 +47,22 @@ export const ADMIN_REPOSITORIES = [
     emptyDirectoryDescription:
       "Crie uma pasta ou estudo para começar a organizar os estudos aqui.",
   },
+  {
+    slug: "psel-empresas",
+    owner: "Grind-ICMC",
+    repo: "psel-empresas",
+    navLabel: "PSEL Empresas",
+    explorerEyebrow: "PSEL Empresas",
+    explorerTitle: "Processos seletivos",
+    documentLabel: "processo seletivo",
+    documentLabelPlural: "processos seletivos",
+    createHeading: "Criar processo seletivo",
+    createButtonLabel: "Novo Processo",
+    createSubmitLabel: "Criar processo",
+    searchPlaceholder: "Pesquisar processos e pastas",
+    emptyDirectoryDescription:
+      "Crie uma pasta ou processo para começar a organizar os processos seletivos aqui.",
+  },
 ] as const
 
 export type AdminRepositoryConfig = (typeof ADMIN_REPOSITORIES)[number]

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import {
+  BriefcaseBusiness,
   BookOpenText,
   FileText,
   GraduationCap,
@@ -49,6 +50,11 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/studies",
     label: "Studies",
     Icon: GraduationCap,
+  },
+  {
+    href: "/admin/psel-empresas",
+    label: "PSEL Empresas",
+    Icon: BriefcaseBusiness,
   },
   {
     href: "/admin/members",

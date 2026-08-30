@@ -38,8 +38,8 @@ This is the official website for **Grind ICMC**, a university extension group fr
    - `AUTH_GITHUB_ID`: GitHub OAuth app client ID for the login flow.
    - `AUTH_GITHUB_SECRET`: GitHub OAuth app client secret for the login flow.
    - `GITHUB_ADMIN_TOKEN`: GitHub token used by the server to read/write the
-     `Grind-ICMC/meetings`, `Grind-ICMC/docs`, and `Grind-ICMC/studies`
-     repositories.
+     `Grind-ICMC/meetings`, `Grind-ICMC/docs`, `Grind-ICMC/studies`, and
+     `Grind-ICMC/psel-empresas` repositories.
 
    For local development, create a GitHub OAuth App with:
    - Homepage URL: `http://localhost:3000`
