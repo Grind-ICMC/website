@@ -111,11 +111,11 @@ function RepositoryError({
   repositoryFullName: string
 }) {
   return (
-    <div className="rounded-lg border border-red-400/25 bg-red-950/30 p-6 text-red-100">
-      <h2 className="text-lg font-semibold text-white">
+    <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-6 text-destructive-foreground">
+      <h2 className="text-lg font-semibold text-foreground">
         Não foi possível carregar esta pasta.
       </h2>
-      <p className="mt-2 text-sm text-red-100/80">
+      <p className="mt-2 text-sm text-destructive-foreground/80">
         Verifique se o token GitHub do servidor está configurado e tem acesso ao
         repositório {repositoryFullName}.
       </p>
@@ -196,13 +196,13 @@ function RepositoryTree({
               className={cn(
                 "flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm transition",
                 isActive
-                  ? "bg-cyan-300/12 text-cyan-100"
-                  : "text-slate-300 hover:bg-white/[0.04] hover:text-white",
+                  ? "bg-primary/10 text-foreground"
+                  : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
               )}
               style={{ paddingLeft: `${8 + depth * 16}px` }}
             >
-              <ChevronRight className="size-3.5 shrink-0 text-slate-500" />
-              <Folder className="size-4 shrink-0 text-cyan-300" />
+              <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70" />
+              <Folder className="size-4 shrink-0 text-primary" />
               <span className="truncate">{folder.name}</span>
             </Link>
             <RepositoryTree
@@ -221,10 +221,10 @@ function RepositoryTree({
           key={file.path}
           href={getRepositoryDocumentHref(repository, file.path)}
           title={file.path}
-          className="mt-1 flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+          className="mt-1 flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition hover:bg-secondary/70 hover:text-foreground"
           style={{ paddingLeft: `${24 + depth * 16}px` }}
         >
-          <FileText className="size-4 shrink-0 text-slate-500" />
+          <FileText className="size-4 shrink-0 text-muted-foreground/70" />
           <span className="truncate">{file.title}</span>
         </Link>
       ))}
@@ -238,10 +238,10 @@ function EmptyDirectory({
   repositoryConfig: AdminRepositoryConfig
 }) {
   return (
-    <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-8 text-center">
-      <FolderOpen className="mx-auto size-10 text-cyan-300" aria-hidden="true" />
-      <h2 className="mt-4 text-lg font-semibold text-white">Pasta vazia</h2>
-      <p className="mt-2 text-sm text-slate-400">
+    <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
+      <FolderOpen className="mx-auto size-10 text-primary" aria-hidden="true" />
+      <h2 className="mt-4 text-lg font-semibold text-foreground">Pasta vazia</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
         {repositoryConfig.emptyDirectoryDescription}
       </p>
     </div>
@@ -256,12 +256,12 @@ function EmptySearch({
   searchTerm: string
 }) {
   return (
-    <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-8 text-center">
-      <Search className="mx-auto size-10 text-cyan-300" aria-hidden="true" />
-      <h2 className="mt-4 text-lg font-semibold text-white">
+    <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
+      <Search className="mx-auto size-10 text-primary" aria-hidden="true" />
+      <h2 className="mt-4 text-lg font-semibold text-foreground">
         Nenhum resultado encontrado
       </h2>
-      <p className="mt-2 text-sm text-slate-400">
+      <p className="mt-2 text-sm text-muted-foreground">
         Não encontramos pastas ou {repositoryConfig.documentLabelPlural} para{" "}
         &quot;{searchTerm}&quot;.
       </p>
@@ -317,14 +317,14 @@ export async function RepositoryExplorer({
               getRepositoryFolderHref(repository, item.path),
               rawSearchTerm,
             )}
-            className="group rounded-lg border border-cyan-400/15 bg-slate-900/75 p-5 transition hover:border-cyan-300/50 hover:bg-slate-900"
+            className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
           >
             <div className="flex min-w-0 items-start gap-3">
-              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-cyan-300/10 text-cyan-300">
+              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Folder className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-white group-hover:text-cyan-200">
+                <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
                   {item.name}
                 </h2>
               </div>
@@ -336,14 +336,14 @@ export async function RepositoryExplorer({
           <Link
             key={item.path}
             href={getRepositoryDocumentHref(repository, item.path)}
-            className="group rounded-lg border border-cyan-400/15 bg-slate-900/75 p-5 transition hover:border-cyan-300/50 hover:bg-slate-900"
+            className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
           >
             <div className="flex min-w-0 items-start gap-3">
-              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-cyan-300/10 text-cyan-300">
+              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <FileText className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-white group-hover:text-cyan-200">
+                <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
                   {item.title}
                 </h2>
               </div>
@@ -366,14 +366,14 @@ export async function RepositoryExplorer({
 
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="flex items-center gap-2 text-sm font-medium text-cyan-300">
+            <p className="flex items-center gap-2 text-sm font-medium text-primary">
               <RepositoryIcon className="size-4" aria-hidden="true" />
               {repositoryConfig.explorerEyebrow}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-white">
+            <h1 className="mt-2 text-3xl font-semibold text-foreground">
               {repositoryConfig.explorerTitle}
             </h1>
-            <p className="mt-3 max-w-2xl text-sm text-slate-400">
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
               Navegue pela mesma estrutura de pastas do repositório{" "}
               {repositoryFullName}.
             </p>
@@ -382,7 +382,7 @@ export async function RepositoryExplorer({
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               asChild
-              className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Link href={getNewDocumentHref(repository, currentPath)}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
@@ -410,7 +410,7 @@ export async function RepositoryExplorer({
           >
             <div className="relative flex-1">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500"
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                 aria-hidden="true"
               />
               <Input
@@ -418,13 +418,13 @@ export async function RepositoryExplorer({
                 name="q"
                 defaultValue={rawSearchTerm}
                 placeholder={repositoryConfig.searchPlaceholder}
-                className="h-11 border-cyan-400/15 bg-slate-900/75 pr-3 pl-10 text-slate-100 placeholder:text-slate-500 focus-visible:border-cyan-300/60 focus-visible:ring-cyan-300/20"
+                className="h-11 border-border bg-card/75 pr-3 pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary/60 focus-visible:ring-primary/20"
               />
             </div>
             <div className="flex gap-3">
               <Button
                 type="submit"
-                className="h-11 bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                className="h-11 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Search className="size-4" aria-hidden="true" />
                 Pesquisar
@@ -434,7 +434,7 @@ export async function RepositoryExplorer({
                   asChild
                   type="button"
                   variant="outline"
-                  className="h-11 border-cyan-400/20 bg-slate-950/40 text-slate-200 hover:bg-slate-900 hover:text-white"
+                  className="h-11 border-border bg-card/50 text-foreground hover:bg-secondary hover:text-foreground"
                 >
                   <Link
                     href={withSearchParam(
@@ -462,11 +462,11 @@ export async function RepositoryExplorer({
               className={cn(
                 "mb-2 flex h-9 items-center gap-2 rounded-md px-2 text-sm font-medium transition",
                 currentPath
-                  ? "text-slate-300 hover:bg-white/[0.04] hover:text-white"
-                  : "bg-cyan-300/12 text-cyan-100",
+                  ? "text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
+                  : "bg-primary/10 text-foreground",
               )}
             >
-              <FolderOpen className="size-4 text-cyan-300" aria-hidden="true" />
+              <FolderOpen className="size-4 text-primary" aria-hidden="true" />
               Root
             </Link>
             {visibleTreeFiles.length ? (
@@ -477,7 +477,7 @@ export async function RepositoryExplorer({
                 rawSearchTerm={rawSearchTerm}
               />
             ) : (
-              <p className="px-2 py-3 text-sm text-slate-500">
+              <p className="px-2 py-3 text-sm text-muted-foreground">
                 Nenhum arquivo encontrado.
               </p>
             )}

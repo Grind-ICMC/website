@@ -43,23 +43,23 @@ export function RepositoryTreeLayout({
     >
       <aside
         className={cn(
-          "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-cyan-400/15 bg-slate-950/70 p-3 transition-[padding] duration-200",
+          "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding] duration-200",
           isCollapsed && "overflow-hidden xl:p-2",
         )}
       >
         <div
           className={cn(
-            "mb-3 flex items-center justify-between gap-2 border-b border-cyan-400/10 pb-3",
+            "mb-3 flex items-center justify-between gap-2 border-b border-border pb-3",
             isCollapsed && "justify-center border-b-0 pb-0",
           )}
         >
           <div
             className={cn(
-              "flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-200",
+              "flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground",
               isCollapsed && "hidden",
             )}
           >
-            <FolderTree className="size-4 text-cyan-300" aria-hidden="true" />
+            <FolderTree className="size-4 text-primary" aria-hidden="true" />
             <span className="truncate">Arquivos</span>
           </div>
 
@@ -70,7 +70,7 @@ export function RepositoryTreeLayout({
             aria-label={isCollapsed ? "Expandir árvore" : "Minimizar árvore"}
             title={isCollapsed ? "Expandir árvore" : "Minimizar árvore"}
             onClick={() => setIsCollapsed((current) => !current)}
-            className="shrink-0 border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white"
+            className="shrink-0 border border-border text-muted-foreground hover:bg-primary/10 hover:text-foreground"
           >
             <ToggleIcon className="size-4" aria-hidden="true" />
           </Button>

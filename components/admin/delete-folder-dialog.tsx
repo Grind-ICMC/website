@@ -69,29 +69,29 @@ export function DeleteFolderDialog({
         <Button
           type="button"
           variant="outline"
-          className="border-red-400/30 bg-red-950/30 text-red-100 hover:bg-red-900/50 hover:text-white"
+          className="border-destructive/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20 hover:text-destructive-foreground"
         >
           <Trash2 className="size-4" aria-hidden="true" />
           Excluir Pasta
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-red-400/25 bg-slate-950 text-slate-100">
+      <DialogContent className="border-destructive/30 bg-card text-foreground">
         <DialogHeader>
           <DialogTitle>Excluir pasta?</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Tem certeza que deseja excluir esta pasta? Todos os documentos e
             subpastas dentro dela serão apagados permanentemente. Esta ação não
             pode ser desfeita.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-md border border-red-400/20 bg-red-950/20 px-3 py-2 font-mono text-xs text-red-100/80">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 font-mono text-xs text-destructive-foreground/80">
           {folderPath}
         </div>
 
         <form onSubmit={handleSubmit}>
           {error ? (
-            <div className="mb-4 rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100">
+            <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
               {error}
             </div>
           ) : null}
@@ -102,14 +102,14 @@ export function DeleteFolderDialog({
               variant="ghost"
               disabled={isDeleting}
               onClick={() => setOpen(false)}
-              className="text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isDeleting}
-              className="bg-red-600 text-white hover:bg-red-500"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
             </Button>

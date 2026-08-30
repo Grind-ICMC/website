@@ -66,16 +66,16 @@ export function CreateFolderDialog({
         <Button
           type="button"
           variant="outline"
-          className="border-cyan-400/20 bg-slate-900/70 text-cyan-100 hover:bg-cyan-300/10 hover:text-white"
+          className="border-border bg-card/70 text-foreground hover:bg-secondary hover:text-foreground"
         >
           <FolderPlus className="size-4" aria-hidden="true" />
           Nova Pasta
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-cyan-400/20 bg-slate-950 text-slate-100">
+      <DialogContent className="border-border bg-card text-foreground">
         <DialogHeader>
           <DialogTitle>Nova pasta</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             A pasta sera criada no repositorio {repositoryConfig.repo} com um
             arquivo .gitkeep.
           </DialogDescription>
@@ -83,18 +83,18 @@ export function CreateFolderDialog({
 
         <form onSubmit={handleSubmit}>
           <label className="block">
-            <span className="text-sm font-medium text-slate-200">Nome</span>
+            <span className="text-sm font-medium text-foreground">Nome</span>
             <Input
               required
               value={folderName}
               onChange={(event) => setFolderName(event.target.value)}
-              className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
+              className="mt-2 border-border bg-background/70 text-foreground placeholder:text-muted-foreground"
               placeholder="diretoria"
             />
           </label>
 
           {error ? (
-            <div className="mt-4 rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100">
+            <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
               {error}
             </div>
           ) : null}
@@ -105,14 +105,14 @@ export function CreateFolderDialog({
               variant="ghost"
               disabled={isSubmitting}
               onClick={() => setOpen(false)}
-              className="text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? "Criando..." : "Criar pasta"}
             </Button>

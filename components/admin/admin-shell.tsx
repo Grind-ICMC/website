@@ -112,11 +112,11 @@ export function AdminShell({
   }, [hasHydrated, isCollapsed])
 
   return (
-    <div className="min-h-screen bg-transparent pt-16 text-slate-100">
+    <div className="min-h-screen bg-transparent pt-16 text-foreground">
       <div className="min-h-[calc(100vh-4rem)] w-full">
         <aside
           className={cn(
-            "z-40 border-b border-cyan-400/15 bg-slate-950/[0.94] px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl transition-[width,padding] duration-200 lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:border-r lg:border-b-0",
+            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding] duration-200 lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:border-r lg:border-b-0",
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >
@@ -133,14 +133,14 @@ export function AdminShell({
               )}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.16)]">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_16%,transparent)]">
                   <ShieldCheck className="size-5" aria-hidden="true" />
                 </div>
                 <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
-                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-cyan-300/75">
+                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-primary/75">
                     Grind ICMC
                   </p>
-                  <p className="truncate text-lg font-semibold text-white">
+                  <p className="truncate text-lg font-semibold text-foreground">
                     Admin
                   </p>
                 </div>
@@ -154,7 +154,7 @@ export function AdminShell({
                 title={isCollapsed ? "Expandir menu" : "Recolher menu"}
                 onClick={() => setIsCollapsed((current) => !current)}
                 className={cn(
-                  "hidden border border-cyan-400/15 text-cyan-200 hover:bg-cyan-300/10 hover:text-white lg:inline-flex",
+                  "hidden border border-border text-muted-foreground hover:bg-primary/10 hover:text-foreground lg:inline-flex",
                   isCollapsed && "lg:mt-1",
                 )}
               >
@@ -178,8 +178,8 @@ export function AdminShell({
                     className={cn(
                       "group relative flex h-11 shrink-0 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
                       isActive
-                        ? "border-cyan-300/25 bg-cyan-300/[0.12] text-cyan-50 shadow-[inset_3px_0_0_rgba(103,232,249,0.9)]"
-                        : "border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                        ? "border-primary/25 bg-primary/10 text-foreground shadow-[inset_3px_0_0_var(--primary)]"
+                        : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
                       isCollapsed && "lg:w-11 lg:justify-center lg:px-0",
                     )}
                   >
@@ -187,8 +187,8 @@ export function AdminShell({
                       className={cn(
                         "size-4 shrink-0 transition",
                         isActive
-                          ? "text-cyan-200"
-                          : "text-slate-400 group-hover:text-cyan-200",
+                          ? "text-primary"
+                          : "text-muted-foreground group-hover:text-primary",
                       )}
                       aria-hidden="true"
                     />
@@ -202,23 +202,23 @@ export function AdminShell({
 
             <div
               className={cn(
-                "mt-4 border-t border-cyan-400/15 pt-4",
+                "mt-4 border-t border-border pt-4",
                 isCollapsed && "lg:w-full",
               )}
             >
               <div
                 className={cn(
-                  "mb-3 rounded-md border border-cyan-400/15 bg-white/[0.03] px-3 py-3",
+                  "mb-3 rounded-md border border-border bg-secondary/35 px-3 py-3",
                   isCollapsed && "lg:hidden",
                 )}
               >
                 <div className="mb-1 flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
-                  <p className="truncate text-sm font-medium text-white">
+                  <span className="size-2 rounded-full bg-primary shadow-[0_0_14px_var(--primary)]" />
+                  <p className="truncate text-sm font-medium text-foreground">
                     {userName}
                   </p>
                 </div>
-                <p className="truncate text-xs text-slate-400">
+                <p className="truncate text-xs text-muted-foreground">
                   {userEmail ?? "GitHub autorizado"}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export function AdminShell({
                 disabled={isSigningOut}
                 onClick={handleSignOut}
                 className={cn(
-                  "h-10 w-full justify-start border border-transparent text-slate-300 hover:border-cyan-400/15 hover:bg-white/[0.04] hover:text-white",
+                  "h-10 w-full justify-start border border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
                   isCollapsed && "lg:justify-center lg:px-0",
                 )}
               >

@@ -45,14 +45,14 @@ export default function AdminPage() {
   return (
     <section className="mx-auto max-w-6xl">
       <div className="mb-10 max-w-3xl">
-        <p className="flex items-center gap-2 text-sm font-medium text-cyan-300">
+        <p className="flex items-center gap-2 text-sm font-medium text-primary">
           <ShieldCheck className="size-4" aria-hidden="true" />
           Central de Admin
         </p>
-        <h1 className="mt-3 text-4xl font-semibold text-white">
+        <h1 className="mt-3 text-4xl font-semibold text-foreground">
           Base interna do Grind ICMC
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-300">
+        <p className="mt-4 text-base leading-7 text-muted-foreground">
           Este painel concentra os documentos internos do grupo. A ideia é que
           membros mantenham tudo atualizado com materiais úteis, registros de
           reuniões, estudos, processos seletivos de empresas e referências que
@@ -64,13 +64,13 @@ export default function AdminPage() {
         {highlights.map(({ title, description, Icon }) => (
           <div
             key={title}
-            className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-5"
+            className="rounded-lg border border-border bg-card/70 p-5"
           >
-            <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-cyan-300/10 text-cyan-300">
+            <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
               <Icon className="size-5" aria-hidden="true" />
             </div>
-            <h2 className="text-base font-semibold text-white">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <h2 className="text-base font-semibold text-foreground">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {description}
             </p>
           </div>
@@ -80,10 +80,10 @@ export default function AdminPage() {
       <div>
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               Repositórios internos
             </h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Escolha uma área para navegar pelos arquivos.
             </p>
           </div>
@@ -97,21 +97,21 @@ export default function AdminPage() {
               <Link
                 key={repository.slug}
                 href={`/admin/${repository.slug}`}
-                className="group rounded-lg border border-cyan-400/15 bg-slate-900/75 p-5 transition hover:border-cyan-300/50 hover:bg-slate-900"
+                className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-cyan-300/10 text-cyan-300">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <Icon className="size-5" aria-hidden="true" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-semibold text-white group-hover:text-cyan-200">
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary">
                       {repository.navLabel}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {repository.explorerTitle}
                     </p>
                   </div>
-                  <ArrowRight className="mt-1 size-4 shrink-0 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+                  <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
                 </div>
               </Link>
             )
@@ -120,7 +120,7 @@ export default function AdminPage() {
 
         <Button
           asChild
-          className="mt-6 bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+          className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Link href="/admin/meetings">
             Abrir atas
