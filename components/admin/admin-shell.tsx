@@ -131,7 +131,15 @@ export function AdminShell({
       return
     }
 
+    document.documentElement.style.setProperty(
+      "--admin-sidebar-offset",
+      isCollapsed ? "7rem" : "20rem",
+    )
     localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isCollapsed))
+
+    return () => {
+      document.documentElement.style.removeProperty("--admin-sidebar-offset")
+    }
   }, [hasHydrated, isCollapsed])
 
   return (

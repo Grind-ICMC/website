@@ -4,11 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
+import { usePathname } from "next/navigation"
 import { GiIciclesAura } from "react-icons/gi"
 import { Menu, X, Eye, EyeOff, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-context"
 import { useAccessibility } from "@/components/accessibility-context"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,10 +59,19 @@ export function Navbar() {
   const { language, setLanguage, t } = useLanguage()
   const { highContrast, toggleHighContrast } = useAccessibility()
   const { data: session } = useSession()
+  const pathname = usePathname()
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div
+        className={cn(
+          "transition-[padding,max-width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          isAdmin
+            ? "max-w-none px-4 sm:px-6 lg:pr-8 lg:pl-[var(--admin-sidebar-offset,20rem)]"
+            : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
+        )}
+      >
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
