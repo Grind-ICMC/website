@@ -478,7 +478,7 @@ export function MeetingEditorForm({
   return (
     <form id={formId} onSubmit={handleSubmit} className="min-w-0 space-y-6">
       {compactHeader ? (
-        <div className="sticky top-16 z-20 flex min-w-0 flex-wrap items-center gap-2 border-b border-border bg-background/95 p-2 shadow-lg backdrop-blur-md sm:p-3">
+        <div className="document-editor-meta-bar flex min-w-0 flex-wrap items-center gap-2 border-b border-border bg-background/95 p-2 shadow-lg backdrop-blur-md sm:p-3">
           <label className="block min-w-0 flex-1 basis-52">
             <span className="sr-only">Título do documento</span>
             <Input

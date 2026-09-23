@@ -266,7 +266,7 @@ export function VisualDocumentEditor({
       <fieldset
         disabled={disabled}
         aria-label="Ferramentas de formatação"
-        className={`sticky ${compactHeader ? "top-[7.5rem]" : "top-2"} z-10 min-w-0 rounded-t-xl border-b border-border bg-card p-2 shadow-sm disabled:opacity-50`}
+        className={`${compactHeader ? "document-editor-toolbar" : "sticky top-2"} z-10 min-w-0 rounded-t-xl border-b border-border bg-card p-2 shadow-sm disabled:opacity-50`}
       >
         <div className="flex flex-wrap items-center gap-0.5">
           <Tool
@@ -546,7 +546,9 @@ export function VisualDocumentEditor({
           </div>
         )}
       </fieldset>
-      <div className="document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8">
+      <div
+        className={`document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8 ${compactHeader ? "document-editor-workspace-with-fixed-tools" : ""}`}
+      >
         <EditorContent editor={editor} />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-b-xl border-t border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">

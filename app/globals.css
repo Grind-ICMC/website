@@ -130,6 +130,29 @@
   padding-left: 1.25rem !important;
 }
 
+.admin-document-editing .document-editor-meta-bar {
+  position: fixed;
+  z-index: 45;
+  top: 4rem;
+  right: 0;
+  left: 0;
+  min-height: 3.75rem;
+}
+
+.admin-document-editing .document-editor-toolbar {
+  position: fixed;
+  z-index: 44;
+  top: 7.75rem;
+  right: 0;
+  left: 0;
+  min-height: 3.25rem;
+  border-radius: 0;
+}
+
+.admin-document-editing .document-editor-workspace-with-fixed-tools {
+  padding-top: 4.25rem;
+}
+
 @media (min-width: 640px) {
   .admin-document-editing main {
     padding-left: 2rem !important;
