@@ -9,6 +9,7 @@ import {
   useId,
   useRef,
   useState,
+  type ReactNode,
 } from "react"
 import { Image as ImageIcon, FileText, Code2 } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -54,6 +55,7 @@ type MeetingEditorFormProps = {
   compactHeader?: boolean
   formId?: string
   onDirtyChange?: (dirty: boolean) => void
+  compactActions?: ReactNode
 }
 
 type PendingImageUpload = {
@@ -147,6 +149,7 @@ export function MeetingEditorForm({
   compactHeader = false,
   formId,
   onDirtyChange,
+  compactActions,
 }: MeetingEditorFormProps) {
   const [title, setTitle] = useState(initialValues.title)
   const [author, setAuthor] = useState(initialValues.author)
@@ -475,8 +478,8 @@ export function MeetingEditorForm({
   return (
     <form id={formId} onSubmit={handleSubmit} className="min-w-0 space-y-6">
       {compactHeader ? (
-        <div className="sticky top-2 z-20 grid min-w-0 gap-3 rounded-xl border border-border bg-background/95 p-3 shadow-lg backdrop-blur-md sm:grid-cols-[minmax(0,1fr)_13rem] sm:p-4">
-          <label className="block min-w-0">
+        <div className="sticky top-2 z-20 flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-border bg-background/95 p-2 shadow-lg backdrop-blur-md sm:p-3">
+          <label className="block min-w-0 flex-1 basis-52">
             <span className="sr-only">Título do documento</span>
             <Input
               required
@@ -487,12 +490,19 @@ export function MeetingEditorForm({
               placeholder="Título do documento"
             />
           </label>
-          <DocumentDateField
-            value={date}
-            onChange={setDate}
-            disabled={busy}
-            hideLabel
-          />
+          <div className="w-44 shrink-0">
+            <DocumentDateField
+              value={date}
+              onChange={setDate}
+              disabled={busy}
+              hideLabel
+            />
+          </div>
+          {compactActions ? (
+            <div className="flex shrink-0 items-center gap-2">
+              {compactActions}
+            </div>
+          ) : null}
         </div>
       ) : (
         <fieldset

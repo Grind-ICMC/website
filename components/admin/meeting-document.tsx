@@ -225,7 +225,9 @@ export function MeetingDocument({
             )}
           </div>
 
-          <div className="flex shrink-0 flex-wrap gap-3">
+          <div
+            className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}
+          >
             <Button
               type="button"
               onClick={() => {
@@ -310,6 +312,41 @@ export function MeetingDocument({
           submitLabel="Salvar alterações"
           compactHeader
           formId={editorFormId}
+          compactActions={
+            <>
+              <Button
+                type="button"
+                size="sm"
+                className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                onClick={() => {
+                  const form = document.getElementById(editorFormId)
+                  if (form instanceof HTMLFormElement) form.requestSubmit()
+                }}
+              >
+                <Save className="size-4" aria-hidden="true" />
+                Salvar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={isDeleting}
+                className="border-red-400/30 bg-red-950/30 text-red-100 hover:bg-red-900/50 hover:text-white"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Excluir este documento? Esta ação não pode ser desfeita.",
+                    )
+                  ) {
+                    void handleDelete()
+                  }
+                }}
+              >
+                <Trash2 className="size-4" aria-hidden="true" />
+                {isDeleting ? "Excluindo…" : "Excluir"}
+              </Button>
+            </>
+          }
           onCancel={() => setIsEditing(false)}
           onDirtyChange={setHasUnsavedChanges}
           onSubmit={handleUpdate}
