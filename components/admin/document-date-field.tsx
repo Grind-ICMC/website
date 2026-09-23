@@ -17,10 +17,12 @@ export function DocumentDateField({
   value,
   onChange,
   disabled,
+  hideLabel = false,
 }: {
   value: string
   onChange: (value: string) => void
   disabled?: boolean
+  hideLabel?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const id = useId()
@@ -37,9 +39,11 @@ export function DocumentDateField({
 
   return (
     <div>
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
-        Data do documento
-      </label>
+      {!hideLabel && (
+        <label htmlFor={id} className="text-sm font-medium text-foreground">
+          Data do documento
+        </label>
+      )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -47,7 +51,7 @@ export function DocumentDateField({
             type="button"
             variant="outline"
             disabled={disabled}
-            className="mt-2 h-11 w-full justify-start gap-3 border-border bg-background/60 font-normal hover:bg-secondary hover:text-foreground"
+            className={`${hideLabel ? "" : "mt-2 "}h-10 w-full justify-start gap-3 border-border bg-background/60 text-sm font-normal hover:bg-secondary hover:text-foreground`}
           >
             <CalendarDays className="size-4 text-primary" aria-hidden="true" />
             {value ? (

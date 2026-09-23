@@ -51,6 +51,8 @@ type MeetingEditorFormProps = {
   pathPrefix?: string
   onCancel?: () => void
   onSubmit: (values: MeetingEditorValues) => Promise<void>
+  compactHeader?: boolean
+  formId?: string
 }
 
 type PendingImageUpload = {
@@ -141,6 +143,8 @@ export function MeetingEditorForm({
   pathPrefix = "",
   onCancel,
   onSubmit,
+  compactHeader = false,
+  formId,
 }: MeetingEditorFormProps) {
   const [title, setTitle] = useState(initialValues.title)
   const [author, setAuthor] = useState(initialValues.author)
@@ -458,35 +462,57 @@ export function MeetingEditorForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="min-w-0 space-y-6">
-      <fieldset
-        disabled={busy}
-        className="grid min-w-0 gap-5 rounded-xl border border-border bg-card/80 p-5 disabled:opacity-60 sm:p-6 md:grid-cols-2"
-      >
-        <label className="block md:col-span-2">
-          <span className="text-sm font-medium text-foreground">Título</span>
-          <Input
-            required
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            className="mt-2 h-12 border-border bg-background/60 text-lg font-medium placeholder:text-muted-foreground"
-            placeholder="Dê um título ao documento"
-          />
-        </label>
-        {!hideAuthorField && (
-          <label className="block">
-            <span className="text-sm font-medium text-foreground">Autor</span>
+    <form id={formId} onSubmit={handleSubmit} className="min-w-0 space-y-6">
+      {compactHeader ? (
+        <div className="sticky top-2 z-20 grid min-w-0 gap-3 rounded-xl border border-border bg-background/95 p-3 shadow-lg backdrop-blur-md sm:grid-cols-[minmax(0,1fr)_13rem] sm:p-4">
+          <label className="block min-w-0">
+            <span className="sr-only">Título do documento</span>
             <Input
               required
-              value={author}
-              onChange={(event) => setAuthor(event.target.value)}
-              className="mt-2 h-11 border-border bg-background/60"
-              placeholder="Nome do autor"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              disabled={busy}
+              className="h-10 border-border bg-card text-base font-semibold placeholder:text-muted-foreground"
+              placeholder="Título do documento"
             />
           </label>
-        )}
-        <DocumentDateField value={date} onChange={setDate} disabled={busy} />
-      </fieldset>
+          <DocumentDateField
+            value={date}
+            onChange={setDate}
+            disabled={busy}
+            hideLabel
+          />
+        </div>
+      ) : (
+        <fieldset
+          disabled={busy}
+          className="grid min-w-0 gap-5 rounded-xl border border-border bg-card/80 p-5 disabled:opacity-60 sm:p-6 md:grid-cols-2"
+        >
+          <label className="block md:col-span-2">
+            <span className="text-sm font-medium text-foreground">Título</span>
+            <Input
+              required
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              className="mt-2 h-12 border-border bg-background/60 text-lg font-medium placeholder:text-muted-foreground"
+              placeholder="Dê um título ao documento"
+            />
+          </label>
+          {!hideAuthorField && (
+            <label className="block">
+              <span className="text-sm font-medium text-foreground">Autor</span>
+              <Input
+                required
+                value={author}
+                onChange={(event) => setAuthor(event.target.value)}
+                className="mt-2 h-11 border-border bg-background/60"
+                placeholder="Nome do autor"
+              />
+            </label>
+          )}
+          <DocumentDateField value={date} onChange={setDate} disabled={busy} />
+        </fieldset>
+      )}
 
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -600,6 +626,7 @@ export function MeetingEditorForm({
                 void uploadAndInsertImage(file, getClipboardImageFileName(file))
             }}
             disabled={busy}
+            compactHeader={compactHeader}
           />
         )}
       </div>
@@ -611,25 +638,27 @@ export function MeetingEditorForm({
           {error}
         </div>
       )}
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        {onCancel && (
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={busy}
-            onClick={handleCancel}
-          >
-            {isCleaningUploads ? "Cancelando…" : "Cancelar"}
+      {!compactHeader && (
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          {onCancel && (
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy}
+              onClick={handleCancel}
+            >
+              {isCleaningUploads ? "Cancelando…" : "Cancelar"}
+            </Button>
+          )}
+          <Button type="submit" disabled={busy}>
+            {isSubmitting
+              ? "Salvando…"
+              : isUploadingImage
+                ? "Enviando imagem…"
+                : submitLabel}
           </Button>
-        )}
-        <Button type="submit" disabled={busy}>
-          {isSubmitting
-            ? "Salvando…"
-            : isUploadingImage
-              ? "Enviando imagem…"
-              : submitLabel}
-        </Button>
-      </div>
+        </div>
+      )}
     </form>
   )
 }

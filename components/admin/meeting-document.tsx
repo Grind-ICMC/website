@@ -7,6 +7,7 @@ import {
   Edit3,
   FileText,
   FolderTree,
+  Save,
   Trash2,
   UserRound,
 } from "lucide-react"
@@ -80,6 +81,7 @@ export function MeetingDocument({
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const documentDirectory = getMeetingDocumentDirectory(meeting.path)
+  const editorFormId = "meeting-document-editor"
 
   async function handleUpdate(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
@@ -125,58 +127,78 @@ export function MeetingDocument({
 
   return (
     <>
-      <header className="mb-8 border-b border-cyan-400/15 pb-6">
+      <header
+        className={`mb-8 border-b border-cyan-400/15 pb-6 ${isEditing ? "sticky top-0 z-30 bg-background/95 pt-3 backdrop-blur-md" : ""}`}
+      >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-sm font-medium text-cyan-300">
               <FileText className="size-4" aria-hidden="true" />
               {capitalizeLabel(repositoryConfig.documentLabel)}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-              {meeting.title}
-            </h1>
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
-                title={
-                  meeting.frontmatter.date
-                    ? "Data do documento"
-                    : "Data não informada"
-                }
-              >
-                <CalendarDays
-                  className="size-4 text-primary"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Data do documento: </span>
-                {formatDocumentDate(meeting.frontmatter.date)}
-              </span>
-              {meeting.frontmatter.author && (
-                <span className="inline-flex items-center gap-2">
-                  <UserRound className="size-4" aria-hidden="true" />
-                  {meeting.frontmatter.author}
+            {isEditing ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Editando documento
+              </p>
+            ) : (
+              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                {meeting.title}
+              </h1>
+            )}
+            {!isEditing && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
+                  title={
+                    meeting.frontmatter.date
+                      ? "Data do documento"
+                      : "Data não informada"
+                  }
+                >
+                  <CalendarDays
+                    className="size-4 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Data do documento: </span>
+                  {formatDocumentDate(meeting.frontmatter.date)}
                 </span>
-              )}
-              {documentDirectory && (
-                <span className="inline-flex min-w-0 items-center gap-2">
-                  <FolderTree className="size-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{documentDirectory}</span>
-                </span>
-              )}
-            </div>
+                {meeting.frontmatter.author && (
+                  <span className="inline-flex items-center gap-2">
+                    <UserRound className="size-4" aria-hidden="true" />
+                    {meeting.frontmatter.author}
+                  </span>
+                )}
+                {documentDirectory && (
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    <FolderTree
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="truncate">{documentDirectory}</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-3">
             <Button
-              type="button"
+              type={isEditing ? "submit" : "button"}
+              form={isEditing ? editorFormId : undefined}
               onClick={() => {
-                setDeleteError(null)
-                setIsEditing((current) => !current)
+                if (!isEditing) {
+                  setDeleteError(null)
+                  setIsEditing(true)
+                }
               }}
               className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
             >
-              <Edit3 className="size-4" aria-hidden="true" />
-              {isEditing ? "Ver documento" : "Editar"}
+              {isEditing ? (
+                <Save className="size-4" aria-hidden="true" />
+              ) : (
+                <Edit3 className="size-4" aria-hidden="true" />
+              )}
+              {isEditing ? "Salvar documento" : "Editar"}
             </Button>
 
             <AlertDialog>
@@ -238,6 +260,8 @@ export function MeetingDocument({
             content: meeting.content,
           }}
           submitLabel="Salvar alterações"
+          compactHeader
+          formId={editorFormId}
           onCancel={() => setIsEditing(false)}
           onSubmit={handleUpdate}
         />
