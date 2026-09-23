@@ -183,10 +183,14 @@ export function MeetingDocument({
 
           <div className="flex shrink-0 flex-wrap gap-3">
             <Button
-              type={isEditing ? "submit" : "button"}
-              form={isEditing ? editorFormId : undefined}
+              type="button"
               onClick={() => {
-                if (!isEditing) {
+                if (isEditing) {
+                  const form = document.getElementById(editorFormId)
+                  if (form instanceof HTMLFormElement) {
+                    form.requestSubmit()
+                  }
+                } else {
                   setDeleteError(null)
                   setIsEditing(true)
                 }
