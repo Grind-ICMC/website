@@ -266,7 +266,7 @@ export function VisualDocumentEditor({
       <fieldset
         disabled={disabled}
         aria-label="Ferramentas de formatação"
-        className={`sticky ${compactHeader ? "top-[5.25rem]" : "top-2"} z-10 min-w-0 rounded-t-xl border-b border-border bg-card p-2 shadow-sm disabled:opacity-50`}
+        className={`sticky ${compactHeader ? "top-[7.5rem]" : "top-2"} z-10 min-w-0 rounded-t-xl border-b border-border bg-card p-2 shadow-sm disabled:opacity-50`}
       >
         <div className="flex flex-wrap items-center gap-0.5">
           <Tool

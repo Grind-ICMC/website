@@ -172,7 +172,7 @@ export function MeetingDocument({
   return (
     <>
       <header
-        className={`mb-8 border-b border-cyan-400/15 pb-6 ${isEditing ? "sticky top-0 z-30 bg-background/95 pt-3 backdrop-blur-md" : ""}`}
+        className={`mb-8 border-b border-cyan-400/15 pb-6 ${isEditing ? "mb-2 pb-2" : ""}`}
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">

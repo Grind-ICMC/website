@@ -58,12 +58,7 @@ export function DocumentDateField({
               {value ? (
                 formatDocumentDate(value)
               ) : (
-                <>
-                  <span className="font-semibold text-primary">?</span>
-                  <span className="text-muted-foreground">
-                    Data não informada
-                  </span>
-                </>
+                <span className="font-semibold text-primary">?</span>
               )}
             </span>
             <ChevronDown
