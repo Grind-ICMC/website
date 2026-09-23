@@ -4,6 +4,7 @@ import matter from "gray-matter"
 import { revalidatePath } from "next/cache"
 
 import { auth } from "@/auth"
+import { renameGitHubDocument } from "@/lib/github-document-rename"
 import {
   getAdminRepositoryConfig,
   type AdminRepositoryConfig,
@@ -20,6 +21,7 @@ import {
   getRepositoryFolderHref,
 } from "@/lib/github-meetings"
 import {
+  getDatedDocumentPath,
   normalizeMeetingFrontmatter,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
@@ -76,9 +78,12 @@ function serializeMeetingContent(
   frontmatterData: MeetingFrontmatterData,
   markdownContent: string,
 ) {
-  const frontmatter = normalizeMeetingFrontmatter(frontmatterData, {
-    requireAuthor: repository.repo !== "psel-empresas",
-  })
+  const { date: _date, ...frontmatter } = normalizeMeetingFrontmatter(
+    frontmatterData,
+    {
+      requireAuthor: repository.repo !== "psel-empresas",
+    },
+  )
 
   if (!markdownContent.trim()) {
     throw new Error("Informe o conteudo Markdown do documento.")
@@ -286,6 +291,11 @@ export async function createRepositoryDocument(
   await requireSession()
   const config = getRepositoryConfig(repository)
   assertValidMarkdownPath(path)
+  normalizeMeetingFrontmatter(frontmatterData, {
+    requireAuthor: config.repo !== "psel-empresas",
+    requireDate: true,
+  })
+  path = getDatedDocumentPath(path, frontmatterData.date)
 
   const response = await fetch(
     `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
@@ -332,6 +342,26 @@ export async function updateRepositoryDocument(
   assertValidMarkdownPath(path)
   assertValidSha(sha)
 
+  const content = serializeMeetingContent(
+    config,
+    frontmatterData,
+    markdownContent,
+  )
+  const nextPath = getDatedDocumentPath(path, frontmatterData.date)
+  if (nextPath !== path) {
+    const result = await renameGitHubDocument({
+      apiUrl: `https://api.github.com/repos/${config.owner}/${config.repo}`,
+      headers: getActionHeaders(),
+      path,
+      date: frontmatterData.date,
+      sha,
+      content,
+    })
+    revalidateDocument(repository, path)
+    revalidateDocument(repository, result.path)
+    return result
+  }
+
   const response = await fetch(
     `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
     {
@@ -339,11 +369,7 @@ export async function updateRepositoryDocument(
       headers: getActionHeaders(),
       body: JSON.stringify({
         message: `Update ${config.repo} document: ${path}`,
-        content: serializeMeetingContent(
-          config,
-          frontmatterData,
-          markdownContent,
-        ),
+        content,
         sha,
       }),
     },
@@ -595,12 +621,7 @@ export async function uploadImage(
   fileName: string,
   base64Content: string,
 ) {
-  return uploadRepositoryImage(
-    "meetings",
-    currentPath,
-    fileName,
-    base64Content,
-  )
+  return uploadRepositoryImage("meetings", currentPath, fileName, base64Content)
 }
 
 export async function deleteUploadedImage(

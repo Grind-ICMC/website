@@ -2,7 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Edit3, FileText, FolderTree, Trash2 } from "lucide-react"
+import {
+  CalendarDays,
+  Edit3,
+  FileText,
+  FolderTree,
+  Trash2,
+  UserRound,
+} from "lucide-react"
 
 import {
   deleteRepositoryDocument,
@@ -28,6 +35,7 @@ import {
   type AdminRepositorySlug,
 } from "@/lib/admin-repositories"
 import {
+  formatDocumentDate,
   type MeetingEditorValues,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
@@ -85,12 +93,18 @@ export function MeetingDocument({
 
     setMeeting({
       ...meeting,
+      path: result.path,
       sha: result.sha,
       title: frontmatter.title,
       frontmatter,
       content,
     })
     setIsEditing(false)
+    if (result.path !== meeting.path) {
+      router.replace(
+        `/admin/${repository}/doc/${result.path.split("/").map(encodeURIComponent).join("/")}`,
+      )
+    }
     router.refresh()
   }
 
@@ -121,10 +135,35 @@ export function MeetingDocument({
             <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
               {meeting.title}
             </h1>
-            <p className="mt-4 flex items-center gap-2 text-sm text-slate-400">
-              <FolderTree className="size-4 shrink-0" aria-hidden="true" />
-              <span className="truncate">{meeting.path}</span>
-            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
+                title={
+                  meeting.frontmatter.date
+                    ? "Data do documento"
+                    : "Data não informada"
+                }
+              >
+                <CalendarDays
+                  className="size-4 text-primary"
+                  aria-hidden="true"
+                />
+                <span className="sr-only">Data do documento: </span>
+                {formatDocumentDate(meeting.frontmatter.date)}
+              </span>
+              {meeting.frontmatter.author && (
+                <span className="inline-flex items-center gap-2">
+                  <UserRound className="size-4" aria-hidden="true" />
+                  {meeting.frontmatter.author}
+                </span>
+              )}
+              {documentDirectory && (
+                <span className="inline-flex min-w-0 items-center gap-2">
+                  <FolderTree className="size-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{documentDirectory}</span>
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-3">
@@ -155,7 +194,7 @@ export function MeetingDocument({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir documento?</AlertDialogTitle>
                   <AlertDialogDescription className="text-slate-400">
-                    Esta acao remove {meeting.path} do repositorio{" "}
+                    Esta ação remove “{meeting.title}” do repositório{" "}
                     {getRepositoryFullName(repositoryConfig)}. Ela cria um
                     commit de exclusao no GitHub.
                   </AlertDialogDescription>

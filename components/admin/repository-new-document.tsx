@@ -6,7 +6,6 @@ import { auth } from "@/auth"
 import { MeetingCreateForm } from "@/components/admin/meeting-create-form"
 import {
   getAdminRepositoryConfig,
-  getRepositoryFullName,
   type AdminRepositorySlug,
 } from "@/lib/admin-repositories"
 import {
@@ -58,9 +57,8 @@ export async function RepositoryNewDocument({
           {repositoryConfig.createHeading}
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-400">
-          O arquivo sera salvo no repositorio{" "}
-          {getRepositoryFullName(repositoryConfig)} com frontmatter YAML e corpo
-          em Markdown.
+          Dê um título ao documento e comece a escrever. Use a barra de ferramentas
+          para formatar o texto e inserir conteúdo.
         </p>
         <p className="mt-3 rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
           {currentPath || "Root"}

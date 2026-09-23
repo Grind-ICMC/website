@@ -50,8 +50,6 @@ export function MeetingCreateForm({
         title: "",
         author: defaultAuthor,
         date: getTodayInputDate(),
-        category: "Geral",
-        tags: [],
         content: "",
       }}
       submitLabel={repositoryConfig.createSubmitLabel}

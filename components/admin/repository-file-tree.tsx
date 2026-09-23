@@ -138,7 +138,7 @@ function RepositoryTreeBranch({
           <Link
             key={file.path}
             href={getRepositoryDocumentHref(repository, file.path)}
-            title={file.path}
+            title={file.title}
             className={cn(
               "mt-1 flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-sm transition",
               isActive

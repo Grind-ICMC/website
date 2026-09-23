@@ -45,6 +45,7 @@ export async function RepositoryDocument({
     const frontmatter = getMeetingFrontmatterForForm(
       document.frontmatter,
       document.title,
+      document.path,
     )
 
     return (

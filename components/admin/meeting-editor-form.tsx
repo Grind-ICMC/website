@@ -6,10 +6,15 @@ import {
   FormEvent,
   useEffect,
   useLayoutEffect,
+  useId,
   useRef,
   useState,
 } from "react"
-import { Image as ImageIcon } from "lucide-react"
+import { Image as ImageIcon, FileText, Code2 } from "lucide-react"
+import dynamic from "next/dynamic"
+import { DocumentDateField } from "@/components/admin/document-date-field"
+import { Switch } from "@/components/ui/switch"
+import type { VisualDocumentEditorHandle } from "@/components/admin/visual-document-editor"
 
 import {
   deleteRepositoryUploadedImage,
@@ -20,14 +25,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { AdminRepositorySlug } from "@/lib/admin-repositories"
 import {
-  getGeneratedMeetingPath,
-  MEETING_CATEGORIES,
   normalizeMeetingFrontmatter,
-  tagsToInput,
-  type MeetingCategory,
   type MeetingEditorValues,
 } from "@/lib/meeting-cms"
 import { getRepositoryImageSrc } from "@/lib/meeting-image-src"
+
+const VisualDocumentEditor = dynamic(
+  () =>
+    import("@/components/admin/visual-document-editor").then(
+      (module) => module.VisualDocumentEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[640px] animate-pulse rounded-xl border border-border bg-card" />
+    ),
+  },
+)
 
 type MeetingEditorFormProps = {
   repository: AdminRepositorySlug
@@ -131,19 +145,16 @@ export function MeetingEditorForm({
   const [title, setTitle] = useState(initialValues.title)
   const [author, setAuthor] = useState(initialValues.author)
   const [date, setDate] = useState(initialValues.date)
-  const [category, setCategory] = useState<MeetingCategory>(
-    initialValues.category,
-  )
-  const [tags, setTags] = useState(tagsToInput(initialValues.tags))
+  const [advanced, setAdvanced] = useState(false)
+  const modeId = useId()
+  const visualEditorRef = useRef<VisualDocumentEditorHandle>(null)
   const [content, setContent] = useState(initialValues.content)
   const [error, setError] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isCleaningUploads, setIsCleaningUploads] = useState(false)
-  const [previewImageSources, setPreviewImageSources] = useState<
-    Record<string, string>
-  >({})
+  const previewImageSources = useRef<Record<string, string>>({})
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const selectionRef = useRef({ start: 0, end: 0 })
@@ -152,13 +163,6 @@ export function MeetingEditorForm({
   const cleanupPromiseRef = useRef<Promise<void> | null>(null)
   const hasSavedRef = useRef(false)
   const isMountedRef = useRef(false)
-  const generatedFileName = getGeneratedMeetingPath(date, title)
-  const previewPath =
-    fixedPath ??
-    [pathPrefix, generatedFileName]
-      .flatMap((part) => part.split("/"))
-      .filter(Boolean)
-      .join("/")
   const uploadDirectory = normalizePath(
     fixedPath ? getParentPath(fixedPath) : pathPrefix,
   )
@@ -166,7 +170,7 @@ export function MeetingEditorForm({
 
   useLayoutEffect(() => {
     resizeMarkdownTextarea()
-  }, [content])
+  }, [content, advanced])
 
   useEffect(() => {
     isMountedRef.current = true
@@ -298,8 +302,8 @@ export function MeetingEditorForm({
       return ""
     }
 
-    if (previewImageSources[source]) {
-      return previewImageSources[source]
+    if (previewImageSources.current[source]) {
+      return previewImageSources.current[source]
     }
 
     return getRepositoryImageSrc(repository, uploadDirectory, source)
@@ -333,11 +337,9 @@ export function MeetingEditorForm({
         return
       }
 
-      setPreviewImageSources((current) => ({
-        ...current,
-        [result.path]: dataUrl,
-      }))
-      insertAtSelection(imageMarkdown, selection)
+      previewImageSources.current[result.path] = dataUrl
+      if (advanced) insertAtSelection(imageMarkdown, selection)
+      else visualEditorRef.current?.insertImage(result.path, file.name)
     })()
 
     uploadTasksRef.current = [
@@ -416,16 +418,15 @@ export function MeetingEditorForm({
           title,
           author: hideAuthorField ? "" : author,
           date,
-          category,
-          tags,
         },
         {
           requireAuthor: !hideAuthorField,
+          requireDate: !fixedPath,
         },
       )
 
       if (!content.trim()) {
-        throw new Error("Informe o conteudo Markdown do documento.")
+        throw new Error("Informe o conteúdo do documento.")
       }
 
       if (isUploadingImage) {
@@ -448,182 +449,184 @@ export function MeetingEditorForm({
     }
   }
 
+  const busy = isSubmitting || isUploadingImage || isCleaningUploads
+
+  function chooseImage() {
+    if (advanced) rememberSelection()
+    else visualEditorRef.current?.rememberSelection()
+    fileInputRef.current?.click()
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-5 sm:p-6"
-    >
-      <div className="grid gap-5 md:grid-cols-2">
-        <label className="block">
-          <span className="text-sm font-medium text-slate-200">Titulo</span>
+    <form onSubmit={handleSubmit} className="min-w-0 space-y-6">
+      <fieldset
+        disabled={busy}
+        className="grid min-w-0 gap-5 rounded-xl border border-border bg-card/80 p-5 disabled:opacity-60 sm:p-6 md:grid-cols-2"
+      >
+        <label className="block md:col-span-2">
+          <span className="text-sm font-medium text-foreground">Título</span>
           <Input
             required
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
-            placeholder="Ata da reuniao semanal"
+            className="mt-2 h-12 border-border bg-background/60 text-lg font-medium placeholder:text-muted-foreground"
+            placeholder="Dê um título ao documento"
           />
         </label>
-
-        {hideAuthorField ? null : (
+        {!hideAuthorField && (
           <label className="block">
-            <span className="text-sm font-medium text-slate-200">Autor</span>
+            <span className="text-sm font-medium text-foreground">Autor</span>
             <Input
               required
               value={author}
               onChange={(event) => setAuthor(event.target.value)}
-              className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
+              className="mt-2 h-11 border-border bg-background/60"
               placeholder="Nome do autor"
             />
           </label>
         )}
+        <DocumentDateField value={date} onChange={setDate} disabled={busy} />
+      </fieldset>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-200">Data</span>
-          <Input
-            required
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white"
-          />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium text-slate-200">Categoria</span>
-          <select
-            value={category}
-            onChange={(event) =>
-              setCategory(event.target.value as MeetingCategory)
-            }
-            className="mt-2 h-9 w-full rounded-md border border-cyan-400/20 bg-slate-950/70 px-3 py-1 text-sm text-white shadow-xs outline-none transition focus-visible:border-cyan-300 focus-visible:ring-3 focus-visible:ring-cyan-300/20"
-          >
-            {MEETING_CATEGORIES.map((meetingCategory) => (
-              <option key={meetingCategory} value={meetingCategory}>
-                {meetingCategory}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="block md:col-span-2">
-          <span className="text-sm font-medium text-slate-200">Tags</span>
-          <Input
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
-            className="mt-2 border-cyan-400/20 bg-slate-950/70 text-white placeholder:text-slate-500"
-            placeholder="planejamento, diretoria, entrevistas"
-          />
-        </label>
-      </div>
-
-      <div className="mt-5 rounded-md border border-cyan-400/10 bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
-        {previewPath}
-      </div>
-
-      <div className="mt-5">
-        <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-sm font-medium text-slate-200">Conteudo</span>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleUploadImage}
-            />
-            <Button
-              type="button"
-              size="sm"
-              disabled={isSubmitting || isUploadingImage || isCleaningUploads}
-              onClick={() => {
-                rememberSelection()
-                fileInputRef.current?.click()
-              }}
-              className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
-            >
-              <ImageIcon className="size-4" aria-hidden="true" />
-              {isUploadingImage ? "Enviando..." : "Upload Image"}
-            </Button>
+      <div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            {advanced ? (
+              <Code2 className="size-4 text-primary" />
+            ) : (
+              <FileText className="size-4 text-primary" />
+            )}
+            {advanced ? "Editar Markdown" : "Seu documento"}
           </div>
+          <label
+            htmlFor={modeId}
+            className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground"
+          >
+            Markdown avançado
+            <Switch
+              id={modeId}
+              checked={advanced}
+              onCheckedChange={setAdvanced}
+              disabled={busy}
+            />
+          </label>
         </div>
-
-        {uploadError ? (
-          <div className="mb-3 rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleUploadImage}
+        />
+        {isUploadingImage && (
+          <p role="status" className="mb-3 text-sm text-primary">
+            Enviando imagem…
+          </p>
+        )}
+        {uploadError && (
+          <div
+            role="alert"
+            className="mb-3 rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100"
+          >
             {uploadError}
           </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-lg border border-cyan-400/15 bg-slate-950/70">
-            <div className="border-b border-cyan-400/10 px-4 py-3 text-xs font-semibold uppercase text-cyan-300">
-              Editar Markdown
+        )}
+        {advanced ? (
+          <>
+            <div className="mb-3 flex justify-end">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={chooseImage}
+              >
+                <ImageIcon className="size-4" aria-hidden="true" />
+                Inserir imagem
+              </Button>
             </div>
-            <textarea
-              ref={textareaRef}
-              required
-              value={content}
-              onBlur={(event) => rememberSelection(event.currentTarget)}
-              onChange={(event) => {
-                setContent(event.target.value)
-                rememberSelection(event.currentTarget)
-              }}
-              onClick={(event) => rememberSelection(event.currentTarget)}
-              onKeyUp={(event) => rememberSelection(event.currentTarget)}
-              onPaste={handlePaste}
-              onSelect={(event) => rememberSelection(event.currentTarget)}
-              className="min-h-[520px] w-full resize-none overflow-hidden border-0 bg-transparent px-4 py-3 font-mono text-sm text-white outline-none placeholder:text-slate-500 focus:ring-0"
-              placeholder="# Pauta&#10;&#10;- Item discutido"
-            />
-          </div>
-
-          <div className="rounded-lg border border-cyan-400/15 bg-slate-950/70">
-            <div className="border-b border-cyan-400/10 px-4 py-3 text-xs font-semibold uppercase text-cyan-300">
-              Preview
-            </div>
-            <div className="min-h-[520px] px-4 py-3">
-              {content.trim() ? (
-                <MarkdownContent
-                  content={content}
-                  resolveImageSrc={resolvePreviewImageSrc}
-                />
-              ) : (
-                <div className="flex min-h-[496px] items-center justify-center rounded-md border border-dashed border-cyan-400/15 text-sm text-slate-500">
-                  A pré-visualização aparecerá aqui.
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="overflow-hidden rounded-lg border border-border bg-card/70">
+                <div className="border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wider text-primary">
+                  Markdown
                 </div>
-              )}
+                <textarea
+                  ref={textareaRef}
+                  required
+                  disabled={busy}
+                  aria-label="Conteúdo em Markdown"
+                  value={content}
+                  onBlur={(event) => rememberSelection(event.currentTarget)}
+                  onChange={(event) => {
+                    setContent(event.target.value)
+                    rememberSelection(event.currentTarget)
+                  }}
+                  onClick={(event) => rememberSelection(event.currentTarget)}
+                  onKeyUp={(event) => rememberSelection(event.currentTarget)}
+                  onPaste={handlePaste}
+                  onSelect={(event) => rememberSelection(event.currentTarget)}
+                  className="min-h-[520px] w-full resize-none overflow-hidden border-0 bg-transparent px-4 py-3 font-mono text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-0"
+                  placeholder="# Pauta&#10;&#10;- Item discutido"
+                />
+              </div>
+              <div className="min-w-0 rounded-lg border border-border bg-card/70">
+                <div className="border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wider text-primary">
+                  Pré-visualização
+                </div>
+                <div className="min-h-[520px] px-4 py-3">
+                  {content.trim() ? (
+                    <MarkdownContent
+                      content={content}
+                      resolveImageSrc={resolvePreviewImageSrc}
+                    />
+                  ) : (
+                    <div className="flex min-h-[496px] items-center justify-center text-sm text-muted-foreground">
+                      A pré-visualização aparecerá aqui.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          <VisualDocumentEditor
+            editorRef={visualEditorRef}
+            content={content}
+            onChange={setContent}
+            resolveImageSrc={resolvePreviewImageSrc}
+            onUploadImage={chooseImage}
+            onPasteImage={(file) => {
+              if (!busy)
+                void uploadAndInsertImage(file, getClipboardImageFileName(file))
+            }}
+            disabled={busy}
+          />
+        )}
       </div>
-
-      {error ? (
-        <div className="mt-5 rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100">
+      {error && (
+        <div
+          role="alert"
+          className="rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100"
+        >
           {error}
         </div>
-      ) : null}
-
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        {onCancel ? (
+      )}
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        {onCancel && (
           <Button
             type="button"
             variant="ghost"
-            disabled={isSubmitting || isUploadingImage || isCleaningUploads}
+            disabled={busy}
             onClick={handleCancel}
-            className="text-slate-300 hover:bg-slate-800 hover:text-white"
           >
-            {isCleaningUploads ? "Cancelando..." : "Cancelar"}
+            {isCleaningUploads ? "Cancelando…" : "Cancelar"}
           </Button>
-        ) : null}
-        <Button
-          type="submit"
-          disabled={isSubmitting || isUploadingImage || isCleaningUploads}
-          className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
-        >
+        )}
+        <Button type="submit" disabled={busy}>
           {isSubmitting
-            ? "Salvando..."
+            ? "Salvando…"
             : isUploadingImage
-              ? "Enviando imagem..."
+              ? "Enviando imagem…"
               : submitLabel}
         </Button>
       </div>

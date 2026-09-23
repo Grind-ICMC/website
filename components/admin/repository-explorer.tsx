@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
+import { formatDocumentDate, getDocumentDate } from "@/lib/meeting-cms"
 import { notFound, redirect } from "next/navigation"
 
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
@@ -69,9 +70,7 @@ function matchesSearchTerm(values: string[], searchTerm: string) {
     return true
   }
 
-  return values.some((value) =>
-    normalizeSearchTerm(value).includes(searchTerm),
-  )
+  return values.some((value) => normalizeSearchTerm(value).includes(searchTerm))
 }
 
 function withSearchParam(href: string, rawSearchTerm: string) {
@@ -126,7 +125,9 @@ function EmptyDirectory({
   return (
     <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
       <FolderOpen className="mx-auto size-10 text-primary" aria-hidden="true" />
-      <h2 className="mt-4 text-lg font-semibold text-foreground">Pasta vazia</h2>
+      <h2 className="mt-4 text-lg font-semibold text-foreground">
+        Pasta vazia
+      </h2>
       <p className="mt-2 text-sm text-muted-foreground">
         {repositoryConfig.emptyDirectoryDescription}
       </p>
@@ -231,6 +232,17 @@ export async function RepositoryExplorer({
                 <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
                   {item.title}
                 </h2>
+                <p
+                  className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"
+                  title={
+                    getDocumentDate(item.path)
+                      ? "Data do documento"
+                      : "Data não informada"
+                  }
+                >
+                  <CalendarDays className="size-3.5" aria-hidden="true" />
+                  {formatDocumentDate(getDocumentDate(item.path))}
+                </p>
               </div>
             </div>
           </Link>
@@ -289,10 +301,7 @@ export async function RepositoryExplorer({
         </div>
 
         {hasContent ? (
-          <form
-            role="search"
-            className="mb-5 flex flex-col gap-3 sm:flex-row"
-          >
+          <form role="search" className="mb-5 flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Search
                 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"

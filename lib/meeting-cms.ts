@@ -1,146 +1,83 @@
-export const MEETING_CATEGORIES = [
-  "Geral",
-  "Diretoria",
-  "Mock Interview",
-] as const
-
-export type MeetingCategory = (typeof MEETING_CATEGORIES)[number]
-
 export type MeetingFrontmatterData = {
   title: string
   author?: string
+  // The filename is the source of truth. An empty date means unknown.
   date: string
-  category: MeetingCategory
-  tags: string[]
 }
 
 export type MeetingEditorValues = MeetingFrontmatterData & {
   content: string
 }
 
-type MeetingFrontmatterInput = Omit<MeetingFrontmatterData, "tags"> & {
-  tags: string | string[]
-}
-
-type NormalizeMeetingFrontmatterOptions = {
-  requireAuthor?: boolean
-}
-
-export function isMeetingCategory(value: unknown): value is MeetingCategory {
+export function isValidDocumentDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
   return (
-    typeof value === "string" &&
-    MEETING_CATEGORIES.includes(value as MeetingCategory)
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
   )
 }
 
-export function parseTags(value: string | string[]) {
-  const tags = Array.isArray(value) ? value : value.split(",")
-  const seen = new Set<string>()
-
-  return tags
-    .map((tag) => tag.trim())
-    .filter((tag) => {
-      const key = tag.toLowerCase()
-
-      if (!tag || seen.has(key)) {
-        return false
-      }
-
-      seen.add(key)
-      return true
-    })
+export function getDocumentDate(path: string) {
+  const name = path.split("/").at(-1) ?? ""
+  const date = name.match(/^(\d{4}-\d{2}-\d{2})-(?=.+\.md$)/i)?.[1] ?? ""
+  return isValidDocumentDate(date) ? date : ""
 }
 
-export function tagsToInput(tags: string[]) {
-  return tags.join(", ")
+export function getDocumentNameWithoutDate(path: string) {
+  const name = path.split("/").at(-1) ?? ""
+  return getDocumentDate(path) ? name.slice(11) : name
 }
 
-function readString(value: unknown) {
-  return typeof value === "string" ? value.trim() : ""
+export function getDatedDocumentPath(path: string, date: string) {
+  if (!date) return path
+  if (!isValidDocumentDate(date)) throw new Error("Informe uma data válida.")
+  const segments = path.split("/")
+  segments[segments.length - 1] = `${date}-${getDocumentNameWithoutDate(path)}`
+  return segments.join("/")
 }
 
-function readDate(value: unknown) {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toISOString().slice(0, 10)
-  }
-
-  const date = readString(value)
-  return date.length >= 10 ? date.slice(0, 10) : date
-}
-
-function assertValidDate(value: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    throw new Error("Informe uma data no formato YYYY-MM-DD.")
-  }
-
-  const date = new Date(`${value}T00:00:00.000Z`)
-
-  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
-    throw new Error("Informe uma data valida.")
-  }
+export function formatDocumentDate(date: string) {
+  return isValidDocumentDate(date) ? date.split("-").reverse().join("/") : "?"
 }
 
 export function normalizeMeetingFrontmatter(
-  input: MeetingFrontmatterInput,
-  options: NormalizeMeetingFrontmatterOptions = {},
+  input: MeetingFrontmatterData,
+  options: { requireAuthor?: boolean; requireDate?: boolean } = {},
 ): MeetingFrontmatterData {
-  const requireAuthor = options.requireAuthor ?? true
   const title = input.title.trim()
-  const author = readString(input.author)
+  const author = input.author?.trim() ?? ""
   const date = input.date.trim()
-  const category = input.category
-  const tags = parseTags(input.tags)
 
-  if (!title) {
-    throw new Error("Informe o titulo do documento.")
-  }
-
-  if (requireAuthor && !author) {
+  if (!title) throw new Error("Informe o título do documento.")
+  if ((options.requireAuthor ?? true) && !author) {
     throw new Error("Informe o autor do documento.")
   }
-
-  assertValidDate(date)
-
-  if (!isMeetingCategory(category)) {
-    throw new Error("Selecione uma categoria valida.")
+  if ((date || options.requireDate) && !isValidDocumentDate(date)) {
+    throw new Error("Informe uma data válida.")
   }
 
-  const frontmatter: MeetingFrontmatterData = {
-    title,
-    date,
-    category,
-    tags,
-  }
-
-  if (author) {
-    frontmatter.author = author
-  }
-
-  return frontmatter
+  return { title, ...(author ? { author } : {}), date }
 }
 
 export function getMeetingFrontmatterForForm(
   frontmatter: Record<string, unknown>,
   fallbackTitle: string,
+  path: string,
 ): MeetingFrontmatterData {
-  const category = frontmatter.category
-  const tags = frontmatter.tags
-
   return {
-    title: readString(frontmatter.title) || fallbackTitle,
-    author: readString(frontmatter.author),
-    date: readDate(frontmatter.date),
-    category: isMeetingCategory(category) ? category : "Geral",
-    tags: Array.isArray(tags)
-      ? parseTags(tags.filter((tag): tag is string => typeof tag === "string"))
-      : parseTags(readString(tags)),
+    title:
+      typeof frontmatter.title === "string" && frontmatter.title.trim()
+        ? frontmatter.title.trim()
+        : fallbackTitle,
+    author:
+      typeof frontmatter.author === "string" ? frontmatter.author.trim() : "",
+    date: getDocumentDate(path),
   }
 }
 
 export function getTodayInputDate() {
   const now = new Date()
   const localTime = now.getTime() - now.getTimezoneOffset() * 60_000
-
   return new Date(localTime).toISOString().slice(0, 10)
 }
 
@@ -151,10 +88,9 @@ export function slugifyMeetingTitle(title: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-
   return slug || "documento"
 }
 
 export function getGeneratedMeetingPath(date: string, title: string) {
-  return `${date}-${slugifyMeetingTitle(title)}.md`
+  return getDatedDocumentPath(`${slugifyMeetingTitle(title)}.md`, date)
 }

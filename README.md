@@ -60,3 +60,22 @@ This is the official website for **Grind ICMC**, a university extension group fr
 
 ## Contributing
 Contributions are welcome! If you find any issues or want to add new features, feel free to open an issue or a Pull Request.
+
+## Admin document editor
+
+Documents open in the visual editor. The **Markdown avançado** switch keeps the
+source editor and its preview available. Both modes save Markdown and support
+headings, emphasis, links, lists, tasks, tables, images, and fenced code with a
+language selector.
+
+Document dates use the filename convention `YYYY-MM-DD-name.md`. The interface
+hides the prefix from the display name and reads the date from that prefix only;
+legacy YAML dates are not used. Files without a valid prefix display `?` and can
+remain undated when edited. New documents require a date. Changing a date updates
+the filename in its existing folder, with the content and rename in one GitHub
+commit. Existing destination names and concurrent edits are rejected. Category,
+tags, and dates are no longer written into the YAML metadata.
+
+Run `npm test` for Markdown conversion, filename/date handling, and mocked GitHub
+rename checks. Run `npx tsc --noEmit` and `npm run build` for the full type and
+production-build checks.

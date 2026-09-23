@@ -1,6 +1,7 @@
 import "server-only"
 
 import matter from "gray-matter"
+import { getDocumentNameWithoutDate } from "@/lib/meeting-cms"
 
 import {
   getAdminRepositoryConfig,
@@ -162,9 +163,7 @@ function getDisplayTitle(path: string, frontmatter: Record<string, unknown>) {
     return frontmatterTitle.trim()
   }
 
-  return path
-    .split("/")
-    .at(-1)!
+  return getDocumentNameWithoutDate(path)
     .replace(/\.md$/i, "")
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ")
