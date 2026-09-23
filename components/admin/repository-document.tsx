@@ -62,6 +62,7 @@ export async function RepositoryDocument({
         <article>
           <Link
             href={parentFolderHref}
+            data-document-back
             className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-cyan-100"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />

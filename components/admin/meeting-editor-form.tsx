@@ -53,6 +53,7 @@ type MeetingEditorFormProps = {
   onSubmit: (values: MeetingEditorValues) => Promise<void>
   compactHeader?: boolean
   formId?: string
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 type PendingImageUpload = {
@@ -145,6 +146,7 @@ export function MeetingEditorForm({
   onSubmit,
   compactHeader = false,
   formId,
+  onDirtyChange,
 }: MeetingEditorFormProps) {
   const [title, setTitle] = useState(initialValues.title)
   const [author, setAuthor] = useState(initialValues.author)
@@ -171,6 +173,15 @@ export function MeetingEditorForm({
     fixedPath ? getParentPath(fixedPath) : pathPrefix,
   )
   const hideAuthorField = repository === "psel-empresas"
+
+  useEffect(() => {
+    onDirtyChange?.(
+      title !== initialValues.title ||
+        date !== initialValues.date ||
+        author !== initialValues.author ||
+        content !== initialValues.content,
+    )
+  }, [author, content, date, initialValues, onDirtyChange, title])
 
   useLayoutEffect(() => {
     resizeMarkdownTextarea()

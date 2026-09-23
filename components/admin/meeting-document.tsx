@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   CalendarDays,
@@ -80,8 +80,51 @@ export function MeetingDocument({
   const [isEditing, setIsEditing] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const documentDirectory = getMeetingDocumentDirectory(meeting.path)
   const editorFormId = "meeting-document-editor"
+
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      "admin-document-editing",
+      isEditing,
+    )
+
+    if (!isEditing) {
+      return () =>
+        document.documentElement.classList.remove("admin-document-editing")
+    }
+
+    function confirmLeaving(event: BeforeUnloadEvent) {
+      if (!hasUnsavedChanges) return
+      event.preventDefault()
+      event.returnValue = ""
+    }
+
+    function confirmNavigation(event: MouseEvent) {
+      if (!hasUnsavedChanges) return
+      const target = event.target
+      if (!(target instanceof Element)) return
+      const link = target.closest("a[href]")
+      if (!link || link.getAttribute("target") === "_blank") return
+      if (
+        !window.confirm(
+          "Você tem alterações não salvas. Deseja sair e perdê-las?",
+        )
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+
+    window.addEventListener("beforeunload", confirmLeaving)
+    document.addEventListener("click", confirmNavigation, true)
+    return () => {
+      window.removeEventListener("beforeunload", confirmLeaving)
+      document.removeEventListener("click", confirmNavigation, true)
+      document.documentElement.classList.remove("admin-document-editing")
+    }
+  }, [hasUnsavedChanges, isEditing])
 
   async function handleUpdate(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
@@ -102,6 +145,7 @@ export function MeetingDocument({
       content,
     })
     setIsEditing(false)
+    setHasUnsavedChanges(false)
     if (result.path !== meeting.path) {
       router.replace(
         `/admin/${repository}/doc/${result.path.split("/").map(encodeURIComponent).join("/")}`,
@@ -267,6 +311,7 @@ export function MeetingDocument({
           compactHeader
           formId={editorFormId}
           onCancel={() => setIsEditing(false)}
+          onDirtyChange={setHasUnsavedChanges}
           onSubmit={handleUpdate}
         />
       ) : (

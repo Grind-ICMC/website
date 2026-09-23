@@ -51,19 +51,21 @@ export function DocumentDateField({
             type="button"
             variant="outline"
             disabled={disabled}
-            className={`${hideLabel ? "" : "mt-2 "}h-10 w-full justify-start gap-3 border-border bg-background/60 text-sm font-normal hover:bg-secondary hover:text-foreground`}
+            className={`${hideLabel ? "" : "mt-2 "}h-10 w-full min-w-0 justify-start gap-2 overflow-hidden border-border bg-background/60 text-sm font-normal hover:bg-secondary hover:text-foreground`}
           >
             <CalendarDays className="size-4 text-primary" aria-hidden="true" />
-            {value ? (
-              formatDocumentDate(value)
-            ) : (
-              <>
-                <span className="font-semibold text-primary">?</span>
-                <span className="text-muted-foreground">
-                  Data não informada
-                </span>
-              </>
-            )}
+            <span className="min-w-0 truncate">
+              {value ? (
+                formatDocumentDate(value)
+              ) : (
+                <>
+                  <span className="font-semibold text-primary">?</span>
+                  <span className="text-muted-foreground">
+                    Data não informada
+                  </span>
+                </>
+              )}
+            </span>
             <ChevronDown
               className="ml-auto size-4 text-muted-foreground"
               aria-hidden="true"

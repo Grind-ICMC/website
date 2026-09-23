@@ -1,11 +1,6 @@
 "use client"
 
-import {
-  useEffect,
-  useState,
-  type MouseEvent,
-  type ReactNode,
-} from "react"
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react"
 import Link from "next/link"
 import {
   BriefcaseBusiness,
@@ -73,11 +68,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
 ]
 
-export function AdminShell({
-  children,
-  userName,
-  userEmail,
-}: AdminShellProps) {
+export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
@@ -146,6 +137,7 @@ export function AdminShell({
     <div className="min-h-screen bg-transparent pt-16 text-foreground">
       <div className="min-h-[calc(100vh-4rem)] w-full">
         <aside
+          data-admin-sidebar
           onClick={handleSidebarClick}
           className={cn(
             "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
@@ -224,7 +216,9 @@ export function AdminShell({
                       )}
                       aria-hidden="true"
                     />
-                    <span className={cn("truncate", isCollapsed && "lg:hidden")}>
+                    <span
+                      className={cn("truncate", isCollapsed && "lg:hidden")}
+                    >
                       {label}
                     </span>
                   </Link>

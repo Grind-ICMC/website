@@ -36,12 +36,14 @@ export function RepositoryTreeLayout({
 
   return (
     <div
+      data-repository-layout
       className={cn(
         "grid gap-5 transition-[grid-template-columns] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:grid-cols-[19rem_minmax(0,1fr)]",
         isCollapsed && "xl:grid-cols-[4.25rem_minmax(0,1fr)]",
       )}
     >
       <aside
+        data-repository-tree
         onClick={() => {
           if (isCollapsed) {
             setIsCollapsed(false)
