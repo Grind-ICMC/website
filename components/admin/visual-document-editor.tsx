@@ -112,6 +112,7 @@ export function VisualDocumentEditor({
   const [isPaginated, setIsPaginated] = useState(false)
   const [pageCount, setPageCount] = useState(1)
   const workspaceRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createDocumentEditorExtensions(
@@ -186,17 +187,61 @@ export function VisualDocumentEditor({
 
   useEffect(() => {
     if (!editor) return
-    editor.view.dom.classList.toggle("document-page-paginated", isPaginated)
-  }, [editor, isPaginated])
+    editor.view.dom.classList.toggle("document-page-paginated-source", isPaginated)
+    editor.setEditable(!disabled && !isPaginated, false)
+  }, [disabled, editor, isPaginated])
 
   useEffect(() => {
-    const page = workspaceRef.current?.querySelector<HTMLElement>(".document-page")
-    if (!page) return
-    const updatePageCount = () => setPageCount(Math.max(1, Math.ceil(page.scrollHeight / 1123)))
-    updatePageCount()
-    const observer = new ResizeObserver(updatePageCount)
-    observer.observe(page)
-    return () => observer.disconnect()
+    const sourceElement = workspaceRef.current?.querySelector<HTMLElement>(".document-page")
+    const previewElement = previewRef.current
+
+    if (!sourceElement || !previewElement || !isPaginated) {
+      if (previewElement) previewElement.replaceChildren()
+      setPageCount(1)
+      return
+    }
+
+    const source = sourceElement
+    const preview = previewElement
+
+    let cancelled = false
+
+    function buildPreview() {
+      if (cancelled) return
+
+      preview.replaceChildren()
+      const sourceChildren = Array.from(source.children)
+      let page = createPage()
+
+      for (const child of sourceChildren) {
+        const clone = child.cloneNode(true)
+        page.append(clone)
+
+        if (page.scrollHeight > page.clientHeight && page.childElementCount > 1) {
+          page.removeChild(clone)
+          page = createPage()
+          page.append(clone)
+        }
+      }
+
+      setPageCount(Math.max(1, preview.children.length))
+    }
+
+    function createPage() {
+      const page = source.cloneNode(false) as HTMLElement
+      page.classList.remove("document-page-paginated-source")
+      page.removeAttribute("contenteditable")
+      page.removeAttribute("role")
+      page.setAttribute("aria-hidden", "true")
+      preview.append(page)
+      return page
+    }
+
+    const frame = window.requestAnimationFrame(buildPreview)
+    return () => {
+      cancelled = true
+      window.cancelAnimationFrame(frame)
+    }
   }, [editor, content, isPaginated])
   useImperativeHandle(
     editorRef,
@@ -590,6 +635,12 @@ export function VisualDocumentEditor({
       <div
         className={`document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8 ${compactHeader ? "document-editor-workspace-with-fixed-tools" : ""}`}
       >
+        <div
+          ref={previewRef}
+          className={`document-page-preview ${isPaginated ? "document-page-preview-visible" : ""}`}
+          aria-label="Pré-visualização paginada do documento"
+          aria-hidden={!isPaginated}
+        />
         <EditorContent ref={workspaceRef} editor={editor} />
       </div>
     </div>

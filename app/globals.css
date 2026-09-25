@@ -227,16 +227,30 @@
   caret-color: var(--primary);
 }
 
-.document-page-paginated {
-  background-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 1118px,
-    color-mix(in oklab, var(--primary) 45%, var(--border)) 1118px,
-    color-mix(in oklab, var(--primary) 45%, var(--border)) 1123px,
-    transparent 1123px
-  );
-  background-size: 100% 1123px;
+.document-page-paginated-source {
+  display: none;
+}
+
+.document-page-preview {
+  display: none;
+}
+
+.document-page-preview-visible {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.document-page-preview .document-page {
+  flex: 0 0 1123px;
+  height: 1123px;
+  max-height: 1123px;
+  overflow: hidden;
+  margin: 0;
+  box-shadow:
+    0 2px 4px #0005,
+    0 18px 38px #0006;
 }
 
 .document-page > :first-child {
