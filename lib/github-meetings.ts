@@ -14,6 +14,7 @@ export type GitHubContentItem = {
   name: string
   path: string
   type: "file" | "dir" | string
+  iconPath?: string
 }
 
 type GitHubFileContent = GitHubContentItem & {
@@ -27,6 +28,7 @@ export type RepositoryDocumentSummary = {
   path: string
   title: string
   directory: string
+  folderIconPath?: string
 }
 
 export type RepositoryMarkdownDocument = RepositoryDocumentSummary & {
@@ -179,6 +181,38 @@ function isHiddenDirectory(item: GitHubContentItem) {
   return item.name.toLowerCase() === "imgs"
 }
 
+async function getFolderIconPath(
+  repository: AdminRepositorySlug,
+  folderPath: string,
+) {
+  if (repository !== "psel-empresas") {
+    return undefined
+  }
+
+  try {
+    const contents = await fetchGitHubContents(
+      repository,
+      `${folderPath}/imgs`,
+    )
+
+    if (!Array.isArray(contents)) {
+      return undefined
+    }
+
+    const icon = (contents as GitHubContentItem[])
+      .filter(
+        (item) =>
+          item.type === "file" &&
+          /^folder-icon\.(gif|jpe?g|png|svg|webp)$/i.test(item.name),
+      )
+      .sort((left, right) => left.name.localeCompare(right.name))[0]
+
+    return icon?.path
+  } catch {
+    return undefined
+  }
+}
+
 async function getRepositoryDocumentSummary(
   repository: AdminRepositorySlug,
   item: GitHubContentItem,
@@ -237,12 +271,18 @@ export async function getRepositoryDirectory(
     throw new GitHubContentNotFoundError("GitHub directory not found")
   }
 
-  const directories = contents
+  const directoryItems = contents
     .filter(
       (item: GitHubContentItem) =>
         item.type === "dir" && !isHiddenDirectory(item),
     )
     .sort((left, right) => left.name.localeCompare(right.name))
+  const directories = await Promise.all(
+    directoryItems.map(async (item) => ({
+      ...item,
+      iconPath: await getFolderIconPath(repository, item.path),
+    })),
+  )
   const markdownFiles = contents
     .filter(
       (item: GitHubContentItem) =>
@@ -267,6 +307,9 @@ export async function getRepositoryFiles(
   path = "",
 ): Promise<RepositoryDocumentSummary[]> {
   const contents = await fetchGitHubContents(repository, path)
+  const folderIconPath = path
+    ? await getFolderIconPath(repository, path)
+    : undefined
 
   if (!Array.isArray(contents)) {
     return []
@@ -288,6 +331,9 @@ export async function getRepositoryFiles(
 
   return documents
     .flat()
+    .map((document) =>
+      folderIconPath ? { ...document, folderIconPath } : document,
+    )
     .sort((left, right) => right.path.localeCompare(left.path))
 }
 

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ChevronRight, FileText, Folder } from "lucide-react"
 import { usePathname } from "next/navigation"
 
+import { FolderIconPreview } from "@/components/admin/folder-icon-preview"
 import type { AdminRepositorySlug } from "@/lib/admin-repositories"
 import { cn } from "@/lib/utils"
 
@@ -13,6 +14,7 @@ export type AdminSidebarFileSummary = {
   path: string
   title: string
   directory: string
+  folderIconPath?: string
 }
 
 type TreeNode = {
@@ -20,6 +22,7 @@ type TreeNode = {
   path: string
   folders: TreeNode[]
   files: AdminSidebarFileSummary[]
+  iconPath?: string
 }
 
 type AdminSidebarFileTreeProps = {
@@ -53,6 +56,9 @@ function buildTree(files: AdminSidebarFileSummary[]) {
       parent = folder
     }
 
+    if (file.folderIconPath) {
+      parent.iconPath = file.folderIconPath
+    }
     parent.files.push(file)
   }
 
@@ -150,13 +156,21 @@ function FolderBranch({
                 href={getFolderHref(repository, folder.path)}
                 title={folder.path}
                 className={cn(
-                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-xs transition",
+                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-sm transition",
                   isActive
                     ? "bg-primary/10 text-foreground"
                     : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
                 )}
               >
-                <Folder className="mr-1.5 inline-block size-3.5 text-primary" aria-hidden="true" />
+                {folder.iconPath ? (
+                  <FolderIconPreview
+                    src={`/api/admin/${repository}/image?path=${encodeURIComponent(folder.iconPath)}`}
+                    alt={`Ícone da pasta ${folder.name}`}
+                    className="mr-1.5 inline-block size-5 align-middle"
+                  />
+                ) : (
+                  <Folder className="mr-1.5 inline-block size-3.5 text-primary" aria-hidden="true" />
+                )}
                 {folder.name}
               </Link>
             </div>
@@ -183,7 +197,7 @@ function FolderBranch({
             href={getDocumentHref(repository, file.path)}
             title={file.title}
             className={cn(
-              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-xs transition",
+              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-sm transition",
               isActive
                 ? "bg-primary/10 text-foreground"
                 : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",

@@ -153,6 +153,15 @@
   padding-top: 4.25rem;
 }
 
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .admin-document-editing main {
     padding-left: 2rem !important;

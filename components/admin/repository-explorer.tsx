@@ -17,6 +17,8 @@ import { notFound, redirect } from "next/navigation"
 
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
 import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
+import { FolderIconDialog } from "@/components/admin/folder-icon-dialog"
+import { FolderIconPreview } from "@/components/admin/folder-icon-preview"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +36,7 @@ import {
   getRepositoryDocumentHref,
   getRepositoryFolderHref,
 } from "@/lib/github-meetings"
+import { getRepositoryImageSrc } from "@/lib/meeting-image-src"
 
 type RepositoryExplorerProps = {
   repository: AdminRepositorySlug
@@ -155,22 +158,47 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
     const contentGrid = hasVisibleContent ? (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {visibleDirectories.map((item) => (
-          <Link
-            key={item.path}
-            href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
-            className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
-          >
-            <div className="flex min-w-0 items-start gap-3">
-              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <Folder className="size-4" aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
+          repository === "psel-empresas" ? (
+            <div
+              key={item.path}
+              className="group flex min-w-0 items-start gap-3 rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+            >
+              <Link
+                href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
+                className="flex min-w-0 flex-1 items-center gap-3"
+              >
+                <FolderIconPreview
+                  src={item.iconPath ? getRepositoryImageSrc(repository, "", item.iconPath) : undefined}
+                  alt={`Ícone da pasta ${item.name}`}
+                />
                 <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
                   {item.name}
                 </h2>
-              </div>
+              </Link>
+              <FolderIconDialog
+                repository={repository}
+                folderPath={item.path}
+                hasIcon={Boolean(item.iconPath)}
+              />
             </div>
-          </Link>
+          ) : (
+            <Link
+              key={item.path}
+              href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
+              className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+            >
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                  <Folder className="size-4" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
+                    {item.name}
+                  </h2>
+                </div>
+              </div>
+            </Link>
+          )
         ))}
 
         {visibleFiles.map((item) => (

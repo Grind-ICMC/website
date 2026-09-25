@@ -175,7 +175,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
               </Button>
             </div>
 
-            <nav className="mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
+            <nav className="admin-sidebar-scroll mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
               {ADMIN_NAV_ITEMS.map(({ href, label, Icon, repository }) => {
                 const isActive =
                   href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
@@ -188,7 +188,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                       aria-label={label}
                       title={label}
                       className={cn(
-                        "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
+                        "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-base font-medium transition lg:w-full",
                         isActive
                           ? "border-primary/25 bg-primary/10 text-foreground shadow-[inset_3px_0_0_var(--primary)]"
                           : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",

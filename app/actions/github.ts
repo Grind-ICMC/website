@@ -227,6 +227,7 @@ function assertValidImageRelativePath(path: string) {
 async function fetchDirectoryContents(
   repository: AdminRepositorySlug,
   path: string,
+  options?: { allowNotFound?: boolean },
 ) {
   const config = getRepositoryConfig(repository)
   const encodedPath = encodeGitHubPath(path)
@@ -238,6 +239,10 @@ async function fetchDirectoryContents(
       headers: getGitHubHeaders(),
     },
   )
+
+  if (response.status === 404 && options?.allowNotFound) {
+    return []
+  }
 
   await assertGitHubResponse(response)
 
@@ -499,6 +504,93 @@ export async function uploadRepositoryImage(
 
   return {
     path: relativePath,
+    sha,
+  }
+}
+
+export async function uploadRepositoryFolderIcon(
+  repository: AdminRepositorySlug,
+  folderPath: string,
+  fileName: string,
+  base64Content: string,
+) {
+  await requireSession()
+
+  if (repository !== "psel-empresas") {
+    throw new Error("Ícones personalizados estão disponíveis apenas no PSEL Empresas.")
+  }
+
+  const config = getRepositoryConfig(repository)
+  assertValidDirectoryPath(folderPath)
+  const safeFileName = sanitizeFileName(fileName)
+  const extension = safeFileName.split(".").at(-1) ?? "png"
+  if (!["gif", "jpg", "jpeg", "png", "svg", "webp"].includes(extension)) {
+    throw new Error("Formato de imagem inválido para o ícone da pasta.")
+  }
+  const targetFileName = `folder-icon.${extension}`
+  const content = stripDataUrlPrefix(base64Content)
+
+  if (!content) {
+    throw new Error("Conteúdo da imagem não informado.")
+  }
+
+  const imagesPath = joinGitHubPath(folderPath, "imgs")
+  const imageContents = await fetchDirectoryContents(repository, imagesPath, {
+    allowNotFound: true,
+  })
+  const iconPattern = /^folder-icon\.[a-z0-9]+$/i
+  const existingIcons = imageContents.filter(
+    (item) =>
+      item.type === "file" &&
+      typeof item.path === "string" &&
+      iconPattern.test(item.path.split("/").at(-1) ?? ""),
+  )
+
+  for (const item of existingIcons) {
+    if (typeof item.path !== "string" || typeof item.sha !== "string") {
+      continue
+    }
+
+    const response = await fetch(
+      `${getContentsUrl(config)}/${encodeGitHubPath(item.path)}`,
+      {
+        method: "DELETE",
+        headers: getActionHeaders(),
+        body: JSON.stringify({
+          message: `Replace folder icon in ${config.repo}: ${item.path}`,
+          sha: item.sha,
+        }),
+      },
+    )
+    await assertGitHubResponse(response)
+  }
+
+  const imagePath = joinGitHubPath(imagesPath, targetFileName)
+  const response = await fetch(
+    `${getContentsUrl(config)}/${encodeGitHubPath(imagePath)}`,
+    {
+      method: "PUT",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Upload folder icon to ${config.repo}: ${imagePath}`,
+        content,
+      }),
+    },
+  )
+
+  await assertGitHubResponse(response)
+  const result = (await response.json()) as GitHubWriteResponse
+  const sha = result.content?.sha
+
+  if (!sha) {
+    throw new Error("O GitHub não retornou o SHA do ícone da pasta.")
+  }
+
+  revalidateFolder(repository, folderPath)
+  revalidateFolder(repository, imagesPath)
+
+  return {
+    path: joinGitHubPath("imgs", targetFileName),
     sha,
   }
 }

@@ -61,7 +61,7 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div
         className={cn(
-          "transition-[padding,max-width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "transition-[padding,max-width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isAdmin
             ? "max-w-none px-4 sm:px-6 lg:pr-8 lg:pl-[var(--admin-sidebar-offset,20rem)]"
             : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
@@ -69,7 +69,7 @@ export function Navbar() {
       >
         <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className={cn("flex items-center gap-2", isAdmin && "lg:hidden")}>
             <GiIciclesAura className="h-8 w-8 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">
               <span className="text-foreground">Grind </span>
@@ -97,6 +97,15 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {isAdmin ? (
+              <Link href="/" className="hidden items-center gap-2 lg:flex lg:mr-2" aria-label="Grind ICMC">
+                <GiIciclesAura className="h-7 w-7 text-primary" aria-hidden="true" />
+                <span className="text-lg font-bold">
+                  <span className="text-foreground">Grind </span>
+                  <span className="text-primary">ICMC</span>
+                </span>
+              </Link>
+            ) : null}
             {/* Language Switcher */}
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
