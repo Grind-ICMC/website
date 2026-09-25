@@ -11,38 +11,29 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { Image as ImageIcon, FileText, Code2 } from "lucide-react"
+import { Image as ImageIcon, FileText, Code2, Pencil } from "lucide-react"
 import dynamic from "next/dynamic"
 import { DocumentDateField } from "@/components/admin/document-date-field"
 import { Switch } from "@/components/ui/switch"
 import type { VisualDocumentEditorHandle } from "@/components/admin/visual-document-editor"
 
-import {
-  deleteRepositoryUploadedImage,
-  uploadRepositoryImage,
-} from "@/app/actions/github"
+import { deleteRepositoryUploadedImage, uploadRepositoryImage } from "@/app/actions/github"
 import { MarkdownContent } from "@/components/admin/markdown-content"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { AdminRepositorySlug } from "@/lib/admin-repositories"
-import {
-  normalizeMeetingFrontmatter,
-  type MeetingEditorValues,
-} from "@/lib/meeting-cms"
+import { normalizeMeetingFrontmatter, type MeetingEditorValues } from "@/lib/meeting-cms"
 import { getRepositoryImageSrc } from "@/lib/meeting-image-src"
 
 const VisualDocumentEditor = dynamic(
-  () =>
-    import("@/components/admin/visual-document-editor").then(
-      (module) => module.VisualDocumentEditor,
-    ),
+  () => import("@/components/admin/visual-document-editor").then((module) => module.VisualDocumentEditor),
   {
     ssr: false,
-    loading: () => (
-      <div className="min-h-[640px] animate-pulse rounded-xl border border-border bg-card" />
-    ),
+    loading: () => <div className="min-h-[640px] animate-pulse rounded-xl border border-border bg-card" />,
   },
 )
+
+const DOCUMENT_TITLE_MAX_LENGTH = 80
 
 type MeetingEditorFormProps = {
   repository: AdminRepositorySlug
@@ -64,9 +55,7 @@ type PendingImageUpload = {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : "Nao foi possivel salvar o documento."
+  return error instanceof Error ? error.message : "Nao foi possivel salvar o documento."
 }
 
 function getParentPath(path: string) {
@@ -133,9 +122,7 @@ function getClipboardImage(event: ClipboardEvent<HTMLTextAreaElement>) {
     return itemImage
   }
 
-  return Array.from(event.clipboardData.files).find((file) =>
-    file.type.startsWith("image/"),
-  )
+  return Array.from(event.clipboardData.files).find((file) => file.type.startsWith("image/"))
 }
 
 export function MeetingEditorForm({
@@ -172,9 +159,7 @@ export function MeetingEditorForm({
   const cleanupPromiseRef = useRef<Promise<void> | null>(null)
   const hasSavedRef = useRef(false)
   const isMountedRef = useRef(false)
-  const uploadDirectory = normalizePath(
-    fixedPath ? getParentPath(fixedPath) : pathPrefix,
-  )
+  const uploadDirectory = normalizePath(fixedPath ? getParentPath(fixedPath) : pathPrefix)
   const hideAuthorField = repository === "psel-empresas"
 
   useEffect(() => {
@@ -250,12 +235,7 @@ export function MeetingEditorForm({
       await Promise.all(
         uploads.map(async (upload) => {
           try {
-            await deleteRepositoryUploadedImage(
-              repository,
-              uploadDirectory,
-              upload.path,
-              upload.sha,
-            )
+            await deleteRepositoryUploadedImage(repository, uploadDirectory, upload.path, upload.sha)
           } catch {
             failedUploads.push(upload)
           }
@@ -263,10 +243,7 @@ export function MeetingEditorForm({
       )
 
       if (failedUploads.length) {
-        pendingImageUploadsRef.current = [
-          ...failedUploads,
-          ...pendingImageUploadsRef.current,
-        ]
+        pendingImageUploadsRef.current = [...failedUploads, ...pendingImageUploadsRef.current]
         throw new Error("Nao foi possivel remover todas as imagens pendentes.")
       }
     })()
@@ -284,17 +261,11 @@ export function MeetingEditorForm({
     }
   }
 
-  function insertAtSelection(
-    markdown: string,
-    selection = selectionRef.current,
-  ) {
+  function insertAtSelection(markdown: string, selection = selectionRef.current) {
     const currentContent = textareaRef.current?.value ?? content
     const start = Math.min(selection.start, currentContent.length)
     const end = Math.min(selection.end, currentContent.length)
-    const nextContent = `${currentContent.slice(
-      0,
-      start,
-    )}${markdown}${currentContent.slice(end)}`
+    const nextContent = `${currentContent.slice(0, start)}${markdown}${currentContent.slice(end)}`
     const nextPosition = start + markdown.length
 
     setContent(nextContent)
@@ -335,12 +306,7 @@ export function MeetingEditorForm({
 
     const uploadTask = (async () => {
       const dataUrl = await readFileAsDataUrl(file)
-      const result = await uploadRepositoryImage(
-        repository,
-        uploadDirectory,
-        fileName,
-        dataUrl,
-      )
+      const result = await uploadRepositoryImage(repository, uploadDirectory, fileName, dataUrl)
       const imageMarkdown = `![Image](${result.path})`
 
       pendingImageUploadsRef.current = [
@@ -360,10 +326,7 @@ export function MeetingEditorForm({
       else visualEditorRef.current?.insertImage(result.path, file.name)
     })()
 
-    uploadTasksRef.current = [
-      ...uploadTasksRef.current,
-      uploadTask.catch(() => undefined),
-    ]
+    uploadTasksRef.current = [...uploadTasksRef.current, uploadTask.catch(() => undefined)]
 
     try {
       await uploadTask
@@ -479,30 +442,23 @@ export function MeetingEditorForm({
     <form id={formId} onSubmit={handleSubmit} className="min-w-0 space-y-6">
       {compactHeader ? (
         <div className="document-editor-meta-bar flex min-w-0 flex-wrap items-center gap-2 border-b border-border bg-background/95 p-2 shadow-lg backdrop-blur-md sm:p-3">
-          <label className="block min-w-0 flex-1 basis-52">
+          <label className="relative block min-w-0 flex-1 basis-52">
             <span className="sr-only">Título do documento</span>
+            <Pencil className="pointer-events-none absolute mt-3 ml-3 size-4 text-primary" aria-hidden="true" />
             <Input
               required
+              maxLength={DOCUMENT_TITLE_MAX_LENGTH}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               disabled={busy}
-              className="h-10 border-border bg-card text-base font-semibold placeholder:text-muted-foreground"
+              className="h-10 border-border bg-card pl-9 text-base font-semibold placeholder:text-muted-foreground"
               placeholder="Título do documento"
             />
           </label>
           <div className="w-44 shrink-0">
-            <DocumentDateField
-              value={date}
-              onChange={setDate}
-              disabled={busy}
-              hideLabel
-            />
+            <DocumentDateField value={date} onChange={setDate} disabled={busy} hideLabel />
           </div>
-          {compactActions ? (
-            <div className="flex shrink-0 items-center gap-2">
-              {compactActions}
-            </div>
-          ) : null}
+          {compactActions ? <div className="flex shrink-0 items-center gap-2">{compactActions}</div> : null}
         </div>
       ) : (
         <fieldset
@@ -513,6 +469,7 @@ export function MeetingEditorForm({
             <span className="text-sm font-medium text-foreground">Título</span>
             <Input
               required
+              maxLength={DOCUMENT_TITLE_MAX_LENGTH}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               className="mt-2 h-12 border-border bg-background/60 text-lg font-medium placeholder:text-muted-foreground"
@@ -538,11 +495,7 @@ export function MeetingEditorForm({
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            {advanced ? (
-              <Code2 className="size-4 text-primary" />
-            ) : (
-              <FileText className="size-4 text-primary" />
-            )}
+            {advanced ? <Code2 className="size-4 text-primary" /> : <FileText className="size-4 text-primary" />}
             {advanced ? "Editar Markdown" : "Seu documento"}
           </div>
           <label
@@ -550,21 +503,10 @@ export function MeetingEditorForm({
             className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground"
           >
             Markdown avançado
-            <Switch
-              id={modeId}
-              checked={advanced}
-              onCheckedChange={setAdvanced}
-              disabled={busy}
-            />
+            <Switch id={modeId} checked={advanced} onCheckedChange={setAdvanced} disabled={busy} />
           </label>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleUploadImage}
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadImage} />
         {isUploadingImage && (
           <p role="status" className="mb-3 text-sm text-primary">
             Enviando imagem…
@@ -581,13 +523,7 @@ export function MeetingEditorForm({
         {advanced ? (
           <>
             <div className="mb-3 flex justify-end">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={busy}
-                onClick={chooseImage}
-              >
+              <Button type="button" size="sm" variant="outline" disabled={busy} onClick={chooseImage}>
                 <ImageIcon className="size-4" aria-hidden="true" />
                 Inserir imagem
               </Button>
@@ -622,10 +558,7 @@ export function MeetingEditorForm({
                 </div>
                 <div className="min-h-[520px] px-4 py-3">
                   {content.trim() ? (
-                    <MarkdownContent
-                      content={content}
-                      resolveImageSrc={resolvePreviewImageSrc}
-                    />
+                    <MarkdownContent content={content} resolveImageSrc={resolvePreviewImageSrc} />
                   ) : (
                     <div className="flex min-h-[496px] items-center justify-center text-sm text-muted-foreground">
                       A pré-visualização aparecerá aqui.
@@ -643,8 +576,7 @@ export function MeetingEditorForm({
             resolveImageSrc={resolvePreviewImageSrc}
             onUploadImage={chooseImage}
             onPasteImage={(file) => {
-              if (!busy)
-                void uploadAndInsertImage(file, getClipboardImageFileName(file))
+              if (!busy) void uploadAndInsertImage(file, getClipboardImageFileName(file))
             }}
             disabled={busy}
             compactHeader={compactHeader}
@@ -652,31 +584,19 @@ export function MeetingEditorForm({
         )}
       </div>
       {error && (
-        <div
-          role="alert"
-          className="rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100"
-        >
+        <div role="alert" className="rounded-md border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-100">
           {error}
         </div>
       )}
       {!compactHeader && (
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           {onCancel && (
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={busy}
-              onClick={handleCancel}
-            >
+            <Button type="button" variant="ghost" disabled={busy} onClick={handleCancel}>
               {isCleaningUploads ? "Cancelando…" : "Cancelar"}
             </Button>
           )}
           <Button type="submit" disabled={busy}>
-            {isSubmitting
-              ? "Salvando…"
-              : isUploadingImage
-                ? "Enviando imagem…"
-                : submitLabel}
+            {isSubmitting ? "Salvando…" : isUploadingImage ? "Enviando imagem…" : submitLabel}
           </Button>
         </div>
       )}

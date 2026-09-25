@@ -11,21 +11,16 @@ import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-context"
 import { useAccessibility } from "@/components/accessibility-context"
 import { cn } from "@/lib/utils"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 // Flag icons as SVG components
 function BrazilFlag({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 640 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="640" height="480" fill="#229E45"/>
-      <polygon points="320,40 600,240 320,440 40,240" fill="#F8E509"/>
-      <circle cx="320" cy="240" r="100" fill="#2B49A3"/>
-      <path d="M200,240 Q320,180 440,240 Q320,200 200,240" fill="white"/>
+      <rect width="640" height="480" fill="#229E45" />
+      <polygon points="320,40 600,240 320,440 40,240" fill="#F8E509" />
+      <circle cx="320" cy="240" r="100" fill="#2B49A3" />
+      <path d="M200,240 Q320,180 440,240 Q320,200 200,240" fill="white" />
     </svg>
   )
 }
@@ -33,14 +28,14 @@ function BrazilFlag({ className }: { className?: string }) {
 function USAFlag({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 640 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="640" height="480" fill="#BD3D44"/>
-      <rect y="37" width="640" height="37" fill="white"/>
-      <rect y="111" width="640" height="37" fill="white"/>
-      <rect y="185" width="640" height="37" fill="white"/>
-      <rect y="259" width="640" height="37" fill="white"/>
-      <rect y="333" width="640" height="37" fill="white"/>
-      <rect y="407" width="640" height="37" fill="white"/>
-      <rect width="260" height="260" fill="#192F5D"/>
+      <rect width="640" height="480" fill="#BD3D44" />
+      <rect y="37" width="640" height="37" fill="white" />
+      <rect y="111" width="640" height="37" fill="white" />
+      <rect y="185" width="640" height="37" fill="white" />
+      <rect y="259" width="640" height="37" fill="white" />
+      <rect y="333" width="640" height="37" fill="white" />
+      <rect y="407" width="640" height="37" fill="white" />
+      <rect width="260" height="260" fill="#192F5D" />
     </svg>
   )
 }
@@ -72,7 +67,7 @@ export function Navbar() {
             : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
         )}
       >
-        <div className="flex h-16 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <GiIciclesAura className="h-8 w-8 text-primary" aria-hidden="true" />
@@ -83,7 +78,12 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-6 lg:flex">
+          <div
+            className={cn(
+              "absolute hidden -translate-x-1/2 items-center gap-6 lg:flex",
+              isAdmin ? "left-[50vw]" : "left-1/2",
+            )}
+          >
             {navLinks.map((link) => (
               <Link
                 key={link.key}
@@ -106,14 +106,14 @@ export function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setLanguage("pt")}
                   className={language === "pt" ? "bg-accent text-slate-950 font-medium" : ""}
                 >
                   <BrazilFlag className="h-4 w-5 mr-2 rounded-sm overflow-hidden" />
                   Português
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => setLanguage("en")}
                   className={language === "en" ? "bg-accent text-slate-950 font-medium" : ""}
                 >
@@ -131,11 +131,7 @@ export function Navbar() {
               onClick={toggleHighContrast}
               aria-label={highContrast ? "Disable high contrast" : "Enable high contrast"}
             >
-              {highContrast ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {highContrast ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
 
             {/* Login Button */}
@@ -191,7 +187,7 @@ export function Navbar() {
                 </Link>
               ))}
               {session ? (
-                <Link 
+                <Link
                   href="/admin"
                   className="flex items-center justify-center gap-3 w-full p-2 rounded-md bg-accent/50 hover:bg-accent transition-colors"
                   onClick={() => setIsOpen(false)}
@@ -214,7 +210,11 @@ export function Navbar() {
                   <span className="text-sm font-medium">Painel Administrativo</span>
                 </Link>
               ) : (
-                <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setIsOpen(false)}>
+                <Button
+                  asChild
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => setIsOpen(false)}
+                >
                   <Link href="/login">{t("nav.login")}</Link>
                 </Button>
               )}

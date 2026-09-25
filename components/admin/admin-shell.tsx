@@ -19,7 +19,9 @@ import { signOut as clientSignOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
+import { AdminSidebarFileTree, type AdminSidebarFileSummary } from "@/components/admin/admin-sidebar-file-tree"
 import { cn } from "@/lib/utils"
+import type { AdminRepositorySlug } from "@/lib/admin-repositories"
 
 const SIDEBAR_STORAGE_KEY = "grind-admin-sidebar-collapsed"
 
@@ -27,12 +29,14 @@ type AdminShellProps = {
   children: ReactNode
   userName: string
   userEmail?: string | null
+  repositoryTrees: Partial<Record<AdminRepositorySlug, AdminSidebarFileSummary[]>>
 }
 
 type AdminNavItem = {
   href: string
   label: string
   Icon: LucideIcon
+  repository?: AdminRepositorySlug
 }
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
@@ -45,21 +49,25 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/meetings",
     label: "Atas da Reunião",
     Icon: FileText,
+    repository: "meetings",
   },
   {
     href: "/admin/docs",
     label: "Docs",
     Icon: BookOpenText,
+    repository: "docs",
   },
   {
     href: "/admin/studies",
     label: "Studies",
     Icon: GraduationCap,
+    repository: "studies",
   },
   {
     href: "/admin/psel-empresas",
     label: "PSEL Empresas",
     Icon: BriefcaseBusiness,
+    repository: "psel-empresas",
   },
   {
     href: "/admin/members",
@@ -68,7 +76,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
 ]
 
-export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
+export function AdminShell({ children, userName, userEmail, repositoryTrees }: AdminShellProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
@@ -101,11 +109,7 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
       return
     }
 
-    if (
-      target.closest(
-        'a, button, input, textarea, select, [role="button"], [role="dialog"]',
-      )
-    ) {
+    if (target.closest('a, button, input, textarea, select, [role="button"], [role="dialog"]')) {
       return
     }
 
@@ -122,10 +126,7 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
       return
     }
 
-    document.documentElement.style.setProperty(
-      "--admin-sidebar-offset",
-      isCollapsed ? "7rem" : "20rem",
-    )
+    document.documentElement.style.setProperty("--admin-sidebar-offset", isCollapsed ? "7rem" : "20rem")
     localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isCollapsed))
 
     return () => {
@@ -144,29 +145,17 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
             isCollapsed ? "lg:w-20 lg:px-3" : "lg:w-72 lg:px-5",
           )}
         >
-          <div
-            className={cn(
-              "flex h-full min-h-0 flex-col",
-              isCollapsed && "lg:items-center",
-            )}
-          >
+          <div className={cn("flex h-full min-h-0 flex-col", isCollapsed && "lg:items-center")}>
             <div
-              className={cn(
-                "flex items-center justify-between gap-3",
-                isCollapsed && "lg:flex-col lg:justify-center",
-              )}
+              className={cn("flex items-center justify-between gap-3", isCollapsed && "lg:flex-col lg:justify-center")}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_16%,transparent)]">
                   <ShieldCheck className="size-5" aria-hidden="true" />
                 </div>
                 <div className={cn("min-w-0", isCollapsed && "lg:hidden")}>
-                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-primary/75">
-                    Grind ICMC
-                  </p>
-                  <p className="truncate text-lg font-semibold text-foreground">
-                    Admin
-                  </p>
+                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-primary/75">Grind ICMC</p>
+                  <p className="truncate text-lg font-semibold text-foreground">Admin</p>
                 </div>
               </div>
 
@@ -187,51 +176,45 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
             </div>
 
             <nav className="mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
-              {ADMIN_NAV_ITEMS.map(({ href, label, Icon }) => {
+              {ADMIN_NAV_ITEMS.map(({ href, label, Icon, repository }) => {
                 const isActive =
-                  href === "/admin"
-                    ? pathname === href
-                    : pathname === href || pathname.startsWith(`${href}/`)
+                  href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
+                const files = repository ? repositoryTrees[repository] : undefined
 
                 return (
-                  <Link
-                    key={href}
-                    href={href}
-                    aria-label={label}
-                    title={label}
-                    className={cn(
-                      "group relative flex h-11 shrink-0 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
-                      isActive
-                        ? "border-primary/25 bg-primary/10 text-foreground shadow-[inset_3px_0_0_var(--primary)]"
-                        : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
-                      isCollapsed && "lg:w-11 lg:justify-center lg:px-0",
-                    )}
-                  >
-                    <Icon
+                  <div key={href} className="min-w-0 shrink-0 lg:w-full">
+                    <Link
+                      href={href}
+                      aria-label={label}
+                      title={label}
                       className={cn(
-                        "size-4 shrink-0 transition",
+                        "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
                         isActive
-                          ? "text-primary"
-                          : "text-muted-foreground group-hover:text-primary",
+                          ? "border-primary/25 bg-primary/10 text-foreground shadow-[inset_3px_0_0_var(--primary)]"
+                          : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
+                        isCollapsed && "lg:w-11 lg:justify-center lg:px-0",
                       )}
-                      aria-hidden="true"
-                    />
-                    <span
-                      className={cn("truncate", isCollapsed && "lg:hidden")}
                     >
-                      {label}
-                    </span>
-                  </Link>
+                      <Icon
+                        className={cn(
+                          "size-4 shrink-0 transition",
+                          isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary",
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span className={cn("truncate", isCollapsed && "lg:hidden")}>{label}</span>
+                    </Link>
+                    {repository && isActive && !isCollapsed && files ? (
+                      <div className="hidden lg:block">
+                        <AdminSidebarFileTree repository={repository} files={files} />
+                      </div>
+                    ) : null}
+                  </div>
                 )
               })}
             </nav>
 
-            <div
-              className={cn(
-                "mt-4 border-t border-border pt-4",
-                isCollapsed && "lg:w-full",
-              )}
-            >
+            <div className={cn("mt-4 border-t border-border pt-4", isCollapsed && "lg:w-full")}>
               <div
                 className={cn(
                   "mb-3 rounded-md border border-border bg-secondary/35 px-3 py-3",
@@ -240,13 +223,9 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
               >
                 <div className="mb-1 flex items-center gap-2">
                   <span className="size-2 rounded-full bg-primary shadow-[0_0_14px_var(--primary)]" />
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {userName}
-                  </p>
+                  <p className="truncate text-sm font-medium text-foreground">{userName}</p>
                 </div>
-                <p className="truncate text-xs text-muted-foreground">
-                  {userEmail ?? "GitHub autorizado"}
-                </p>
+                <p className="truncate text-xs text-muted-foreground">{userEmail ?? "GitHub autorizado"}</p>
               </div>
 
               <Button
@@ -262,9 +241,7 @@ export function AdminShell({ children, userName, userEmail }: AdminShellProps) {
                 )}
               >
                 <LogOut className="size-4" aria-hidden="true" />
-                <span className={cn(isCollapsed && "lg:hidden")}>
-                  {isSigningOut ? "Saindo..." : "Sair"}
-                </span>
+                <span className={cn(isCollapsed && "lg:hidden")}>{isSigningOut ? "Saindo..." : "Sair"}</span>
               </Button>
             </div>
           </div>

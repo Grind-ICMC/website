@@ -2,20 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  CalendarDays,
-  Edit3,
-  FileText,
-  FolderTree,
-  Save,
-  Trash2,
-  UserRound,
-} from "lucide-react"
+import { CalendarDays, Edit3, FileText, FolderTree, Save, Trash2, UserRound } from "lucide-react"
 
-import {
-  deleteRepositoryDocument,
-  updateRepositoryDocument,
-} from "@/app/actions/github"
+import { deleteRepositoryDocument, updateRepositoryDocument } from "@/app/actions/github"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
 import { MarkdownContent } from "@/components/admin/markdown-content"
 import {
@@ -30,20 +19,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import {
-  getAdminRepositoryConfig,
-  getRepositoryFullName,
-  type AdminRepositorySlug,
-} from "@/lib/admin-repositories"
-import {
-  formatDocumentDate,
-  type MeetingEditorValues,
-  type MeetingFrontmatterData,
-} from "@/lib/meeting-cms"
-import {
-  getMeetingDocumentDirectory,
-  getRepositoryImageSrc,
-} from "@/lib/meeting-image-src"
+import { getAdminRepositoryConfig, getRepositoryFullName, type AdminRepositorySlug } from "@/lib/admin-repositories"
+import { formatDocumentDate, type MeetingEditorValues, type MeetingFrontmatterData } from "@/lib/meeting-cms"
+import { getMeetingDocumentDirectory, getRepositoryImageSrc } from "@/lib/meeting-image-src"
 
 type MeetingDocumentState = {
   path: string
@@ -60,20 +38,14 @@ type MeetingDocumentProps = {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : "Nao foi possivel concluir a operacao."
+  return error instanceof Error ? error.message : "Nao foi possivel concluir a operacao."
 }
 
 function capitalizeLabel(label: string) {
   return label.charAt(0).toLocaleUpperCase("pt-BR") + label.slice(1)
 }
 
-export function MeetingDocument({
-  repository,
-  initialMeeting,
-  parentFolderHref,
-}: MeetingDocumentProps) {
+export function MeetingDocument({ repository, initialMeeting, parentFolderHref }: MeetingDocumentProps) {
   const router = useRouter()
   const repositoryConfig = getAdminRepositoryConfig(repository)
   const [meeting, setMeeting] = useState(initialMeeting)
@@ -81,18 +53,15 @@ export function MeetingDocument({
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
   const documentDirectory = getMeetingDocumentDirectory(meeting.path)
   const editorFormId = "meeting-document-editor"
 
   useEffect(() => {
-    document.documentElement.classList.toggle(
-      "admin-document-editing",
-      isEditing,
-    )
+    document.documentElement.classList.toggle("admin-document-editing", isEditing)
 
     if (!isEditing) {
-      return () =>
-        document.documentElement.classList.remove("admin-document-editing")
+      return () => document.documentElement.classList.remove("admin-document-editing")
     }
 
     function confirmLeaving(event: BeforeUnloadEvent) {
@@ -106,15 +75,10 @@ export function MeetingDocument({
       const target = event.target
       if (!(target instanceof Element)) return
       const link = target.closest("a[href]")
-      if (!link || link.getAttribute("target") === "_blank") return
-      if (
-        !window.confirm(
-          "Você tem alterações não salvas. Deseja sair e perdê-las?",
-        )
-      ) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
+      if (!(link instanceof HTMLAnchorElement) || link.target === "_blank") return
+      event.preventDefault()
+      event.stopPropagation()
+      setPendingNavigation(link.href)
     }
 
     window.addEventListener("beforeunload", confirmLeaving)
@@ -128,13 +92,7 @@ export function MeetingDocument({
 
   async function handleUpdate(values: MeetingEditorValues) {
     const { content, ...frontmatter } = values
-    const result = await updateRepositoryDocument(
-      repository,
-      meeting.path,
-      meeting.sha,
-      frontmatter,
-      content,
-    )
+    const result = await updateRepositoryDocument(repository, meeting.path, meeting.sha, frontmatter, content)
 
     setMeeting({
       ...meeting,
@@ -147,9 +105,7 @@ export function MeetingDocument({
     setIsEditing(false)
     setHasUnsavedChanges(false)
     if (result.path !== meeting.path) {
-      router.replace(
-        `/admin/${repository}/doc/${result.path.split("/").map(encodeURIComponent).join("/")}`,
-      )
+      router.replace(`/admin/${repository}/doc/${result.path.split("/").map(encodeURIComponent).join("/")}`)
     }
     router.refresh()
   }
@@ -171,9 +127,38 @@ export function MeetingDocument({
 
   return (
     <>
-      <header
-        className={`mb-8 border-b border-cyan-400/15 pb-6 ${isEditing ? "hidden" : ""}`}
+      <AlertDialog
+        open={Boolean(pendingNavigation)}
+        onOpenChange={(open) => {
+          if (!open) setPendingNavigation(null)
+        }}
       >
+        <AlertDialogContent className="border-cyan-400/20 bg-slate-950 text-slate-100">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alterações não salvas</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              Você fez alterações neste documento. Se sair agora, elas serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-cyan-400/20 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white">
+              Continuar editando
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+              onClick={() => {
+                const destination = pendingNavigation
+                setPendingNavigation(null)
+                setHasUnsavedChanges(false)
+                if (destination) window.location.assign(destination)
+              }}
+            >
+              Sair sem salvar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <header className={`mb-8 border-b border-cyan-400/15 pb-6 ${isEditing ? "hidden" : ""}`}>
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-sm font-medium text-cyan-300">
@@ -181,28 +166,17 @@ export function MeetingDocument({
               {capitalizeLabel(repositoryConfig.documentLabel)}
             </p>
             {isEditing ? (
-              <p className="mt-2 text-sm text-muted-foreground">
-                Editando documento
-              </p>
+              <p className="mt-2 text-sm text-muted-foreground">Editando documento</p>
             ) : (
-              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-                {meeting.title}
-              </h1>
+              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">{meeting.title}</h1>
             )}
             {!isEditing && (
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span
                   className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
-                  title={
-                    meeting.frontmatter.date
-                      ? "Data do documento"
-                      : "Data não informada"
-                  }
+                  title={meeting.frontmatter.date ? "Data do documento" : "Data não informada"}
                 >
-                  <CalendarDays
-                    className="size-4 text-primary"
-                    aria-hidden="true"
-                  />
+                  <CalendarDays className="size-4 text-primary" aria-hidden="true" />
                   <span className="sr-only">Data do documento: </span>
                   {formatDocumentDate(meeting.frontmatter.date)}
                 </span>
@@ -214,10 +188,7 @@ export function MeetingDocument({
                 )}
                 {documentDirectory && (
                   <span className="inline-flex min-w-0 items-center gap-2">
-                    <FolderTree
-                      className="size-4 shrink-0"
-                      aria-hidden="true"
-                    />
+                    <FolderTree className="size-4 shrink-0" aria-hidden="true" />
                     <span className="truncate">{documentDirectory}</span>
                   </span>
                 )}
@@ -225,9 +196,7 @@ export function MeetingDocument({
             )}
           </div>
 
-          <div
-            className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}
-          >
+          <div className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}>
             <Button
               type="button"
               onClick={() => {
@@ -266,9 +235,8 @@ export function MeetingDocument({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir documento?</AlertDialogTitle>
                   <AlertDialogDescription className="text-slate-400">
-                    Esta ação remove “{meeting.title}” do repositório{" "}
-                    {getRepositoryFullName(repositoryConfig)}. Ela cria um
-                    commit de exclusao no GitHub.
+                    Esta ação remove “{meeting.title}” do repositório {getRepositoryFullName(repositoryConfig)}. Ela
+                    cria um commit de exclusao no GitHub.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -326,25 +294,43 @@ export function MeetingDocument({
                 <Save className="size-4" aria-hidden="true" />
                 Salvar
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isDeleting}
-                className="border-red-400/30 bg-red-950/30 text-red-100 hover:bg-red-900/50 hover:text-white"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Excluir este documento? Esta ação não pode ser desfeita.",
-                    )
-                  ) {
-                    void handleDelete()
-                  }
-                }}
-              >
-                <Trash2 className="size-4" aria-hidden="true" />
-                {isDeleting ? "Excluindo…" : "Excluir"}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={isDeleting}
+                    className="border-red-400/30 bg-red-950/30 text-red-100 hover:bg-red-900/50 hover:text-white"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                    {isDeleting ? "Excluindo…" : "Excluir"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="border-red-400/25 bg-slate-950 text-slate-100">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir documento?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-slate-400">
+                      Esta ação remove “{meeting.title}” e não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-cyan-400/20 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white">
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isDeleting}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        void handleDelete()
+                      }}
+                      className="bg-red-500 text-white hover:bg-red-400"
+                    >
+                      {isDeleting ? "Excluindo..." : "Excluir"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </>
           }
           onCancel={() => setIsEditing(false)}
@@ -355,9 +341,7 @@ export function MeetingDocument({
         <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 px-5 py-6 sm:px-8">
           <MarkdownContent
             content={meeting.content}
-            resolveImageSrc={(src) =>
-              getRepositoryImageSrc(repository, documentDirectory, src ?? "")
-            }
+            resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
           />
         </div>
       )}

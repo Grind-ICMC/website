@@ -1,7 +1,10 @@
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 
-import type { AdminRepositorySlug } from "@/lib/admin-repositories"
+import {
+  getAdminRepositoryConfig,
+  type AdminRepositorySlug,
+} from "@/lib/admin-repositories"
 import { getRepositoryFolderHref } from "@/lib/github-meetings"
 
 type MeetingBreadcrumbsProps = {
@@ -24,7 +27,7 @@ export function MeetingBreadcrumbs({
         href={getRepositoryFolderHref(repository)}
         className="font-medium text-cyan-300 transition hover:text-cyan-100"
       >
-        Root
+        {getAdminRepositoryConfig(repository).navLabel}
       </Link>
       {segments.map((segment, index) => {
         const href = getRepositoryFolderHref(

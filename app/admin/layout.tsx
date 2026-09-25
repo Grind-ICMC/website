@@ -5,6 +5,8 @@ import { ParticlesBackground } from "@/components/particles-background"
 import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
+import { ADMIN_REPOSITORIES } from "@/lib/admin-repositories"
+import { getRepositoryFiles } from "@/lib/github-meetings"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
@@ -15,11 +17,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await auth()
 
   if (!session?.user) {
@@ -27,15 +25,22 @@ export default async function AdminLayout({
   }
 
   const userName = session.user.name ?? session.user.email ?? "Membro"
+  const repositoryTreeEntries = await Promise.all(
+    ADMIN_REPOSITORIES.map(async ({ slug }) => {
+      try {
+        return [slug, await getRepositoryFiles(slug)] as const
+      } catch {
+        return [slug, []] as const
+      }
+    }),
+  )
+  const repositoryTrees = Object.fromEntries(repositoryTreeEntries)
 
   return (
     <div className="relative min-h-screen overflow-hidden">
       <ParticlesBackground />
       <Navbar />
-      <AdminShell
-        userName={userName}
-        userEmail={session.user.email}
-      >
+      <AdminShell userName={userName} userEmail={session.user.email} repositoryTrees={repositoryTrees}>
         {children}
       </AdminShell>
     </div>

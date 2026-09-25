@@ -18,8 +18,6 @@ import { notFound, redirect } from "next/navigation"
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
 import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
-import { RepositoryFileTree } from "@/components/admin/repository-file-tree"
-import { RepositoryTreeLayout } from "@/components/admin/repository-tree-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -35,10 +33,7 @@ import {
   getRepositoryDirectory,
   getRepositoryDocumentHref,
   getRepositoryFolderHref,
-  getRepositoryFiles,
-  type RepositoryDocumentSummary,
 } from "@/lib/github-meetings"
-import { cn } from "@/lib/utils"
 
 type RepositoryExplorerProps = {
   repository: AdminRepositorySlug
@@ -84,10 +79,7 @@ function withSearchParam(href: string, rawSearchTerm: string) {
   return query ? `${href}?${query}` : href
 }
 
-function getNewDocumentHref(
-  repository: AdminRepositorySlug,
-  currentPath: string,
-) {
+function getNewDocumentHref(repository: AdminRepositorySlug, currentPath: string) {
   if (!currentPath) {
     return `/admin/${repository}/new`
   }
@@ -97,40 +89,25 @@ function getNewDocumentHref(
   }).toString()}`
 }
 
-function RepositoryError({
-  repositoryFullName,
-}: {
-  repositoryFullName: string
-}) {
+function RepositoryError({ repositoryFullName }: { repositoryFullName: string }) {
   return (
     <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-6 text-destructive-foreground">
-      <h2 className="text-lg font-semibold text-foreground">
-        Não foi possível acessar este repositório.
-      </h2>
+      <h2 className="text-lg font-semibold text-foreground">Não foi possível acessar este repositório.</h2>
       <p className="mt-2 text-sm text-destructive-foreground/80">
-        O repositório {repositoryFullName} está configurado no admin, mas o
-        GitHub não liberou o conteúdo para o servidor. Verifique se o
-        GITHUB_ADMIN_TOKEN tem acesso a este repositório privado e permissão de
-        leitura/escrita em Contents.
+        O repositório {repositoryFullName} está configurado no admin, mas o GitHub não liberou o conteúdo para o
+        servidor. Verifique se o GITHUB_ADMIN_TOKEN tem acesso a este repositório privado e permissão de leitura/escrita
+        em Contents.
       </p>
     </div>
   )
 }
 
-function EmptyDirectory({
-  repositoryConfig,
-}: {
-  repositoryConfig: AdminRepositoryConfig
-}) {
+function EmptyDirectory({ repositoryConfig }: { repositoryConfig: AdminRepositoryConfig }) {
   return (
     <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
       <FolderOpen className="mx-auto size-10 text-primary" aria-hidden="true" />
-      <h2 className="mt-4 text-lg font-semibold text-foreground">
-        Pasta vazia
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {repositoryConfig.emptyDirectoryDescription}
-      </p>
+      <h2 className="mt-4 text-lg font-semibold text-foreground">Pasta vazia</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{repositoryConfig.emptyDirectoryDescription}</p>
     </div>
   )
 }
@@ -145,30 +122,20 @@ function EmptySearch({
   return (
     <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
       <Search className="mx-auto size-10 text-primary" aria-hidden="true" />
-      <h2 className="mt-4 text-lg font-semibold text-foreground">
-        Nenhum resultado encontrado
-      </h2>
+      <h2 className="mt-4 text-lg font-semibold text-foreground">Nenhum resultado encontrado</h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        Não encontramos pastas ou {repositoryConfig.documentLabelPlural} para{" "}
-        &quot;{searchTerm}&quot;.
+        Não encontramos pastas ou {repositoryConfig.documentLabelPlural} para &quot;{searchTerm}&quot;.
       </p>
     </div>
   )
 }
 
-export async function RepositoryExplorer({
-  repository,
-  path,
-  rawSearchTerm,
-}: RepositoryExplorerProps) {
+export async function RepositoryExplorer({ repository, path, rawSearchTerm }: RepositoryExplorerProps) {
   const repositoryConfig = getAdminRepositoryConfig(repository)
   const repositoryFullName = getRepositoryFullName(repositoryConfig)
   const RepositoryIcon = REPOSITORY_ICONS[repository]
   const currentPath = getRoutePath(path)
-  const parentFolderHref = getRepositoryFolderHref(
-    repository,
-    getParentPath(currentPath),
-  )
+  const parentFolderHref = getRepositoryFolderHref(repository, getParentPath(currentPath))
   const searchTerm = normalizeSearchTerm(rawSearchTerm)
 
   if (currentPath.toLowerCase().endsWith(".md")) {
@@ -176,33 +143,21 @@ export async function RepositoryExplorer({
   }
 
   try {
-    const [directory, repositoryFiles] = await Promise.all([
-      getRepositoryDirectory(repository, currentPath),
-      getRepositoryFiles(repository),
-    ])
+    const directory = await getRepositoryDirectory(repository, currentPath)
     const visibleDirectories = directory.directories.filter((item) =>
       matchesSearchTerm([item.name, item.path], searchTerm),
     )
     const visibleFiles = directory.files.filter((item) =>
       matchesSearchTerm([item.title, item.name, item.path], searchTerm),
     )
-    const hasContent =
-      directory.directories.length > 0 || directory.files.length > 0
-    const hasVisibleContent =
-      visibleDirectories.length > 0 || visibleFiles.length > 0
-    const visibleTreeFiles = repositoryFiles.filter((item) =>
-      matchesSearchTerm([item.title, item.name, item.path], searchTerm),
-    )
-
+    const hasContent = directory.directories.length > 0 || directory.files.length > 0
+    const hasVisibleContent = visibleDirectories.length > 0 || visibleFiles.length > 0
     const contentGrid = hasVisibleContent ? (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {visibleDirectories.map((item) => (
           <Link
             key={item.path}
-            href={withSearchParam(
-              getRepositoryFolderHref(repository, item.path),
-              rawSearchTerm,
-            )}
+            href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
             className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
           >
             <div className="flex min-w-0 items-start gap-3">
@@ -234,11 +189,7 @@ export async function RepositoryExplorer({
                 </h2>
                 <p
                   className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"
-                  title={
-                    getDocumentDate(item.path)
-                      ? "Data do documento"
-                      : "Data não informada"
-                  }
+                  title={getDocumentDate(item.path) ? "Data do documento" : "Data não informada"}
                 >
                   <CalendarDays className="size-3.5" aria-hidden="true" />
                   {formatDocumentDate(getDocumentDate(item.path))}
@@ -249,10 +200,7 @@ export async function RepositoryExplorer({
         ))}
       </div>
     ) : hasContent ? (
-      <EmptySearch
-        repositoryConfig={repositoryConfig}
-        searchTerm={rawSearchTerm}
-      />
+      <EmptySearch repositoryConfig={repositoryConfig} searchTerm={rawSearchTerm} />
     ) : (
       <EmptyDirectory repositoryConfig={repositoryConfig} />
     )
@@ -267,29 +215,20 @@ export async function RepositoryExplorer({
               <RepositoryIcon className="size-4" aria-hidden="true" />
               {repositoryConfig.explorerEyebrow}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-foreground">
-              {repositoryConfig.explorerTitle}
-            </h1>
+            <h1 className="mt-2 text-3xl font-semibold text-foreground">{repositoryConfig.explorerTitle}</h1>
             <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-              Navegue pela mesma estrutura de pastas do repositório{" "}
-              {repositoryFullName}.
+              Navegue pela mesma estrutura de pastas do repositório {repositoryFullName}.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
+            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href={getNewDocumentHref(repository, currentPath)}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
                 {repositoryConfig.createButtonLabel}
               </Link>
             </Button>
-            <CreateFolderDialog
-              repository={repository}
-              currentPath={currentPath}
-            />
+            <CreateFolderDialog repository={repository} currentPath={currentPath} />
             {currentPath ? (
               <DeleteFolderDialog
                 repository={repository}
@@ -316,10 +255,7 @@ export async function RepositoryExplorer({
               />
             </div>
             <div className="flex gap-3">
-              <Button
-                type="submit"
-                className="h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
+              <Button type="submit" className="h-11 bg-primary text-primary-foreground hover:bg-primary/90">
                 <Search className="size-4" aria-hidden="true" />
                 Pesquisar
               </Button>
@@ -330,12 +266,7 @@ export async function RepositoryExplorer({
                   variant="outline"
                   className="h-11 border-border bg-card/50 text-foreground hover:bg-secondary hover:text-foreground"
                 >
-                  <Link
-                    href={withSearchParam(
-                      getRepositoryFolderHref(repository, currentPath),
-                      "",
-                    )}
-                  >
+                  <Link href={withSearchParam(getRepositoryFolderHref(repository, currentPath), "")}>
                     <X className="size-4" aria-hidden="true" />
                     Limpar
                   </Link>
@@ -345,18 +276,7 @@ export async function RepositoryExplorer({
           </form>
         ) : null}
 
-        <RepositoryTreeLayout
-          tree={
-            <RepositoryFileTree
-              files={visibleTreeFiles}
-              repository={repository}
-              currentFolderPath={currentPath}
-              rawSearchTerm={rawSearchTerm}
-            />
-          }
-        >
-          {contentGrid}
-        </RepositoryTreeLayout>
+        {contentGrid}
       </section>
     )
   } catch (error) {

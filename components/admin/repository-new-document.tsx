@@ -61,7 +61,7 @@ export async function RepositoryNewDocument({
           para formatar o texto e inserir conteúdo.
         </p>
         <p className="mt-3 rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
-          {currentPath || "Root"}
+          {currentPath || repositoryConfig.navLabel}
         </p>
       </header>
 

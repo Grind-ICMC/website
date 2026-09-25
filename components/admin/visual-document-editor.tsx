@@ -1,16 +1,13 @@
 "use client"
 
-import {
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-  type Ref,
-} from "react"
+import { useEffect, useImperativeHandle, useRef, useState, type ChangeEvent, type Ref } from "react"
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react"
 import Image from "@tiptap/extension-image"
 import {
   Bold,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
   Italic,
   Strikethrough,
   Code,
@@ -24,6 +21,7 @@ import {
   ImagePlus,
   Undo2,
   Redo2,
+  Search,
   Table2,
   Unlink,
   type LucideIcon,
@@ -31,17 +29,10 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
-import {
-  createDocumentEditorExtensions,
-  documentCodeLanguages as languages,
-} from "@/lib/document-editor"
+import { createDocumentEditorExtensions, documentCodeLanguages as languages } from "@/lib/document-editor"
 const selectClass =
   "h-9 max-w-full rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
@@ -96,9 +87,7 @@ function Tool({
 }
 
 function Divider() {
-  return (
-    <span className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
-  )
+  return <span className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
 }
 
 export function VisualDocumentEditor({
@@ -117,6 +106,12 @@ export function VisualDocumentEditor({
   const [linkOpen, setLinkOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
   const [linkError, setLinkError] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchIndex, setSearchIndex] = useState(0)
+  const [isPaginated, setIsPaginated] = useState(false)
+  const [pageCount, setPageCount] = useState(1)
+  const workspaceRef = useRef<HTMLDivElement>(null)
   const editor = useEditor({
     immediatelyRender: false,
     extensions: createDocumentEditorExtensions(
@@ -136,17 +131,14 @@ export function VisualDocumentEditor({
     contentType: "markdown",
     editorProps: {
       attributes: {
-        class:
-          "document-page admin-markdown prose prose-invert max-w-none focus:outline-none",
+        class: "document-page admin-markdown prose prose-invert max-w-none focus:outline-none",
         role: "textbox",
         "aria-label": "Conteúdo do documento",
         "aria-multiline": "true",
         "data-placeholder": "Comece a escrever seu documento…",
       },
       handlePaste(view, event) {
-        const file = Array.from(event.clipboardData?.files ?? []).find((file) =>
-          file.type.startsWith("image/"),
-        )
+        const file = Array.from(event.clipboardData?.files ?? []).find((file) => file.type.startsWith("image/"))
         if (!file) return false
         imageSelection.current = {
           from: view.state.selection.from,
@@ -156,9 +148,7 @@ export function VisualDocumentEditor({
         return true
       },
       handleDrop(_view, event) {
-        const file = Array.from(event.dataTransfer?.files ?? []).find((file) =>
-          file.type.startsWith("image/"),
-        )
+        const file = Array.from(event.dataTransfer?.files ?? []).find((file) => file.type.startsWith("image/"))
         if (!file) return false
         callbacks.current.onPasteImage(file)
         return true
@@ -183,9 +173,7 @@ export function VisualDocumentEditor({
         quote: editor.isActive("blockquote"),
         link: editor.isActive("link"),
         table: editor.isActive("table"),
-        heading: editor.isActive("heading")
-          ? String(editor.getAttributes("heading").level)
-          : "0",
+        heading: editor.isActive("heading") ? String(editor.getAttributes("heading").level) : "0",
         language: editor.getAttributes("codeBlock").language || "plaintext",
         undo: editor.can().undo(),
         redo: editor.can().redo(),
@@ -195,6 +183,21 @@ export function VisualDocumentEditor({
   useEffect(() => {
     editor?.setEditable(!disabled, false)
   }, [editor, disabled])
+
+  useEffect(() => {
+    if (!editor) return
+    editor.view.dom.classList.toggle("document-page-paginated", isPaginated)
+  }, [editor, isPaginated])
+
+  useEffect(() => {
+    const page = workspaceRef.current?.querySelector<HTMLElement>(".document-page")
+    if (!page) return
+    const updatePageCount = () => setPageCount(Math.max(1, Math.ceil(page.scrollHeight / 1123)))
+    updatePageCount()
+    const observer = new ResizeObserver(updatePageCount)
+    observer.observe(page)
+    return () => observer.disconnect()
+  }, [editor, content, isPaginated])
   useImperativeHandle(
     editorRef,
     () => ({
@@ -208,12 +211,7 @@ export function VisualDocumentEditor({
       insertImage(src, alt) {
         if (!editor) return
         const selection = imageSelection.current ?? editor.state.selection
-        editor
-          .chain()
-          .focus()
-          .setTextSelection(selection)
-          .setImage({ src, alt })
-          .run()
+        editor.chain().focus().setTextSelection(selection).setImage({ src, alt }).run()
         imageSelection.current = null
       },
     }),
@@ -226,9 +224,7 @@ export function VisualDocumentEditor({
       editor?.chain().focus().extendMarkRange("link").unsetLink().run()
     } else {
       if (!/^(https?:\/\/|mailto:|tel:|#|\/|\.\.?\/)/i.test(url)) {
-        setLinkError(
-          "Use um endereço com https://, mailto: ou um caminho relativo.",
-        )
+        setLinkError("Use um endereço com https://, mailto: ou um caminho relativo.")
         return
       }
       if (editor?.state.selection.empty && !editor.isActive("link")) {
@@ -242,15 +238,36 @@ export function VisualDocumentEditor({
           })
           .run()
       } else {
-        editor
-          ?.chain()
-          .focus()
-          .extendMarkRange("link")
-          .setLink({ href: url })
-          .run()
+        editor?.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
       }
     }
     setLinkOpen(false)
+  }
+
+  function getSearchMatches(query: string) {
+    if (!editor || !query.trim()) return [] as Array<{ from: number; to: number }>
+    const normalizedQuery = query.toLocaleLowerCase()
+    const matches: Array<{ from: number; to: number }> = []
+    editor.state.doc.nodesBetween(0, editor.state.doc.content.size, (node, pos) => {
+      if (!node.isText || !node.text) return
+      const text = node.text.toLocaleLowerCase()
+      let start = 0
+      while (true) {
+        const index = text.indexOf(normalizedQuery, start)
+        if (index < 0) break
+        matches.push({ from: pos + index, to: pos + index + query.length })
+        start = index + Math.max(1, query.length)
+      }
+    })
+    return matches
+  }
+
+  function selectSearchMatch(index: number) {
+    const matches = getSearchMatches(searchQuery)
+    if (!matches.length) return
+    const nextIndex = (index + matches.length) % matches.length
+    setSearchIndex(nextIndex)
+    editor?.chain().focus().setTextSelection(matches[nextIndex]).scrollIntoView().run()
   }
 
   if (!editor || !state)
@@ -261,8 +278,10 @@ export function VisualDocumentEditor({
       />
     )
 
+  const searchMatches = getSearchMatches(searchQuery)
+
   return (
-    <div className="rounded-xl border border-border bg-background/50">
+    <div className="document-editor-surface">
       <fieldset
         disabled={disabled}
         aria-label="Ferramentas de formatação"
@@ -371,10 +390,7 @@ export function VisualDocumentEditor({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className={cn(
-                  "size-9",
-                  state.link && "bg-primary/15 text-primary",
-                )}
+                className={cn("size-9", state.link && "bg-primary/15 text-primary")}
                 title="Inserir ou editar link"
                 aria-label="Inserir ou editar link"
                 aria-pressed={state.link}
@@ -382,10 +398,7 @@ export function VisualDocumentEditor({
                 <Link2 className="size-4" aria-hidden="true" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent
-              className="space-y-3"
-              onCloseAutoFocus={(event) => event.preventDefault()}
-            >
+            <PopoverContent className="space-y-3" onCloseAutoFocus={(event) => event.preventDefault()}>
               <label className="block text-sm font-medium">
                 Endereço do link
                 <Input
@@ -412,12 +425,7 @@ export function VisualDocumentEditor({
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    editor
-                      .chain()
-                      .focus()
-                      .extendMarkRange("link")
-                      .unsetLink()
-                      .run()
+                    editor.chain().focus().extendMarkRange("link").unsetLink().run()
                     setLinkOpen(false)
                   }}
                 >
@@ -430,11 +438,7 @@ export function VisualDocumentEditor({
               </div>
             </PopoverContent>
           </Popover>
-          <Tool
-            label="Inserir imagem"
-            icon={ImagePlus}
-            onClick={onUploadImage}
-          />
+          <Tool label="Inserir imagem" icon={ImagePlus} onClick={onUploadImage} />
           <Tool
             label="Bloco de código"
             icon={SquareCode}
@@ -445,19 +449,82 @@ export function VisualDocumentEditor({
             label="Inserir tabela"
             icon={Table2}
             disabled={state.table}
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-                .run()
-            }
+            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
           />
-          <Tool
-            label="Linha divisória"
-            icon={Minus}
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          />
+          <Tool label="Linha divisória" icon={Minus} onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+          <Divider />
+          <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                title="Pesquisar no documento"
+                aria-label="Pesquisar no documento"
+              >
+                <Search className="size-4" aria-hidden="true" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 space-y-3" align="end">
+              <label className="block text-sm font-medium">
+                Pesquisar no documento
+                <Input
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    setSearchQuery(event.target.value)
+                    setSearchIndex(0)
+                  }}
+                  className="mt-2"
+                  placeholder="Digite uma palavra ou frase"
+                />
+              </label>
+              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>
+                  {searchQuery
+                    ? `${searchMatches.length} resultado${searchMatches.length === 1 ? "" : "s"}`
+                    : "Pesquise em todas as páginas"}
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    disabled={!searchMatches.length}
+                    onClick={() => selectSearchMatch(searchIndex - 1)}
+                    aria-label="Resultado anterior"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    disabled={!searchMatches.length}
+                    onClick={() => selectSearchMatch(searchIndex + 1)}
+                    aria-label="Próximo resultado"
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={isPaginated}
+            onClick={() => setIsPaginated((current) => !current)}
+            className={cn(
+              "ml-auto gap-2 text-xs text-muted-foreground hover:text-primary",
+              isPaginated && "bg-primary/15 text-primary",
+            )}
+            title="Alternar visualização por páginas"
+          >
+            <BookOpen className="size-4" aria-hidden="true" />
+            {isPaginated ? `Páginas · ${pageCount}` : "Páginas"}
+          </Button>
         </div>
         {state.codeBlock && (
           <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-border pt-2">
@@ -478,10 +545,9 @@ export function VisualDocumentEditor({
                 }
               >
                 <option value="plaintext">Texto simples</option>
-                {!languages.includes(state.language) &&
-                  state.language !== "plaintext" && (
-                    <option value={state.language}>{state.language}</option>
-                  )}
+                {!languages.includes(state.language) && state.language !== "plaintext" && (
+                  <option value={state.language}>{state.language}</option>
+                )}
                 {languages
                   .filter((language) => language !== "plaintext")
                   .map((language) => (
@@ -491,24 +557,14 @@ export function VisualDocumentEditor({
                   ))}
               </select>
             </label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().exitCode().run()}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().exitCode().run()}>
               Continuar texto
             </Button>
           </div>
         )}
         {state.table && (
           <div className="mt-2 flex flex-wrap gap-1 border-t border-border pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().addRowAfter().run()}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().addRowAfter().run()}>
               + Linha
             </Button>
             <Button
@@ -519,28 +575,13 @@ export function VisualDocumentEditor({
             >
               + Coluna
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().deleteRow().run()}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteRow().run()}>
               Excluir linha
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().deleteColumn().run()}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteColumn().run()}>
               Excluir coluna
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().deleteTable().run()}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => editor.chain().focus().deleteTable().run()}>
               Excluir tabela
             </Button>
           </div>
@@ -549,11 +590,7 @@ export function VisualDocumentEditor({
       <div
         className={`document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8 ${compactHeader ? "document-editor-workspace-with-fixed-tools" : ""}`}
       >
-        <EditorContent editor={editor} />
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-b-xl border-t border-border bg-card px-4 py-2.5 text-xs text-muted-foreground">
-        <span>Editor visual</span>
-        <span>Selecione o texto para formatar · Cole imagens com Ctrl+V</span>
+        <EditorContent ref={workspaceRef} editor={editor} />
       </div>
     </div>
   )

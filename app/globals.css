@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 @plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
@@ -64,8 +64,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Inter', 'Geist', 'Geist Fallback', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --font-sans: "Inter", "Geist", "Geist Fallback", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -196,13 +196,17 @@
 
 /* A document sheet inside the admin's dark editor workspace. */
 .document-workspace {
-  background-image: radial-gradient(color-mix(in oklab, var(--border) 45%, transparent) 0.6px, transparent 0.6px);
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--border) 45%, transparent) 0.6px,
+    transparent 0.6px
+  );
   background-size: 12px 12px;
 }
 
 .document-page {
-  min-height: 680px;
-  max-width: 816px;
+  width: min(100%, 794px);
+  min-height: 1123px;
+  max-width: 794px;
   margin-inline: auto;
   padding: clamp(24px, 5vw, 64px);
   border: 1px solid var(--border);
@@ -214,7 +218,21 @@
   caret-color: var(--primary);
 }
 
-.document-page > :first-child { margin-top: 0; }
+.document-page-paginated {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1118px,
+    color-mix(in oklab, var(--primary) 45%, var(--border)) 1118px,
+    color-mix(in oklab, var(--primary) 45%, var(--border)) 1123px,
+    transparent 1123px
+  );
+  background-size: 100% 1123px;
+}
+
+.document-page > :first-child {
+  margin-top: 0;
+}
 .document-page:has(> p:only-child > br.ProseMirror-trailingBreak)::before {
   content: attr(data-placeholder);
   color: var(--muted-foreground);
@@ -222,25 +240,84 @@
   float: left;
   height: 0;
 }
-.document-page :is(h1, h2, h3, h4, h5, h6, strong) { color: var(--foreground); }
-.document-page h5 { font-size: 1rem; font-weight: 600; }
-.document-page h6 { font-size: 0.875rem; font-weight: 600; }
-.document-page a { color: var(--primary); text-decoration: underline; }
-.document-page pre { border: 1px solid var(--border); background: var(--background); white-space: pre; }
-.document-page pre code { font-size: 0.85rem; }
-.document-page img { max-width: 100%; height: auto; border-radius: 6px; }
-.document-page .ProseMirror-selectednode { outline: 2px solid var(--primary); }
-.document-page ul[data-type="taskList"] { padding: 0; list-style: none; }
-.document-page li[data-type="taskItem"] { display: flex; align-items: baseline; gap: 0.75rem; }
-.document-page li[data-type="taskItem"] > label { flex-shrink: 0; user-select: none; }
-.document-page li[data-type="taskItem"] input { accent-color: var(--primary); }
-.document-page li[data-type="taskItem"] > div { flex: 1; min-width: 0; }
-.document-page li[data-type="taskItem"] > div > p { margin-block: 0.25rem; }
-.document-page table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-.document-page :is(th, td) { position: relative; border: 1px solid var(--border); padding: 0.5rem; vertical-align: top; }
-.document-page th { background: var(--secondary); color: var(--primary); }
-.document-page :is(th, td) > p { margin: 0; }
-.document-page .selectedCell { background: color-mix(in oklab, var(--primary) 15%, transparent); }
+.document-page :is(h1, h2, h3, h4, h5, h6, strong) {
+  color: var(--foreground);
+}
+.document-page h5 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.document-page h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.document-page a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.document-page pre {
+  border: 1px solid var(--border);
+  background: var(--background);
+  white-space: pre;
+}
+.document-page pre code {
+  font-size: 0.85rem;
+}
+.document-page img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.document-page .ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+}
+.document-page ul[data-type="taskList"] {
+  padding: 0;
+  list-style: none;
+}
+.document-page li[data-type="taskItem"] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.document-page li[data-type="taskItem"] > label {
+  flex-shrink: 0;
+  user-select: none;
+}
+.document-page li[data-type="taskItem"] input {
+  accent-color: var(--primary);
+}
+.document-page li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+.document-page li[data-type="taskItem"] > div > p {
+  margin-block: 0.25rem;
+}
+.document-page table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.document-page :is(th, td) {
+  position: relative;
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  vertical-align: top;
+}
+.document-page th {
+  background: var(--secondary);
+  color: var(--primary);
+}
+.document-page :is(th, td) > p {
+  margin: 0;
+}
+.document-page .selectedCell {
+  background: color-mix(in oklab, var(--primary) 15%, transparent);
+}
 @media (max-width: 640px) {
-  .document-page { min-height: 500px; padding: 24px 18px; }
+  .document-page {
+    min-height: 700px;
+    padding: 24px 18px;
+  }
 }

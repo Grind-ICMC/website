@@ -3,8 +3,6 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { MeetingDocument } from "@/components/admin/meeting-document"
-import { RepositoryFileTree } from "@/components/admin/repository-file-tree"
-import { RepositoryTreeLayout } from "@/components/admin/repository-tree-layout"
 import {
   getAdminRepositoryConfig,
   type AdminRepositorySlug,
@@ -13,7 +11,6 @@ import {
   GitHubContentNotFoundError,
   InvalidMeetingPathError,
   getParentPath,
-  getRepositoryFiles,
   getRepositoryFolderHref,
   getRepositoryMarkdown,
 } from "@/lib/github-meetings"
@@ -38,10 +35,7 @@ export async function RepositoryDocument({
   const parentFolderHref = getRepositoryFolderHref(repository, parentPath)
 
   try {
-    const [document, repositoryFiles] = await Promise.all([
-      getRepositoryMarkdown(repository, documentPath),
-      getRepositoryFiles(repository),
-    ])
+    const document = await getRepositoryMarkdown(repository, documentPath)
     const frontmatter = getMeetingFrontmatterForForm(
       document.frontmatter,
       document.title,
@@ -49,39 +43,28 @@ export async function RepositoryDocument({
     )
 
     return (
-      <RepositoryTreeLayout
-        tree={
-          <RepositoryFileTree
-            files={repositoryFiles}
-            repository={repository}
-            currentFolderPath={parentPath}
-            activeDocumentPath={document.path}
-          />
-        }
-      >
-        <article>
-          <Link
-            href={parentFolderHref}
-            data-document-back
-            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-cyan-100"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Voltar para pasta
-          </Link>
+      <article>
+        <Link
+          href={parentFolderHref}
+          data-document-back
+          className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-cyan-100"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Voltar para pasta
+        </Link>
 
-          <MeetingDocument
-            repository={repository}
-            parentFolderHref={parentFolderHref}
-            initialMeeting={{
-              path: document.path,
-              sha: document.sha,
-              title: document.title,
-              frontmatter,
-              content: document.content,
-            }}
-          />
-        </article>
-      </RepositoryTreeLayout>
+        <MeetingDocument
+          repository={repository}
+          parentFolderHref={parentFolderHref}
+          initialMeeting={{
+            path: document.path,
+            sha: document.sha,
+            title: document.title,
+            frontmatter,
+            content: document.content,
+          }}
+        />
+      </article>
     )
   } catch (error) {
     if (
