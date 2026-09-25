@@ -88,8 +88,8 @@ const options = {
 function mockGitHub({
   collision = false,
   stale = false,
-  concurrent = false,
   targetStatus = 404,
+  deleteStatus = 200,
 } = {}) {
   const writes: { resource: string; body: Record<string, unknown> }[] = []
   const reads: string[] = []
@@ -100,52 +100,52 @@ function mockGitHub({
     if (init?.method) {
       const body = JSON.parse(init.body as string)
       writes.push({ resource, body })
-      if (resource === "git/blobs") return respond({ sha: "new-blob" })
-      if (resource === "git/trees") return respond({ sha: "new-tree" })
-      if (resource === "git/commits") return respond({ sha: "new-commit" })
-      if (resource === "git/refs/heads/main")
-        return respond({}, concurrent ? 422 : 200)
+      if (resource === "contents/pasta/2026-09-23-notas.md") {
+        return respond({ content: { sha: "new-blob" } })
+      }
+      if (resource === "contents/pasta/notas.md") {
+        return respond({}, deleteStatus)
+      }
+      if (resource === "contents/pasta/2026-09-23-notas.md") {
+        return respond({}, 200)
+      }
     }
     reads.push(resource)
     if (resource === "") return respond({ default_branch: "main" })
-    if (resource === "git/ref/heads/main")
-      return respond({ object: { sha: "head-commit" } })
-    if (resource === "git/commits/head-commit")
-      return respond({ tree: { sha: "base-tree" } })
-    if (resource === "contents/pasta/notas.md?ref=head-commit")
+    if (resource === "contents/pasta/notas.md?ref=main")
       return respond({ sha: stale ? "changed-blob" : "old-blob" })
-    if (resource === "contents/pasta/2026-09-23-notas.md?ref=head-commit")
+    if (resource === "contents/pasta/2026-09-23-notas.md?ref=main")
       return respond({}, collision ? 200 : targetStatus)
     throw new Error(`Unexpected request: ${resource}`)
   }) as typeof fetch
   return { fetcher, writes, reads }
 }
 
-test("changing the date commits the rename and content together, with no forced updates", async () => {
+test("changing the date renames the document through the Contents API", async () => {
   const mock = mockGitHub()
   const result = await renameGitHubDocument(options, mock.fetcher)
   assert.deepEqual(result, {
     path: "pasta/2026-09-23-notas.md",
     sha: "new-blob",
   })
-  assert.deepEqual(
-    mock.writes.find((write) => write.resource === "git/trees")?.body,
+  assert.deepEqual(mock.writes, [
     {
-      base_tree: "base-tree",
-      tree: [
-        { path: "pasta/notas.md", mode: "100644", type: "blob", sha: null },
-        { path: result.path, mode: "100644", type: "blob", sha: "new-blob" },
-      ],
+      resource: "contents/pasta/2026-09-23-notas.md",
+      body: {
+        message: "Update document date: pasta/notas.md → pasta/2026-09-23-notas.md",
+        content: options.content,
+        branch: "main",
+      },
     },
-  )
-  assert.deepEqual(mock.writes.at(-1)?.body, {
-    sha: "new-commit",
-    force: false,
-  })
-  assert.equal(
-    mock.writes.filter((write) => write.resource.includes("refs/")).length,
-    1,
-  )
+    {
+      resource: "contents/pasta/notas.md",
+      body: {
+        message: "Remove old document name: pasta/notas.md",
+        sha: "old-blob",
+        branch: "main",
+      },
+    },
+  ])
 })
 
 for (const [label, scenario] of Object.entries({
@@ -160,14 +160,12 @@ for (const [label, scenario] of Object.entries({
   })
 }
 
-test("a concurrent branch change fails safely instead of forcing the new commit", async () => {
-  const mock = mockGitHub({ concurrent: true })
+test("a failed removal rolls the newly created file back", async () => {
+  const mock = mockGitHub({ deleteStatus: 422 })
   await assert.rejects(
     renameGitHubDocument(options, mock.fetcher),
     /Recarregue/,
   )
-  assert.deepEqual(mock.writes.at(-1)?.body, {
-    sha: "new-commit",
-    force: false,
-  })
+  assert.equal(mock.writes.at(-1)?.resource, "contents/pasta/2026-09-23-notas.md")
+  assert.equal(mock.writes.length, 3)
 })
