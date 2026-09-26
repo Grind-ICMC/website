@@ -191,9 +191,9 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           }}
           onMouseLeave={() => setIsHoverExpanded(false)}
           className={cn(
-            "liquid-glass !fixed top-0 bottom-0 left-0 z-[60] flex h-screen w-20 cursor-pointer flex-col border-r px-5 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:border-b-0",
+            "liquid-glass !fixed top-0 bottom-0 left-0 z-[60] flex h-screen w-20 cursor-pointer flex-col border-r px-3 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:border-b-0",
             isLeavingAdmin ? "admin-sidebar-motion-exit" : "admin-sidebar-motion-enter",
-            isSidebarExpanded ? "lg:w-72" : "lg:w-20",
+            isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-3",
           )}
         >
           <div
@@ -204,7 +204,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           >
             <div
               className={cn(
-                "flex items-center justify-center gap-3 lg:justify-between",
+                "flex h-11 shrink-0 items-center justify-center gap-3 lg:justify-between",
                 !isSidebarExpanded && "lg:flex-col lg:justify-center",
               )}
             >
@@ -223,7 +223,6 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                 onClick={() => setIsCollapsed((current) => !current)}
                 className={cn(
                   "hidden border border-border text-muted-foreground transition-colors duration-300 hover:bg-primary/10 hover:text-foreground lg:inline-flex",
-                  isCollapsed && "lg:mt-1",
                 )}
               >
                 <ToggleIcon className="size-4" aria-hidden="true" />
