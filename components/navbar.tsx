@@ -106,7 +106,7 @@ export function Navbar() {
     : ""
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+    <nav className="liquid-glass-header fixed top-0 left-0 right-0 z-50 border-b">
       <div
         className={cn(
           "transition-[padding-left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -117,7 +117,7 @@ export function Navbar() {
             : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
         )}
       >
-        <div className="relative flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className={cn("flex items-center gap-2", logoMotionClass)}>
             <GiIciclesAura className="h-8 w-8 text-primary" aria-hidden="true" />
@@ -131,7 +131,7 @@ export function Navbar() {
           <div
             className={cn(
               "hidden items-center gap-6 lg:flex",
-              isAdmin ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
+              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
               headerMotionClass,
             )}
           >

@@ -119,7 +119,7 @@ export function HeroSection() {
           {/* Right Illustration */}
           <div className="relative hidden lg:block">
             <div className="relative">
-              <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-6 shadow-2xl shadow-primary/5">
+              <div className="liquid-glass rounded-2xl border p-6 shadow-2xl shadow-primary/5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="h-3 w-3 rounded-full bg-red-500" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500" />

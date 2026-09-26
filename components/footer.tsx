@@ -44,7 +44,7 @@ export function Footer() {
     : websiteRepositoryUrl
 
   return (
-    <footer className="border-t border-border bg-card/30">
+    <footer className="border-t border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:justify-between">
           {/* Logo */}

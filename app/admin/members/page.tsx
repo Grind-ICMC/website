@@ -45,7 +45,7 @@ export default async function MembersPage() {
             {members.map((member) => (
               <article
                 key={member.id}
-                className="rounded-lg border border-cyan-400/15 bg-slate-900/75 p-5 transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="liquid-glass rounded-lg border border-cyan-400/15 p-5 transition hover:border-cyan-300/40"
               >
                 <div className="flex flex-col items-center text-center">
                   <img
@@ -75,7 +75,7 @@ export default async function MembersPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 p-8 text-center">
+          <div className="liquid-glass rounded-lg border border-cyan-400/15 p-8 text-center">
             <Users
               className="mx-auto size-10 text-cyan-300"
               aria-hidden="true"

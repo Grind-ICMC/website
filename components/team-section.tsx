@@ -109,7 +109,7 @@ export function TeamSection({ members }: TeamSectionProps) {
 
         {hasAlumni ? (
           <div className="flex justify-center mb-12">
-            <div className="inline-flex rounded-xl border border-border bg-card/50 p-1">
+            <div className="liquid-glass inline-flex rounded-xl border p-1">
               <button
                 onClick={() => changeTab("current")}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -141,7 +141,7 @@ export function TeamSection({ members }: TeamSectionProps) {
               {paginatedMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="group relative overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm p-6 text-center transition-all hover:border-primary/50"
+                  className="liquid-glass group relative overflow-hidden rounded-xl border p-6 text-center transition-all hover:border-primary/50"
                 >
                   {/* Alumni Badge */}
                   {member.isAlumni && (
@@ -252,7 +252,7 @@ export function TeamSection({ members }: TeamSectionProps) {
             ) : null}
           </>
         ) : (
-          <div className="rounded-xl border border-border bg-card/50 p-8 text-center text-sm text-muted-foreground">
+          <div className="liquid-glass rounded-xl border p-8 text-center text-sm text-muted-foreground">
             {language === "pt"
               ? "Não foi possível carregar os membros no momento."
               : "Unable to load members right now."}

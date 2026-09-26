@@ -70,7 +70,7 @@ export default async function AdminPage() {
         {highlights.map(({ title, description, Icon }) => (
           <div
             key={title}
-            className="rounded-lg border border-border bg-card/70 p-5"
+            className="liquid-glass rounded-lg border p-5"
           >
             <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
               <Icon className="size-5" aria-hidden="true" />
@@ -103,7 +103,7 @@ export default async function AdminPage() {
               <Link
                 key={repository.slug}
                 href={`/admin/${repository.slug}`}
-                className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+                className="liquid-glass group rounded-lg border p-5 transition hover:border-primary/40 hover:bg-secondary/60"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">

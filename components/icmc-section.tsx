@@ -16,7 +16,7 @@ export function ICMCSection() {
   ]
 
   return (
-    <section id="icmc" className="py-12 lg:py-20 bg-card/30">
+    <section id="icmc" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* Content */}
@@ -66,7 +66,7 @@ export function ICMCSection() {
 
           {/* Logo / Image */}
           <div className="relative flex justify-center items-center lg:justify-end">
-            <div className="relative w-full max-w-sm aspect-square bg-white/5 rounded-2xl p-8 border border-border shadow-xl flex items-center justify-center overflow-hidden">
+            <div className="liquid-glass relative w-full max-w-sm aspect-square rounded-2xl border p-8 shadow-xl flex items-center justify-center overflow-hidden">
               <Image 
                 src="/icmc-logo.svg" 
                 alt="ICMC USP Logo" 

@@ -191,7 +191,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           }}
           onMouseLeave={() => setIsHoverExpanded(false)}
           className={cn(
-            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:z-[60] lg:flex lg:h-screen lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
+            "liquid-glass z-40 border-b px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:z-[60] lg:flex lg:h-screen lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
             isLeavingAdmin ? "admin-sidebar-motion-exit" : "admin-sidebar-motion-enter",
             isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-5",
           )}

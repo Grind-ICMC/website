@@ -50,7 +50,7 @@ export function RepositoryTreeLayout({
           }
         }}
         className={cn(
-          "max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border border-border bg-card/70 p-3 transition-[padding,background-color,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "liquid-glass max-h-[calc(100vh-14rem)] overflow-auto rounded-lg border p-3 transition-[padding,background-color,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isCollapsed && "cursor-pointer overflow-hidden p-2",
         )}
       >

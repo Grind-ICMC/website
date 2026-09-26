@@ -94,7 +94,7 @@ function RepositoryError({ repositoryFullName }: { repositoryFullName: string })
 
 function EmptyDirectory({ repositoryConfig }: { repositoryConfig: AdminRepositoryConfig }) {
   return (
-    <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
+    <div className="liquid-glass rounded-lg border p-8 text-center">
       <FolderOpen className="mx-auto size-10 text-primary" aria-hidden="true" />
       <h2 className="mt-4 text-lg font-semibold text-foreground">Pasta vazia</h2>
       <p className="mt-2 text-sm text-muted-foreground">{repositoryConfig.emptyDirectoryDescription}</p>
@@ -110,7 +110,7 @@ function EmptySearch({
   searchTerm: string
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card/70 p-8 text-center">
+    <div className="liquid-glass rounded-lg border p-8 text-center">
       <Search className="mx-auto size-10 text-primary" aria-hidden="true" />
       <h2 className="mt-4 text-lg font-semibold text-foreground">Nenhum resultado encontrado</h2>
       <p className="mt-2 text-sm text-muted-foreground">
@@ -147,7 +147,7 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
           repository === "psel-empresas" ? (
             <div
               key={item.path}
-              className="group flex min-w-0 items-start gap-3 rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+              className="liquid-glass group flex min-w-0 items-start gap-3 rounded-lg border p-5 transition hover:border-primary/40 hover:bg-secondary/60"
             >
               <Link
                 href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
@@ -171,7 +171,7 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
             <Link
               key={item.path}
               href={withSearchParam(getRepositoryFolderHref(repository, item.path), rawSearchTerm)}
-              className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+              className="liquid-glass group rounded-lg border p-5 transition hover:border-primary/40 hover:bg-secondary/60"
             >
               <div className="flex min-w-0 items-start gap-3">
                 <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -191,7 +191,7 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
           <Link
             key={item.path}
             href={getRepositoryDocumentHref(repository, item.path)}
-            className="group rounded-lg border border-border bg-card/75 p-5 transition hover:border-primary/40 hover:bg-secondary/60"
+              className="liquid-glass group rounded-lg border p-5 transition hover:border-primary/40 hover:bg-secondary/60"
           >
             <div className="flex min-w-0 items-start gap-3">
               <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">

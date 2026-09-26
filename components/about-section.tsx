@@ -43,7 +43,7 @@ export function AboutSection() {
 
         {/* Mission Statement */}
         <div className="max-w-3xl mx-auto mb-16">
-          <div className="rounded-2xl border border-border bg-card/50 backdrop-blur-sm p-8 text-center">
+          <div className="liquid-glass rounded-2xl border p-8 text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">
               {t("about.mission")}
             </p>
@@ -57,7 +57,7 @@ export function AboutSection() {
             return (
               <div
                 key={index}
-                className="group relative rounded-xl border border-border bg-card/30 p-6 transition-all hover:border-primary/50 hover:bg-card/50"
+                className="liquid-glass group relative rounded-xl border p-6 transition-all hover:border-primary/50"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
@@ -92,7 +92,7 @@ export function AboutSection() {
               className="absolute inset-0 bg-background/80 backdrop-blur-sm"
               onClick={() => setShowAlumniInfo(false)}
             />
-            <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
+            <div className="liquid-glass relative z-10 w-full max-w-md rounded-2xl border p-6 shadow-xl">
               <button
                 onClick={() => setShowAlumniInfo(false)}
                 className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"

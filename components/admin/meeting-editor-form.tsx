@@ -465,7 +465,7 @@ export function MeetingEditorForm({
       ) : (
         <fieldset
           disabled={busy}
-          className="grid min-w-0 gap-5 rounded-xl border border-border bg-card/80 p-5 disabled:opacity-60 sm:p-6 md:grid-cols-2"
+          className="liquid-glass grid min-w-0 gap-5 rounded-xl border p-5 disabled:opacity-60 sm:p-6 md:grid-cols-2"
         >
           <label className="block md:col-span-2">
             <span className="text-sm font-medium text-foreground">Título</span>
@@ -530,7 +530,7 @@ export function MeetingEditorForm({
               </Button>
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="overflow-hidden rounded-lg border border-border bg-card/70">
+              <div className="liquid-glass overflow-hidden rounded-lg border">
                 <div className="border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wider text-primary">
                   Markdown
                 </div>
@@ -553,7 +553,7 @@ export function MeetingEditorForm({
                   placeholder="# Pauta&#10;&#10;- Item discutido"
                 />
               </div>
-              <div className="min-w-0 rounded-lg border border-border bg-card/70">
+              <div className="liquid-glass min-w-0 rounded-lg border">
                 <div className="border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wider text-primary">
                   Pré-visualização
                 </div>

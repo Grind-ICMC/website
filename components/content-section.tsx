@@ -34,7 +34,7 @@ export function ContentSection() {
   const { t, language } = useLanguage()
 
   return (
-    <section id="content" className="py-12 lg:py-20 bg-card/30">
+    <section id="content" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -55,7 +55,7 @@ export function ContentSection() {
               href={`https://www.youtube.com/playlist?list=${playlist.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative overflow-hidden rounded-xl border border-border bg-card/50 transition-all hover:border-primary/50 hover:scale-[1.02]"
+              className="liquid-glass group relative overflow-hidden rounded-xl border transition-all hover:border-primary/50 hover:scale-[1.02]"
             >
               {/* Thumbnail */}
               <div className="relative aspect-video bg-gradient-to-br from-red-600/30 via-secondary to-red-600/10">

@@ -101,7 +101,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
 
   return (
     <>
-      <section className="mb-10 overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card/80 to-card/60 p-5 shadow-[0_16px_45px_color-mix(in_oklab,var(--primary)_8%,transparent)] sm:p-6">
+      <section className="liquid-glass mb-10 overflow-hidden rounded-xl border p-5 shadow-[0_16px_45px_color-mix(in_oklab,var(--primary)_8%,transparent)] sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-3">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
@@ -163,7 +163,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
             ) : null}
           </div>
 
-          <div className="rounded-lg border border-border/80 bg-background/30 p-4">
+          <div className="liquid-glass rounded-lg border border-border/80 p-4">
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
               <Clock3 className="size-3.5 text-primary" aria-hidden="true" />
               Próximo reset

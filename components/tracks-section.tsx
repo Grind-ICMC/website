@@ -232,7 +232,7 @@ export function TracksSection() {
       ]
 
   return (
-    <section id="tracks" className="py-12 lg:py-20 bg-card/30">
+    <section id="tracks" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -251,7 +251,7 @@ export function TracksSection() {
             return (
               <article
                 key={front.title}
-                className="rounded-2xl border border-border bg-card/50 p-6 backdrop-blur-sm transition-all hover:border-primary/50 sm:p-8"
+                className="liquid-glass rounded-2xl border p-6 transition-all hover:border-primary/50 sm:p-8"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -340,7 +340,7 @@ export function TracksSection() {
               return (
                 <article
                   key={track.title}
-                  className="rounded-xl border border-border bg-background/50 p-6 transition-all hover:border-primary/50"
+                  className="liquid-glass rounded-xl border p-6 transition-all hover:border-primary/50"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

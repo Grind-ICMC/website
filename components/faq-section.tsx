@@ -20,7 +20,7 @@ export function FAQSection() {
   const { t } = useLanguage()
 
   return (
-    <section id="faq" className="py-12 lg:py-20 bg-card/30">
+    <section id="faq" className="py-12 lg:py-20">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -36,7 +36,7 @@ export function FAQSection() {
             <AccordionItem
               key={index}
               value={`item-${index}`}
-              className="rounded-xl border border-border bg-card/30 px-6 data-[state=open]:border-primary/50"
+              className="liquid-glass rounded-xl border px-6 data-[state=open]:border-primary/50"
             >
               <AccordionTrigger className="text-left text-foreground hover:text-primary hover:no-underline py-5">
                 {t(item.question)}

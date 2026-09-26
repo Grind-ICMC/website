@@ -64,7 +64,7 @@ export function LoginPageContent({
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border border-border bg-card/30 p-5 backdrop-blur-sm">
+                  <div className="liquid-glass rounded-xl border p-5">
                     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Users className="h-5 w-5" aria-hidden="true" />
                     </div>
@@ -76,7 +76,7 @@ export function LoginPageContent({
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-border bg-card/30 p-5 backdrop-blur-sm">
+                  <div className="liquid-glass rounded-xl border p-5">
                     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <CalendarClock className="h-5 w-5" aria-hidden="true" />
                     </div>
@@ -90,7 +90,7 @@ export function LoginPageContent({
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-border bg-card/60 p-6 shadow-2xl shadow-primary/5 backdrop-blur-sm sm:p-8">
+              <section className="liquid-glass rounded-2xl border p-6 shadow-2xl shadow-primary/5 sm:p-8">
                 <div className="mb-8 flex items-center gap-4">
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <LockKeyhole className="h-7 w-7" aria-hidden="true" />

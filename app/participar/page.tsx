@@ -63,7 +63,7 @@ function ParticiparContent() {
       {/* Cards */}
       <div className="grid gap-8 md:grid-cols-2 mb-16">
         {/* Internal Members Card */}
-        <div className="rounded-2xl border border-primary/50 bg-card/50 backdrop-blur-sm p-8">
+        <div className="liquid-glass rounded-2xl border border-primary/50 p-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary">
               <GraduationCap className="h-7 w-7" />
@@ -89,7 +89,7 @@ function ParticiparContent() {
         </div>
 
         {/* External Public Card */}
-        <div className="rounded-2xl border border-border bg-card/50 backdrop-blur-sm p-8">
+        <div className="liquid-glass rounded-2xl border p-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Globe className="h-7 w-7" />
@@ -108,7 +108,7 @@ function ParticiparContent() {
       </div>
 
       {/* Available Content Section */}
-      <div className="rounded-2xl border border-border bg-card/30 backdrop-blur-sm p-8 mb-16">
+      <div className="liquid-glass rounded-2xl border p-8 mb-16">
         <h3 className="text-xl font-bold text-foreground mb-6">
           {language === "pt" ? "Conteúdos Disponíveis para Todos" : "Content Available for Everyone"}
         </h3>
