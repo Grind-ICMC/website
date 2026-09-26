@@ -208,6 +208,84 @@
   color: var(--foreground);
 }
 
+.particles-sphere-fallback {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: min(30rem, 42vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0.68;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 1.1deg,
+    rgb(14 165 233 / 82%) 1.35deg 1.65deg,
+    transparent 1.9deg 5.2deg
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    transparent 0 22%,
+    #000 23% 56%,
+    transparent 57% 61%,
+    #000 62% 100%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    transparent 0 22%,
+    #000 23% 56%,
+    transparent 57% 61%,
+    #000 62% 100%
+  );
+  filter: drop-shadow(0 0 10px rgb(14 165 233 / 25%));
+  animation: particles-sphere-fallback-rotate 18s linear infinite;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.particles-sphere-fallback::before,
+.particles-sphere-fallback::after {
+  position: absolute;
+  inset: 19%;
+  border: 1px solid rgb(14 165 233 / 35%);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 28px rgb(14 165 233 / 15%);
+}
+
+.particles-sphere-fallback::after {
+  inset: 31%;
+  border-style: dotted;
+  border-color: rgb(34 211 238 / 55%);
+  box-shadow: none;
+}
+
+.particles-sphere-fallback-hidden {
+  opacity: 0;
+}
+
+@keyframes particles-sphere-fallback-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .particles-sphere-fallback {
+    width: min(24rem, 78vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particles-sphere-fallback {
+    animation: none;
+  }
+}
+
 /* Editing a document becomes a focused workspace. The global admin tab bar
    stays available while navigation and the repository tree stay out of the way. */
 .admin-document-editing [data-admin-sidebar],

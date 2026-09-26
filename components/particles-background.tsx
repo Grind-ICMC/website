@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type VantaDotsEffect = {
   destroy: () => void
@@ -15,6 +15,7 @@ const VANTA_COLORS = {
 
 export function ParticlesBackground() {
   const backgroundRef = useRef<HTMLDivElement>(null)
+  const [hasVantaEffect, setHasVantaEffect] = useState(false)
 
   useEffect(() => {
     const element = backgroundRef.current
@@ -61,6 +62,7 @@ export function ParticlesBackground() {
         scale: 1,
         scaleMobile: 1.15,
       })
+      setHasVantaEffect(true)
     }
 
     void initializeVanta().catch((error) => {
@@ -89,6 +91,10 @@ export function ParticlesBackground() {
         backgroundSize: "46px 46px, 92px 92px",
       }}
     >
+      <div
+        aria-hidden="true"
+        className={`particles-sphere-fallback ${hasVantaEffect ? "particles-sphere-fallback-hidden" : ""}`}
+      />
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.08),transparent_42%),linear-gradient(180deg,rgba(7,17,31,0.18),rgba(7,17,31,0.62))]" />
     </div>
   )
