@@ -155,10 +155,10 @@ function FolderBranch({
                 aria-label={`${isOpen ? "Recolher" : "Expandir"} pasta ${folder.name}`}
                 aria-expanded={isOpen}
                 onClick={() => toggleFolder(folder.path)}
-                className="flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
+                  className="flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
               >
                 <ChevronRight
-                  className={cn("size-3.5 transition-transform", isOpen && "rotate-90")}
+                  className={cn("size-4 transition-transform", isOpen && "rotate-90")}
                   aria-hidden="true"
                 />
               </button>
@@ -166,7 +166,7 @@ function FolderBranch({
                 href={getFolderHref(repository, folder.path)}
                 title={folder.path}
                 className={cn(
-                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-xs transition",
+                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-sm transition",
                   isActive
                     ? "bg-primary/10 text-foreground"
                     : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
@@ -179,7 +179,7 @@ function FolderBranch({
                     className="mr-1.5 inline-block size-5 align-middle"
                   />
                 ) : (
-                  <Folder className="mr-1.5 inline-block size-3.5 text-primary" aria-hidden="true" />
+                  <Folder className="mr-1.5 inline-block size-4 text-primary" aria-hidden="true" />
                 )}
                 {folder.name}
               </Link>
@@ -207,7 +207,7 @@ function FolderBranch({
             href={getDocumentHref(repository, file.path)}
             title={file.title}
             className={cn(
-              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-base transition",
+              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-sm transition",
               isActive
                 ? "bg-primary/10 text-foreground"
                 : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
