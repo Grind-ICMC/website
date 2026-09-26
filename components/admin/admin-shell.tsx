@@ -151,8 +151,8 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           }}
           onMouseLeave={() => setIsHoverExpanded(false)}
           className={cn(
-            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-16 lg:bottom-0 lg:left-0 lg:flex lg:h-[calc(100vh-4rem)] lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
-            isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-3",
+            "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:z-[60] lg:flex lg:h-screen lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
+            isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-5",
           )}
         >
           <div className={cn("flex h-full min-h-0 flex-col", !isSidebarExpanded && "lg:items-center")}>
@@ -195,14 +195,14 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                       aria-label={label}
                       title={label}
                       onClick={(event) => {
-                        if (!repository) return
+                        if (!repository || !isRootPage) return
 
                         setTreeCollapseSignals((current) => ({
                           ...current,
                           [repository]: (current[repository] ?? 0) + 1,
                         }))
 
-                        if (isRootPage) event.preventDefault()
+                        event.preventDefault()
                       }}
                       className={cn(
                         "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",

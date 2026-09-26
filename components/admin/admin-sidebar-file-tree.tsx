@@ -228,6 +228,7 @@ export function AdminSidebarFileTree({ repository, files, collapseSignal = 0 }: 
   const tree = useMemo(() => buildTree(files), [files])
   const activePath = getActivePath(repository, pathname)
   const [openFolders, setOpenFolders] = useState<Set<string>>(() => new Set())
+  const [isTreeCollapsed, setIsTreeCollapsed] = useState(false)
 
   useEffect(() => {
     if (!activePath) return
@@ -243,7 +244,9 @@ export function AdminSidebarFileTree({ repository, files, collapseSignal = 0 }: 
 
   useEffect(() => {
     if (collapseSignal === 0) return
+
     setOpenFolders(new Set())
+    setIsTreeCollapsed((current) => !current)
   }, [collapseSignal])
 
   function toggleFolder(path: string) {
@@ -258,6 +261,8 @@ export function AdminSidebarFileTree({ repository, files, collapseSignal = 0 }: 
   if (!files.length) {
     return <p className="px-8 py-2 text-xs text-muted-foreground">Nenhum arquivo</p>
   }
+
+  if (isTreeCollapsed) return null
 
   return (
     <div className="mt-1 border-l border-border/70 pl-1">

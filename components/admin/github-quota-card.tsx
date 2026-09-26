@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Activity, Clock3, Gauge, Info, ShieldCheck } from "lucide-react"
+import { Clock3, Gauge, Info, ShieldCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -107,7 +107,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
             <div className="mb-2 flex items-end justify-between gap-4">
               <div>
                 <p className="text-3xl font-semibold tracking-tight text-foreground">
-                  {quota ? `${percentage.toFixed(1)}%` : "—"}
+                  {quota ? `${percentage.toFixed(1)}%` : "Indisponível"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">da quota usada</p>
               </div>
@@ -143,11 +143,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-            <Activity className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-            Acompanhamento informativo — o limite é renovado automaticamente pelo GitHub.
-          </p>
+        <div className="mt-5 flex justify-end border-t border-border/70 pt-4">
           <Button
             type="button"
             variant="ghost"
@@ -166,7 +162,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
-              Por que acompanhamos essa quota?
+              Sobre a plataforma
             </DialogTitle>
             <DialogDescription className="text-slate-400">
               Uma visão rápida sobre a arquitetura atual e o próximo passo possível para o grupo.
@@ -175,7 +171,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
 
           <div className="space-y-4 text-sm leading-7 text-slate-300">
             <p>
-              Hoje, a plataforma não usa um banco de dados tradicional — e tudo bem. Manter os documentos no GitHub é ótimo: temos histórico, organização e controle das alterações em um só lugar.
+              Hoje, a plataforma não usa um banco de dados tradicional. Está tudo bem: manter os documentos no GitHub é ótimo, porque temos histórico, organização e controle das alterações em um só lugar.
             </p>
             <p>
               O ponto de atenção é a quota da API do GitHub, porque usamos a versão gratuita. Até o momento isso não se tornou um problema para o grupo, mas pode se tornar com o aumento do número de membros e do uso da plataforma.
