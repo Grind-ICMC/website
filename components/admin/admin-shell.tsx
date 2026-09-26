@@ -181,8 +181,8 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
   }, [router])
 
   return (
-    <div className="min-h-screen bg-transparent pt-16 text-foreground">
-      <div className="min-h-[calc(100vh-4rem)] w-full">
+    <div className="min-h-screen bg-transparent text-foreground">
+      <div className="min-h-screen w-full">
         <aside
           data-admin-sidebar
           onClick={handleSidebarClick}
@@ -191,17 +191,25 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           }}
           onMouseLeave={() => setIsHoverExpanded(false)}
           className={cn(
-            "liquid-glass z-40 border-b px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:z-[60] lg:flex lg:h-screen lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
+            "liquid-glass fixed top-0 bottom-0 left-0 z-[60] flex h-screen w-20 cursor-pointer flex-col border-r px-5 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:border-b-0",
             isLeavingAdmin ? "admin-sidebar-motion-exit" : "admin-sidebar-motion-enter",
-            isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-5",
+            isSidebarExpanded ? "lg:w-72" : "lg:w-20",
           )}
         >
-          <div className={cn("flex h-full min-h-0 flex-col", !isSidebarExpanded && "lg:items-center")}>
+          <div
+            className={cn(
+              "flex h-full min-h-0 flex-col items-center lg:items-stretch",
+              !isSidebarExpanded && "lg:items-center",
+            )}
+          >
             <div
-              className={cn("flex items-center justify-between gap-3", !isSidebarExpanded && "lg:flex-col lg:justify-center")}
+              className={cn(
+                "flex items-center justify-center gap-3 lg:justify-between",
+                !isSidebarExpanded && "lg:flex-col lg:justify-center",
+              )}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div className={cn("min-w-0", !isSidebarExpanded && "lg:hidden")}>
+                <div className={cn("hidden min-w-0 lg:block", !isSidebarExpanded && "lg:hidden")}>
                   <p className="truncate text-lg font-semibold text-foreground">Painel Admin</p>
                 </div>
               </div>
@@ -222,7 +230,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
               </Button>
             </div>
 
-            <nav className="admin-sidebar-scroll mt-5 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-4">
+            <nav className="admin-sidebar-scroll mt-5 flex min-h-0 w-full flex-1 flex-col items-center gap-2 overflow-y-auto overflow-x-hidden pb-1 lg:mt-8 lg:items-stretch lg:pb-4">
               {ADMIN_NAV_ITEMS.map(({ href, label, Icon, repository }) => {
                 const isActive =
                   href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
@@ -230,7 +238,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                 const files = repository ? repositoryTrees[repository] : undefined
 
                 return (
-                  <div key={href} className="min-w-0 shrink-0 lg:w-full">
+                  <div key={href} className="w-11 min-w-0 shrink-0 lg:w-full">
                     <Link
                       href={href}
                       aria-label={label}
@@ -246,7 +254,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                         event.preventDefault()
                       }}
                       className={cn(
-                        "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
+                        "group relative flex h-11 w-11 items-center justify-center gap-3 overflow-hidden rounded-md border px-0 text-sm font-medium transition lg:w-full lg:justify-start lg:px-3",
                         isActive
                           ? "border-primary/25 bg-primary/10 text-foreground shadow-[inset_3px_0_0_var(--primary)]"
                           : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
@@ -260,7 +268,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                         )}
                         aria-hidden="true"
                       />
-                      <span className={cn("truncate", !isSidebarExpanded && "lg:hidden")}>{label}</span>
+                      <span className={cn("hidden truncate lg:inline", !isSidebarExpanded && "lg:hidden")}>{label}</span>
                     </Link>
                     {repository && isActive && isSidebarExpanded && files ? (
                       <div className="hidden lg:block">
@@ -276,10 +284,10 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
               })}
             </nav>
 
-            <div className={cn("mt-4 border-t border-border pt-4", !isSidebarExpanded && "lg:w-full")}>
+            <div className={cn("mt-4 w-full border-t border-border pt-4", !isSidebarExpanded && "lg:w-full")}>
               <div
                 className={cn(
-                  "mb-3 rounded-md border border-border bg-secondary/35 px-3 py-3",
+                  "mb-3 hidden rounded-md border border-border bg-secondary/35 px-3 py-3 lg:block",
                   !isSidebarExpanded && "lg:hidden",
                 )}
               >
@@ -298,12 +306,14 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                 disabled={isSigningOut}
                 onClick={handleSignOut}
                 className={cn(
-                  "h-10 w-full justify-start border border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground",
+                  "mx-auto h-10 w-11 justify-center border border-transparent text-muted-foreground hover:border-border hover:bg-secondary/70 hover:text-foreground lg:mx-0 lg:w-full lg:justify-start",
                   !isSidebarExpanded && "lg:justify-center lg:px-0",
                 )}
               >
                 <LogOut className="size-4" aria-hidden="true" />
-                <span className={cn(!isSidebarExpanded && "lg:hidden")}>{isSigningOut ? "Saindo..." : "Sair"}</span>
+                <span className={cn("hidden lg:inline", !isSidebarExpanded && "lg:hidden")}>
+                  {isSigningOut ? "Saindo..." : "Sair"}
+                </span>
               </Button>
             </div>
           </div>
@@ -311,7 +321,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
 
         <main
           className={cn(
-            "min-w-0 px-5 py-8 transition-[padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 lg:px-10",
+            "min-w-0 px-5 pt-24 pb-8 pl-[7rem] transition-[padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 lg:px-10",
             isSidebarExpanded ? "lg:pl-[20rem]" : "lg:pl-[7rem]",
           )}
         >

@@ -94,11 +94,6 @@ export function Navbar() {
   }, [shouldAnimateRoute])
 
   const showAdminHeaderLayout = isAdmin ? isRouteReady : isLeavingAdmin && !isRouteReady
-  const headerMotionClass = isRouteMotionStarted
-    ? isAdmin
-      ? "navbar-route-motion-admin"
-      : "navbar-route-motion-public"
-    : ""
   const logoMotionClass = isRouteMotionStarted
     ? isAdmin
       ? "navbar-logo-motion-admin"
@@ -129,11 +124,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div
-            className={cn(
-              "hidden items-center gap-6 lg:flex",
-              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-              headerMotionClass,
-            )}
+            className="ml-auto mr-4 hidden items-center gap-6 lg:flex"
           >
             {navLinks.map((link) => (
               <Link
