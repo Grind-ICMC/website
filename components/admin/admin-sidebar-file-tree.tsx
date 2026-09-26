@@ -156,7 +156,7 @@ function FolderBranch({
                 href={getFolderHref(repository, folder.path)}
                 title={folder.path}
                 className={cn(
-                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-sm transition",
+                  "min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-xs transition",
                   isActive
                     ? "bg-primary/10 text-foreground"
                     : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
@@ -197,7 +197,7 @@ function FolderBranch({
             href={getDocumentHref(repository, file.path)}
             title={file.title}
             className={cn(
-              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-sm transition",
+              "mt-0.5 flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-1.5 text-base transition",
               isActive
                 ? "bg-primary/10 text-foreground"
                 : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
