@@ -1,15 +1,10 @@
 import {
-  BookOpenText,
-  BriefcaseBusiness,
-  CalendarDays,
   FilePlus2,
   FileText,
   Folder,
   FolderOpen,
-  GraduationCap,
   Search,
   X,
-  type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -41,13 +36,6 @@ type RepositoryExplorerProps = {
   repository: AdminRepositorySlug
   path?: string[]
   rawSearchTerm: string
-}
-
-const REPOSITORY_ICONS: Record<AdminRepositorySlug, LucideIcon> = {
-  meetings: CalendarDays,
-  docs: BookOpenText,
-  studies: GraduationCap,
-  "psel-empresas": BriefcaseBusiness,
 }
 
 function getRoutePath(path: string[] | undefined) {
@@ -135,7 +123,6 @@ function EmptySearch({
 export async function RepositoryExplorer({ repository, path, rawSearchTerm }: RepositoryExplorerProps) {
   const repositoryConfig = getAdminRepositoryConfig(repository)
   const repositoryFullName = getRepositoryFullName(repositoryConfig)
-  const RepositoryIcon = REPOSITORY_ICONS[repository]
   const currentPath = getRoutePath(path)
   const parentFolderHref = getRepositoryFolderHref(repository, getParentPath(currentPath))
   const searchTerm = normalizeSearchTerm(rawSearchTerm)
@@ -231,11 +218,7 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
 
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="flex items-center gap-2 text-sm font-medium text-primary">
-              <RepositoryIcon className="size-4" aria-hidden="true" />
-              {repositoryConfig.explorerEyebrow}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-foreground">{repositoryConfig.explorerTitle}</h1>
+            <h1 className="text-3xl font-semibold text-foreground">{repositoryConfig.explorerTitle}</h1>
             <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
               Navegue pela mesma estrutura de pastas do repositório {repositoryFullName}.
             </p>

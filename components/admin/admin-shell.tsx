@@ -11,7 +11,6 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  ShieldCheck,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -82,6 +81,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
   const [isHoverExpanded, setIsHoverExpanded] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [treeCollapseSignals, setTreeCollapseSignals] = useState<Partial<Record<AdminRepositorySlug, number>>>({})
   const isSidebarExpanded = !isCollapsed || isHoverExpanded
   const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
 
@@ -160,12 +160,8 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
               className={cn("flex items-center justify-between gap-3", !isSidebarExpanded && "lg:flex-col lg:justify-center")}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_16%,transparent)]">
-                  <ShieldCheck className="size-5" aria-hidden="true" />
-                </div>
                 <div className={cn("min-w-0", !isSidebarExpanded && "lg:hidden")}>
-                  <p className="truncate text-xs font-medium uppercase tracking-[0.18em] text-primary/75">Grind ICMC</p>
-                  <p className="truncate text-lg font-semibold text-foreground">Admin</p>
+                  <p className="truncate text-lg font-semibold text-foreground">Painel Admin</p>
                 </div>
               </div>
 
@@ -189,6 +185,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
               {ADMIN_NAV_ITEMS.map(({ href, label, Icon, repository }) => {
                 const isActive =
                   href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
+                const isRootPage = repository ? pathname === href : false
                 const files = repository ? repositoryTrees[repository] : undefined
 
                 return (
@@ -197,6 +194,16 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                       href={href}
                       aria-label={label}
                       title={label}
+                      onClick={(event) => {
+                        if (!repository) return
+
+                        setTreeCollapseSignals((current) => ({
+                          ...current,
+                          [repository]: (current[repository] ?? 0) + 1,
+                        }))
+
+                        if (isRootPage) event.preventDefault()
+                      }}
                       className={cn(
                         "group relative flex h-11 items-center gap-3 overflow-hidden rounded-md border px-3 text-sm font-medium transition lg:w-full",
                         isActive
@@ -216,7 +223,11 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
                     </Link>
                     {repository && isActive && isSidebarExpanded && files ? (
                       <div className="hidden lg:block">
-                        <AdminSidebarFileTree repository={repository} files={files} />
+                        <AdminSidebarFileTree
+                          repository={repository}
+                          files={files}
+                          collapseSignal={treeCollapseSignals[repository]}
+                        />
                       </div>
                     ) : null}
                   </div>

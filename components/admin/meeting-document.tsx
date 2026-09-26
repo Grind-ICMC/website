@@ -240,6 +240,14 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           </div>
 
           <div className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}>
+            <DocumentVersionsDialog
+              repository={repository}
+              path={meeting.path}
+              currentSha={meeting.sha}
+              versions={meeting.history}
+              resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
+              onRestore={handleRestore}
+            />
             <Button
               type="button"
               onClick={() => {

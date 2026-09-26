@@ -113,7 +113,7 @@ export function DocumentVersionsDialog({
           Versões
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[min(90vh,900px)] max-w-5xl overflow-hidden border-cyan-400/20 bg-slate-950 text-slate-100">
+      <DialogContent className="h-[min(900px,calc(100vh-2rem))] max-h-[calc(100vh-2rem)] sm:!max-w-5xl overflow-hidden border-cyan-400/20 bg-slate-950 text-slate-100 grid-rows-[auto_minmax(0,1fr)_auto]">
         <DialogHeader>
           <DialogTitle>Histórico de versões</DialogTitle>
           <DialogDescription className="text-slate-400">
@@ -121,8 +121,8 @@ export function DocumentVersionsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid min-h-0 gap-4 overflow-hidden md:grid-cols-[18rem_minmax(0,1fr)]">
-          <div className="min-h-0 space-y-2 overflow-y-auto pr-1">
+        <div className="grid min-h-0 min-w-0 gap-4 overflow-hidden md:grid-cols-[18rem_minmax(0,1fr)]">
+          <div className="min-h-0 min-w-0 space-y-2 overflow-y-auto pr-1">
             {versions.map((version, index) => {
               const isSelected = version.sha === selectedSha
               const isCurrent = index === 0 || version.sha === currentVersionSha
@@ -149,7 +149,7 @@ export function DocumentVersionsDialog({
             })}
           </div>
 
-          <div className="min-h-0 overflow-y-auto rounded-lg border border-slate-800 bg-slate-900/60 p-4">
+          <div className="min-h-0 min-w-0 overflow-y-auto rounded-lg border border-slate-800 bg-slate-900/60 p-4">
             {loadingSha ? (
               <div className="flex min-h-48 items-center justify-center text-sm text-slate-400">
                 <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />

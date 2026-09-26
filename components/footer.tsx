@@ -1,14 +1,21 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { GiIciclesAura } from "react-icons/gi"
 import { FaGithub, FaYoutube, FaLinkedin, FaInstagram } from "react-icons/fa"
 import { useLanguage } from "@/components/language-context"
 
+const websiteRepositoryUrl = "https://github.com/Grind-ICMC/website"
+const pageSourcePaths: Record<string, string> = {
+  "/": "app/page.tsx",
+  "/participar": "app/participar/page.tsx",
+}
+
 const socialLinks = [
   {
-    name: "GitHub",
-    href: "https://github.com/Grind-ICMC",
+    name: "Ver código no GitHub",
+    href: websiteRepositoryUrl,
     icon: FaGithub,
   },
   {
@@ -30,7 +37,11 @@ const socialLinks = [
 
 export function Footer() {
   const { t } = useLanguage()
+  const pathname = usePathname()
   const currentYear = new Date().getFullYear()
+  const githubHref = pageSourcePaths[pathname]
+    ? `${websiteRepositoryUrl}/blob/main/${pageSourcePaths[pathname]}`
+    : websiteRepositoryUrl
 
   return (
     <footer className="border-t border-border bg-card/30">
@@ -49,16 +60,21 @@ export function Footer() {
           <div className="flex items-center gap-4">
             {socialLinks.map((link) => {
               const Icon = link.icon
+              const isGithub = link.icon === FaGithub
               return (
                 <Link
                   key={link.name}
-                  href={link.href}
+                  href={isGithub ? githubHref : link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                  className={`flex h-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground ${
+                    isGithub ? "gap-2 px-3" : "w-10"
+                  }`}
                   aria-label={link.name}
+                  title={link.name}
                 >
                   <Icon className="h-5 w-5" />
+                  {isGithub ? <span className="hidden text-xs font-medium sm:inline">GitHub</span> : null}
                 </Link>
               )
             })}

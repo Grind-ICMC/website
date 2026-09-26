@@ -32,6 +32,7 @@ type TreeNode = {
 type AdminSidebarFileTreeProps = {
   repository: AdminRepositorySlug
   files: AdminSidebarFileSummary[]
+  collapseSignal?: number
 }
 
 function createTreeNode(name: string, path: string): TreeNode {
@@ -222,7 +223,7 @@ function FolderBranch({
   )
 }
 
-export function AdminSidebarFileTree({ repository, files }: AdminSidebarFileTreeProps) {
+export function AdminSidebarFileTree({ repository, files, collapseSignal = 0 }: AdminSidebarFileTreeProps) {
   const pathname = usePathname()
   const tree = useMemo(() => buildTree(files), [files])
   const activePath = getActivePath(repository, pathname)
@@ -239,6 +240,11 @@ export function AdminSidebarFileTree({ repository, files }: AdminSidebarFileTree
 
     setOpenFolders((current) => new Set([...current, ...ancestors]))
   }, [activePath])
+
+  useEffect(() => {
+    if (collapseSignal === 0) return
+    setOpenFolders(new Set())
+  }, [collapseSignal])
 
   function toggleFolder(path: string) {
     setOpenFolders((current) => {

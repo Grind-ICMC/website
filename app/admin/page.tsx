@@ -10,8 +10,10 @@ import {
   Users,
 } from "lucide-react"
 
+import { GitHubQuotaCard } from "@/components/admin/github-quota-card"
 import { Button } from "@/components/ui/button"
 import { ADMIN_REPOSITORIES } from "@/lib/admin-repositories"
+import { getGitHubRateLimit } from "@/lib/github-rate-limit"
 
 const repositoryIcons = {
   meetings: CalendarDays,
@@ -41,7 +43,9 @@ const highlights = [
   },
 ]
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const quota = await getGitHubRateLimit().catch(() => null)
+
   return (
     <section>
       <div className="mb-10 max-w-3xl">
@@ -59,6 +63,8 @@ export default function AdminPage() {
           ajudam o Grind a continuar evoluindo.
         </p>
       </div>
+
+      <GitHubQuotaCard quota={quota} />
 
       <div className="mb-10 grid gap-4 md:grid-cols-3">
         {highlights.map(({ title, description, Icon }) => (
