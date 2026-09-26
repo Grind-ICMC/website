@@ -8,10 +8,10 @@ import {
   FileText, 
   Star, 
   Users,
-  Info,
-  X
+  Info
 } from "lucide-react"
 import { useLanguage } from "@/components/language-context"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 const features = [
   { icon: Calendar, key: "about.feature1" },
@@ -86,34 +86,23 @@ export function AboutSection() {
         </div>
 
         {/* Alumni Info Modal */}
-        {showAlumniInfo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-              onClick={() => setShowAlumniInfo(false)}
-            />
-            <div className="liquid-glass relative z-10 w-full max-w-md rounded-2xl border p-6 shadow-xl">
-              <button
-                onClick={() => setShowAlumniInfo(false)}
-                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={language === "pt" ? "Fechar" : "Close"}
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <div className="flex items-center gap-3 mb-4">
+        <Dialog open={showAlumniInfo} onOpenChange={setShowAlumniInfo}>
+          <DialogContent>
+            <DialogHeader>
+              <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Users className="h-5 w-5" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground">
+                <DialogTitle>
                   {language === "pt" ? "O que é Alumni?" : "What is Alumni?"}
-                </h3>
+                </DialogTitle>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
+              <DialogDescription>
                 {alumniInfoText}
-              </p>
-            </div>
-          </div>
-        )}
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   )

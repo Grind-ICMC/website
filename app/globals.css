@@ -125,7 +125,7 @@
 }
 
 :is(
-  .liquid-glass, .liquid-glass-header, .liquid-glass-control, .liquid-glass-field,
+  .liquid-glass, .liquid-glass-header, .liquid-glass-control:where(:not([data-slot^="alert-dialog-"])), .liquid-glass-field,
   .document-editor-meta-bar, .document-editor-toolbar,
   [data-slot="card"], [data-slot="alert"], [data-slot="tabs-list"],
   [data-slot="dialog-content"], [data-slot="alert-dialog-content"],
@@ -175,12 +175,12 @@
 .reading-copy::before {
   content: "";
   position: absolute;
-  inset: -1.5rem -0.5rem;
+  inset: -3.5rem -1.5rem;
   z-index: -1;
   pointer-events: none;
-  border-radius: 20%;
-  background: rgb(6 15 27 / 90%);
-  filter: blur(24px);
+  border-radius: 30%;
+  background: radial-gradient(ellipse at center, rgb(6 15 27 / 96%) 25%, rgb(6 15 27 / 88%) 50%, rgb(6 15 27 / 40%) 72%, transparent 100%);
+  filter: blur(32px);
 }
 
 .reading-heading {
@@ -244,7 +244,7 @@
 }
 
 @media (hover: hover) {
-  .liquid-glass-control:not(:disabled):not([data-variant="link"]):hover {
+  .liquid-glass-control:not(:disabled):not([data-variant="link"]):not([data-slot^="alert-dialog-"]):hover {
     border-color: rgb(180 207 230 / 22%);
     color: var(--foreground);
     background-color: color-mix(in srgb, var(--glass-tint) 94%, white);
@@ -282,6 +282,60 @@
   .liquid-glass-control:active {
     scale: none;
   }
+}
+
+/* Modal surfaces sit above navigation and use an opaque reading surface. */
+:is([data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"], [data-slot="sheet-overlay"], [data-slot="drawer-overlay"]) {
+  z-index: 80;
+  background: rgb(0 5 12 / 75%);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+:is([data-slot="dialog-content"], [data-slot="alert-dialog-content"]) {
+  z-index: 81;
+  background: #0c1725;
+  border: 1px solid rgb(180 207 230 / 14%);
+  border-radius: 1rem;
+  color: var(--foreground);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+
+:is([data-slot="sheet-content"], [data-slot="drawer-content"]) {
+  z-index: 81;
+  background: #0c1725;
+  border-color: rgb(180 207 230 / 14%);
+  color: var(--foreground);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+}
+
+:is([data-slot="dialog-description"], [data-slot="alert-dialog-description"], [data-slot="sheet-description"], [data-slot="drawer-description"]) {
+  color: #bbc8d8;
+  line-height: 1.65;
+}
+
+.admin-document-editing :is(.document-editor-meta-bar, .document-editor-toolbar) {
+  background: #07111f;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Portalled controls must remain above the modal that opened them. */
+:is([data-slot="popover-content"], [data-slot="select-content"], [data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"], [data-slot="context-menu-content"], [data-slot="context-menu-sub-content"], [data-slot="tooltip-content"]) {
+  z-index: 90;
+}
+
+.high-contrast :is([data-slot="dialog-content"], [data-slot="alert-dialog-content"], [data-slot="sheet-content"], [data-slot="drawer-content"]) {
+  background: #000;
+  color: #fff;
+  border-color: #fff;
 }
 
 .particles-sphere-fallback {

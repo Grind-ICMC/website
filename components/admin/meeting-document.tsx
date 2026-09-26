@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Edit3, FileText, FolderTree, GitCommitHorizontal, Save, Trash2, UserRound } from "lucide-react"
+import { BookOpen, Edit3, FileText, FolderTree, GitCommitHorizontal, Save, Trash2, UserRound } from "lucide-react"
 
 import { deleteRepositoryDocument, updateRepositoryDocument } from "@/app/actions/github"
 import { DocumentVersionsDialog } from "@/components/admin/document-versions-dialog"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
-import { MarkdownContent } from "@/components/admin/markdown-content"
+import { DocumentReader } from "@/components/admin/document-reader"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,6 +67,8 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
+  const [isPaginated, setIsPaginated] = useState(false)
+  const allowNavigation = useRef(false)
   const documentDirectory = getMeetingDocumentDirectory(meeting.path)
   const editorFormId = "meeting-document-editor"
 
@@ -78,27 +80,29 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
     }
 
     function confirmLeaving(event: BeforeUnloadEvent) {
-      if (!hasUnsavedChanges) return
+      if (!hasUnsavedChanges || allowNavigation.current) return
       event.preventDefault()
       event.returnValue = ""
     }
 
     function confirmNavigation(event: MouseEvent) {
-      if (!hasUnsavedChanges) return
+      if (!hasUnsavedChanges || allowNavigation.current || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
       const target = event.target
       if (!(target instanceof Element)) return
       const link = target.closest("a[href]")
-      if (!(link instanceof HTMLAnchorElement) || link.target === "_blank") return
+      if (!(link instanceof HTMLAnchorElement) || link.target === "_blank" || link.hasAttribute("download")) return
       event.preventDefault()
-      event.stopPropagation()
+      event.stopImmediatePropagation()
       setPendingNavigation(link.href)
     }
 
     window.addEventListener("beforeunload", confirmLeaving)
-    document.addEventListener("click", confirmNavigation, true)
+    // Window capture runs before the admin shell's document capture listener
+    // and before Next Link can schedule a route change.
+    window.addEventListener("click", confirmNavigation, true)
     return () => {
       window.removeEventListener("beforeunload", confirmLeaving)
-      document.removeEventListener("click", confirmNavigation, true)
+      window.removeEventListener("click", confirmNavigation, true)
       document.documentElement.classList.remove("admin-document-editing")
     }
   }, [hasUnsavedChanges, isEditing])
@@ -190,6 +194,7 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
               className="bg-cyan-300 text-slate-950 hover:bg-cyan-200"
               onClick={() => {
                 const destination = pendingNavigation
+                allowNavigation.current = true
                 setPendingNavigation(null)
                 setHasUnsavedChanges(false)
                 if (destination) window.location.assign(destination)
@@ -240,14 +245,10 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           </div>
 
           <div className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}>
-            <DocumentVersionsDialog
-              repository={repository}
-              path={meeting.path}
-              currentSha={meeting.sha}
-              versions={meeting.history}
-              resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
-              onRestore={handleRestore}
-            />
+            <Button type="button" variant="outline" aria-pressed={isPaginated} onClick={() => setIsPaginated((value) => !value)}>
+              <BookOpen className="size-4" aria-hidden="true" />
+              {isPaginated ? "Leitura contínua" : "Páginas"}
+            </Button>
             <Button
               type="button"
               onClick={() => {
@@ -398,14 +399,11 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           onSubmit={handleUpdate}
         />
       ) : (
-        <div className="document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8">
-          <div className="document-page document-readonly-page">
-            <MarkdownContent
-              content={meeting.content}
-              resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
-            />
-          </div>
-        </div>
+        <DocumentReader
+          paginated={isPaginated}
+          content={meeting.content}
+          resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
+        />
       )}
     </>
   )
