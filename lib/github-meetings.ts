@@ -29,6 +29,10 @@ export type RepositoryDocumentSummary = {
   title: string
   directory: string
   folderIconPath?: string
+  folderIconPaths?: Array<{
+    path: string
+    iconPath: string
+  }>
 }
 
 export type RepositoryMarkdownDocument = RepositoryDocumentSummary & {
@@ -318,11 +322,15 @@ export async function getRepositoryDirectory(
 export async function getRepositoryFiles(
   repository: AdminRepositorySlug,
   path = "",
+  ancestorFolderIcons: Array<{ path: string; iconPath: string }> = [],
 ): Promise<RepositoryDocumentSummary[]> {
   const contents = await fetchGitHubContents(repository, path)
-  const folderIconPath = path
+  const ownFolderIconPath = path
     ? await getFolderIconPath(repository, path)
     : undefined
+  const folderIcons = ownFolderIconPath
+    ? [...ancestorFolderIcons, { path, iconPath: ownFolderIconPath }]
+    : ancestorFolderIcons
 
   if (!Array.isArray(contents)) {
     return []
@@ -331,23 +339,19 @@ export async function getRepositoryFiles(
   const documents = await Promise.all(
     contents.map(async (item: GitHubContentItem) => {
       if (item.type === "dir") {
-        return getRepositoryFiles(repository, item.path)
+        return getRepositoryFiles(repository, item.path, folderIcons)
       }
 
       if (item.type === "file" && item.name.toLowerCase().endsWith(".md")) {
-        return [await getRepositoryDocumentSummary(repository, item)]
+        const document = await getRepositoryDocumentSummary(repository, item)
+        return [{ ...document, folderIconPaths: folderIcons }]
       }
 
       return []
     }),
   )
 
-  return documents
-    .flat()
-    .map((document) =>
-      folderIconPath ? { ...document, folderIconPath } : document,
-    )
-    .sort((left, right) => right.path.localeCompare(left.path))
+  return documents.flat().sort((left, right) => right.path.localeCompare(left.path))
 }
 
 export async function getRepositoryMarkdown(

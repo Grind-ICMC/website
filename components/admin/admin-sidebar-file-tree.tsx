@@ -15,6 +15,10 @@ export type AdminSidebarFileSummary = {
   title: string
   directory: string
   folderIconPath?: string
+  folderIconPaths?: Array<{
+    path: string
+    iconPath: string
+  }>
 }
 
 type TreeNode = {
@@ -54,6 +58,11 @@ function buildTree(files: AdminSidebarFileSummary[]) {
       }
 
       parent = folder
+    }
+
+    for (const folderIcon of file.folderIconPaths ?? []) {
+      const folder = folders.get(folderIcon.path)
+      if (folder) folder.iconPath = folderIcon.iconPath
     }
 
     if (file.folderIconPath) {
