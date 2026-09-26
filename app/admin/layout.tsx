@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="relative isolate min-h-screen overflow-hidden">
-      <ParticlesBackground variant="admin" />
+      <ParticlesBackground />
       <Navbar />
       <div className="relative z-10">
         <AdminShell userName={userName} userEmail={session.user.email} repositoryTrees={repositoryTrees}>

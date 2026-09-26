@@ -7,19 +7,14 @@ type VantaDotsEffect = {
   resize: () => void
 }
 
-type ParticlesBackgroundProps = {
-  variant?: "public" | "admin"
-}
-
 const VANTA_COLORS = {
   background: 0x07111f,
   dots: 0x22d3ee,
   lines: 0x0ea5e9,
 } as const
 
-export function ParticlesBackground({ variant = "public" }: ParticlesBackgroundProps) {
+export function ParticlesBackground() {
   const backgroundRef = useRef<HTMLDivElement>(null)
-  const isAdminBackground = variant === "admin"
 
   useEffect(() => {
     const element = backgroundRef.current
@@ -54,9 +49,9 @@ export function ParticlesBackground({ variant = "public" }: ParticlesBackgroundP
         color2: VANTA_COLORS.lines,
         backgroundColor: VANTA_COLORS.background,
         backgroundAlpha: 0,
-        size: isAdminBackground ? 2.4 : 1.2,
-        spacing: isAdminBackground ? 34 : 46,
-        showLines: isAdminBackground,
+        size: 2.4,
+        spacing: 34,
+        showLines: true,
         mouseControls: false,
         touchControls: false,
         gyroControls: false,
