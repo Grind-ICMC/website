@@ -234,7 +234,7 @@ export function TracksSection() {
   return (
     <section id="tracks" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="liquid-glass glass-reading glass-reading-heading text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {t("tracks.title")}
           </h2>
@@ -317,7 +317,7 @@ export function TracksSection() {
         </div>
 
         <div className="mt-12">
-          <div className="mb-6 max-w-3xl">
+          <div className="liquid-glass glass-reading mb-6 max-w-3xl rounded-2xl border p-5 sm:p-8">
             <p className="text-sm font-semibold uppercase text-primary">
               {language === "pt" ? "Camadas transversais" : "Shared layers"}
             </p>

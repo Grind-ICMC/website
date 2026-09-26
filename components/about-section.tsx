@@ -34,7 +34,7 @@ export function AboutSection() {
     <section id="about" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="liquid-glass glass-reading glass-reading-heading text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {t("about.title")}
           </h2>

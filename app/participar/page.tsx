@@ -48,7 +48,7 @@ function ParticiparContent() {
 
 
       {/* Header */}
-      <div className="text-center mb-16">
+      <div className="liquid-glass glass-reading glass-reading-heading text-center mb-16">
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
           {language === "pt" ? "Como Participar" : "How to Participate"}
         </h1>
@@ -128,7 +128,7 @@ function ParticiparContent() {
       </div>
 
       {/* Connect Section */}
-      <div className="text-center">
+      <div className="liquid-glass glass-reading rounded-2xl border p-5 text-center sm:p-8">
         <h3 className="text-xl font-bold text-foreground mb-4">
           {language === "pt" ? "Conecte-se Conosco" : "Connect with Us"}
         </h3>

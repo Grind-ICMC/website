@@ -67,7 +67,7 @@ export function HeroSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
           {/* Left Content */}
-          <div className="flex flex-col gap-6">
+          <div className="liquid-glass glass-reading flex min-w-0 flex-col gap-6 rounded-2xl border p-5 sm:p-8">
             {/* Tag */}
             <div className="inline-flex">
               <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">

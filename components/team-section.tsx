@@ -100,7 +100,7 @@ export function TeamSection({ members }: TeamSectionProps) {
     <section id="team" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="liquid-glass glass-reading glass-reading-heading text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {t("team.title")}
           </h2>
