@@ -7,14 +7,19 @@ type VantaDotsEffect = {
   resize: () => void
 }
 
+type ParticlesBackgroundProps = {
+  variant?: "public" | "admin"
+}
+
 const VANTA_COLORS = {
   background: 0x07111f,
   dots: 0x22d3ee,
   lines: 0x0ea5e9,
 } as const
 
-export function ParticlesBackground() {
+export function ParticlesBackground({ variant = "public" }: ParticlesBackgroundProps) {
   const backgroundRef = useRef<HTMLDivElement>(null)
+  const isAdminBackground = variant === "admin"
 
   useEffect(() => {
     const element = backgroundRef.current
@@ -48,10 +53,10 @@ export function ParticlesBackground() {
         color: VANTA_COLORS.dots,
         color2: VANTA_COLORS.lines,
         backgroundColor: VANTA_COLORS.background,
-        backgroundAlpha: 1,
-        size: 1.6,
-        spacing: 46,
-        showLines: false,
+        backgroundAlpha: 0,
+        size: isAdminBackground ? 2.4 : 1.2,
+        spacing: isAdminBackground ? 34 : 46,
+        showLines: isAdminBackground,
         mouseControls: false,
         touchControls: false,
         gyroControls: false,
@@ -81,7 +86,7 @@ export function ParticlesBackground() {
     <div
       ref={backgroundRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#07111f]"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#07111f]"
       style={{
         backgroundImage:
           "radial-gradient(circle, rgba(34, 211, 238, 0.24) 0.8px, transparent 1.3px), radial-gradient(circle, rgba(14, 165, 233, 0.12) 0.8px, transparent 1.3px)",
