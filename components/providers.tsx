@@ -3,12 +3,14 @@
 import { LanguageProvider } from "@/components/language-context"
 import { AccessibilityProvider } from "@/components/accessibility-context"
 import { SessionProvider } from "next-auth/react"
+import { LiquidGlassEffects } from "@/components/liquid-glass-effects"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <LanguageProvider>
         <AccessibilityProvider>
+          <LiquidGlassEffects />
           {children}
         </AccessibilityProvider>
       </LanguageProvider>

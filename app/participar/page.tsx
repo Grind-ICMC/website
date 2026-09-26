@@ -149,7 +149,7 @@ function ParticiparContent() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-muted-foreground transition-all ${social.color} hover:text-white`}
+                className={`liquid-glass-control flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-muted-foreground transition-all ${social.color} hover:text-white`}
                 aria-label={social.label}
               >
                 <Icon className="h-5 w-5" />

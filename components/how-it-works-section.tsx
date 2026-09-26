@@ -75,7 +75,7 @@ export function HowItWorksSection() {
                 )}
                 
                 {/* Step Number */}
-                <div className="relative z-10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary bg-background">
+                <div className="liquid-glass relative z-10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary">
                   <Icon className="h-7 w-7 text-primary" />
                 </div>
 
