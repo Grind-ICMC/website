@@ -390,11 +390,13 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           onSubmit={handleUpdate}
         />
       ) : (
-        <div className="rounded-lg border border-cyan-400/15 bg-slate-900/70 px-5 py-6 sm:px-8">
-          <MarkdownContent
-            content={meeting.content}
-            resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
-          />
+        <div className="document-workspace overflow-x-auto px-2 py-5 sm:px-5 sm:py-8">
+          <div className="document-page document-readonly-page">
+            <MarkdownContent
+              content={meeting.content}
+              resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
+            />
+          </div>
         </div>
       )}
     </>
