@@ -85,3 +85,7 @@ export function getAdminRepositoryConfig(slug: string) {
 export function getRepositoryFullName(repository: AdminRepositoryConfig) {
   return `${repository.owner}/${repository.repo}`
 }
+
+export function getRepositoryGitHubUrl(repository: AdminRepositoryConfig) {
+  return `https://github.com/${getRepositoryFullName(repository)}`
+}

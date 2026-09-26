@@ -255,6 +255,24 @@
   scale: 0.98;
 }
 
+.liquid-glass-control.team-pagination-control {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.liquid-glass-control.team-pagination-control:hover:not(:disabled) {
+  border-color: rgb(148 163 184 / 18%);
+  background: rgb(148 163 184 / 8%);
+}
+
+.liquid-glass-control.team-pagination-control.team-pagination-current {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
 /* Respect accessibility settings and keep a readable no-filter fallback. */
 .high-contrast {
   --glass-optics: none;

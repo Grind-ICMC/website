@@ -8,6 +8,7 @@ import { deleteRepositoryDocument, updateRepositoryDocument } from "@/app/action
 import { DocumentVersionsDialog } from "@/components/admin/document-versions-dialog"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
 import { DocumentReader } from "@/components/admin/document-reader"
+import { RepositoryGitHubLink } from "@/components/admin/repository-github-link"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -245,6 +246,7 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           </div>
 
           <div className={`flex shrink-0 flex-wrap gap-3 ${isEditing ? "hidden" : ""}`}>
+            <RepositoryGitHubLink repository={repository} />
             <Button type="button" variant="outline" aria-pressed={isPaginated} onClick={() => setIsPaginated((value) => !value)}>
               <BookOpen className="size-4" aria-hidden="true" />
               {isPaginated ? "Leitura contínua" : "Páginas"}
@@ -335,6 +337,7 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           formId={editorFormId}
           compactActions={
             <>
+              <RepositoryGitHubLink repository={repository} compact />
               <DocumentVersionsDialog
                 repository={repository}
                 path={meeting.path}

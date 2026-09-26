@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 
 import { auth } from "@/auth"
 import { MeetingCreateForm } from "@/components/admin/meeting-create-form"
+import { RepositoryGitHubLink } from "@/components/admin/repository-github-link"
 import {
   getAdminRepositoryConfig,
   type AdminRepositorySlug,
@@ -60,9 +61,12 @@ export async function RepositoryNewDocument({
           Dê um título ao documento e comece a escrever. Use a barra de ferramentas
           para formatar o texto e inserir conteúdo.
         </p>
-        <p className="mt-3 rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
-          {currentPath || repositoryConfig.navLabel}
-        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="min-w-0 truncate rounded-md bg-slate-950/70 px-3 py-2 font-mono text-xs text-slate-400">
+            {currentPath || repositoryConfig.navLabel}
+          </p>
+          <RepositoryGitHubLink repository={repository} />
+        </div>
       </header>
 
       <MeetingCreateForm

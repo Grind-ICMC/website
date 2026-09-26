@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useAccessibility } from "@/components/accessibility-context"
 
 type VantaDotsEffect = {
   destroy: () => void
@@ -14,10 +15,12 @@ const VANTA_COLORS = {
 } as const
 
 export function ParticlesBackground() {
+  const { highContrast } = useAccessibility()
   const backgroundRef = useRef<HTMLDivElement>(null)
   const [hasVantaEffect, setHasVantaEffect] = useState(false)
 
   useEffect(() => {
+    if (highContrast) return
     const element = backgroundRef.current
 
     if (!element) return
@@ -77,13 +80,15 @@ export function ParticlesBackground() {
       const windowWithThree = window as Window & { THREE?: typeof import("three") }
       if (windowWithThree.THREE === installedThree) windowWithThree.THREE = previousThree
     }
-  }, [])
+  }, [highContrast])
+
+  if (highContrast) return null
 
   return (
     <div
       ref={backgroundRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#07111f]"
+      className="particles-background pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#07111f]"
       style={{
         backgroundImage:
           "radial-gradient(circle, rgba(34, 211, 238, 0.24) 0.8px, transparent 1.3px), radial-gradient(circle, rgba(14, 165, 233, 0.12) 0.8px, transparent 1.3px)",

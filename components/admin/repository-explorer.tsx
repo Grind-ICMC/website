@@ -14,6 +14,7 @@ import { DeleteFolderDialog } from "@/components/admin/delete-folder-dialog"
 import { FolderIconDialog } from "@/components/admin/folder-icon-dialog"
 import { FolderIconPreview } from "@/components/admin/folder-icon-preview"
 import { MeetingBreadcrumbs } from "@/components/admin/meeting-breadcrumbs"
+import { RepositoryGitHubLink } from "@/components/admin/repository-github-link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -224,7 +225,8 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-wrap items-center gap-3">
+            <RepositoryGitHubLink repository={repository} />
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href={getNewDocumentHref(repository, currentPath)}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
@@ -246,8 +248,9 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
           <form role="search" className="mb-5 flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                className="pointer-events-none absolute left-3 top-1/2 z-10 size-[18px] -translate-y-1/2 text-slate-300 opacity-90"
                 aria-hidden="true"
+                strokeWidth={2.25}
               />
               <Input
                 type="search"

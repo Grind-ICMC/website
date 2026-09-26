@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Clock3, Gauge, Info, ShieldCheck } from "lucide-react"
+import { Clock3, Gauge, Github, Info, ShieldCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -114,6 +114,10 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
               <h2 className="mt-1 text-lg font-semibold text-foreground">
                 Quota da API do GitHub
               </h2>
+              <a href="https://github.com/orgs/Grind-ICMC/repositories" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm text-primary transition-colors hover:text-primary/80" aria-label="Ver todos os repositórios da organização Grind ICMC no GitHub (nova aba)">
+                <Github className="size-4" aria-hidden="true" />
+                Ver repositórios da organização
+              </a>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Acompanhe o uso da API que mantém os documentos do admin conectados ao GitHub.
               </p>

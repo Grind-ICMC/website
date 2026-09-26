@@ -30,7 +30,14 @@ type TeamSectionProps = {
   members: TeamMember[]
 }
 
-const MEMBERS_PER_PAGE = 8
+const MEMBERS_PER_PAGE = 20
+
+function leadershipRank(member: TeamMember) {
+  const role = member.role.pt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR")
+  if (role.includes("presidente") && !role.includes("vice")) return 0
+  if (role.includes("vice-presidente") || role.includes("vice presidente")) return 1
+  return 2
+}
 
 function getVisiblePages(currentPage: number, totalPages: number) {
   const pages = new Set([1, totalPages, currentPage])
@@ -51,8 +58,8 @@ export function TeamSection({ members }: TeamSectionProps) {
   const [activeTab, setActiveTab] = useState<Tab>("current")
   const [currentPage, setCurrentPage] = useState(1)
 
-  const currentMembers = members.filter((member) => !member.isAlumni)
-  const alumniMembers = members.filter((member) => member.isAlumni)
+  const currentMembers = members.filter((member) => !member.isAlumni).toSorted((a, b) => leadershipRank(a) - leadershipRank(b))
+  const alumniMembers = members.filter((member) => member.isAlumni).toSorted((a, b) => leadershipRank(a) - leadershipRank(b))
   const hasAlumni = alumniMembers.length > 0
   const selectedTab =
     hasAlumni && activeTab === "alumni" ? "alumni" : "current"
@@ -187,13 +194,13 @@ export function TeamSection({ members }: TeamSectionProps) {
             </div>
 
             {pageCount > 1 ? (
-              <Pagination className="mt-10" aria-label={t("team.pagination")}>
-                <PaginationContent>
+              <Pagination className="mt-8" aria-label={t("team.pagination")}>
+                <PaginationContent className="gap-1.5">
                   <PaginationItem>
                     <Button
                       variant="ghost"
                       size="default"
-                      className="gap-1 px-2.5 sm:pl-2.5"
+                      className="team-pagination-control h-10 gap-1 rounded-full px-3 text-muted-foreground transition-colors hover:text-foreground sm:pl-3"
                       onClick={() => changePage(currentPage - 1)}
                       disabled={currentPage === 1}
                       aria-label={t("team.previousPage")}
@@ -218,8 +225,9 @@ export function TeamSection({ members }: TeamSectionProps) {
                         ) : null}
                         <PaginationItem>
                           <Button
-                            variant={page === currentPage ? "outline" : "ghost"}
+                            variant="ghost"
                             size="icon"
+                            className={`team-pagination-control size-10 rounded-full font-medium transition-colors ${page === currentPage ? "team-pagination-current" : "text-muted-foreground hover:text-foreground"}`}
                             onClick={() => changePage(page)}
                             aria-current={
                               page === currentPage ? "page" : undefined
@@ -240,7 +248,7 @@ export function TeamSection({ members }: TeamSectionProps) {
                     <Button
                       variant="ghost"
                       size="default"
-                      className="gap-1 px-2.5 sm:pr-2.5"
+                      className="team-pagination-control h-10 gap-1 rounded-full px-3 text-muted-foreground transition-colors hover:text-foreground sm:pr-3"
                       onClick={() => changePage(currentPage + 1)}
                       disabled={currentPage === pageCount}
                       aria-label={t("team.nextPage")}

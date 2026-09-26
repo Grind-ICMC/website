@@ -171,6 +171,7 @@ export function Navbar() {
               size="icon"
               className="h-9 w-9"
               onClick={toggleHighContrast}
+              aria-pressed={highContrast}
               aria-label={highContrast ? "Disable high contrast" : "Enable high contrast"}
             >
               {highContrast ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
