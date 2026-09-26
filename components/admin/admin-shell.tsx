@@ -15,7 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { signOut as clientSignOut } from "next-auth/react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { AdminSidebarFileTree, type AdminSidebarFileSummary } from "@/components/admin/admin-sidebar-file-tree"
@@ -77,10 +77,12 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
 export function AdminShell({ children, userName, userEmail, repositoryTrees }: AdminShellProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isHoverExpanded, setIsHoverExpanded] = useState(false)
   const [hasHydrated, setHasHydrated] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [isLeavingAdmin, setIsLeavingAdmin] = useState(false)
   const [treeCollapseSignals, setTreeCollapseSignals] = useState<Partial<Record<AdminRepositorySlug, number>>>({})
   const isSidebarExpanded = !isCollapsed || isHoverExpanded
   const ToggleIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose
@@ -91,6 +93,8 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
     }
 
     setIsSigningOut(true)
+    setIsLeavingAdmin(true)
+    window.sessionStorage.setItem("grind-admin-exit", "1")
 
     try {
       const result = await clientSignOut({
@@ -140,6 +144,40 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
     }
   }, [hasHydrated, isCollapsed, isSidebarExpanded])
 
+  useEffect(() => {
+    function handleAdminExit(event: globalThis.MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return
+      }
+
+      const target = event.target
+      if (!(target instanceof Element)) {
+        return
+      }
+
+      const anchor = target.closest("a")
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) {
+        return
+      }
+
+      const destination = new URL(anchor.href, window.location.href)
+      if (destination.origin !== window.location.origin || destination.pathname.startsWith("/admin")) {
+        return
+      }
+
+      event.preventDefault()
+      setIsLeavingAdmin(true)
+      window.sessionStorage.setItem("grind-admin-exit", "1")
+
+      window.setTimeout(() => {
+        router.push(`${destination.pathname}${destination.search}${destination.hash}`)
+      }, 260)
+    }
+
+    document.addEventListener("click", handleAdminExit, true)
+    return () => document.removeEventListener("click", handleAdminExit, true)
+  }, [router])
+
   return (
     <div className="min-h-screen bg-transparent pt-16 text-foreground">
       <div className="min-h-[calc(100vh-4rem)] w-full">
@@ -152,6 +190,7 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
           onMouseLeave={() => setIsHoverExpanded(false)}
           className={cn(
             "z-40 border-b border-border bg-card/95 px-4 py-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-[width,padding,background-color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:fixed lg:top-0 lg:bottom-0 lg:left-0 lg:z-[60] lg:flex lg:h-screen lg:cursor-pointer lg:flex-col lg:border-r lg:border-b-0",
+            isLeavingAdmin ? "admin-sidebar-motion-exit" : "admin-sidebar-motion-enter",
             isSidebarExpanded ? "lg:w-72 lg:px-5" : "lg:w-20 lg:px-5",
           )}
         >

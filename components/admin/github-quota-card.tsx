@@ -40,7 +40,39 @@ function formatResetDate(value: string) {
 
 export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
+  const [currentQuota, setCurrentQuota] = useState(quota)
   const [now, setNow] = useState<number | null>(null)
+
+  useEffect(() => {
+    let isCurrent = true
+
+    async function refreshQuota() {
+      try {
+        const response = await fetch("/api/admin/github-rate-limit", {
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          return
+        }
+
+        const nextQuota = (await response.json()) as GitHubRateLimit
+        if (isCurrent) {
+          setCurrentQuota(nextQuota)
+        }
+      } catch {
+        // Keep the last successfully loaded value visible if GitHub is unavailable.
+      }
+    }
+
+    void refreshQuota()
+    const interval = window.setInterval(refreshQuota, 60_000)
+
+    return () => {
+      isCurrent = false
+      window.clearInterval(interval)
+    }
+  }, [])
 
   useEffect(() => {
     const updateNow = () => setNow(Date.now())
@@ -51,20 +83,20 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
     return () => window.clearInterval(interval)
   }, [])
 
-  const percentage = quota
-    ? Math.min(100, Math.max(0, (quota.used / quota.limit) * 100))
+  const percentage = currentQuota
+    ? Math.min(100, Math.max(0, (currentQuota.used / currentQuota.limit) * 100))
     : 0
   const isWarning = percentage >= 70
   const isCritical = percentage >= 90
-  const statusLabel = !quota
+  const statusLabel = !currentQuota
     ? "Indisponível"
     : isCritical
       ? "Atenção necessária"
       : isWarning
         ? "Acompanhar de perto"
         : "Dentro do esperado"
-  const resetRemaining = quota && now !== null
-    ? formatRemainingTime(new Date(quota.resetAt).getTime() - now)
+  const resetRemaining = currentQuota && now !== null
+    ? formatRemainingTime(new Date(currentQuota.resetAt).getTime() - now)
     : "calculando…"
 
   return (
@@ -89,7 +121,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
           </div>
 
           <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
-            !quota
+            !currentQuota
               ? "border-border bg-secondary/60 text-muted-foreground"
               : isCritical
                 ? "border-red-400/30 bg-red-400/10 text-red-200"
@@ -107,13 +139,13 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
             <div className="mb-2 flex items-end justify-between gap-4">
               <div>
                 <p className="text-3xl font-semibold tracking-tight text-foreground">
-                  {quota ? `${percentage.toFixed(1)}%` : "Indisponível"}
+                  {currentQuota ? `${percentage.toFixed(1)}%` : "Indisponível"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">da quota usada</p>
               </div>
-              {quota ? (
+              {currentQuota ? (
                 <p className="text-right text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">{formatNumber(quota.used)}</span> de {formatNumber(quota.limit)} requisições
+                  <span className="font-medium text-foreground">{formatNumber(currentQuota.used)}</span> de {formatNumber(currentQuota.limit)} requisições
                 </p>
               ) : (
                 <p className="text-right text-xs text-muted-foreground">Não foi possível consultar agora.</p>
@@ -121,12 +153,12 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
             </div>
             <Progress
               value={percentage}
-              aria-label={quota ? `${percentage.toFixed(1)}% da quota usada` : "Quota indisponível"}
+              aria-label={currentQuota ? `${percentage.toFixed(1)}% da quota usada` : "Quota indisponível"}
               className="h-2.5 bg-primary/10"
             />
-            {quota ? (
+            {currentQuota ? (
               <p className="mt-2 text-xs text-muted-foreground">
-                {formatNumber(quota.remaining)} requisições restantes nesta janela.
+                {formatNumber(currentQuota.remaining)} requisições restantes nesta janela.
               </p>
             ) : null}
           </div>
@@ -138,7 +170,7 @@ export function GitHubQuotaCard({ quota }: GitHubQuotaCardProps) {
             </div>
             <p className="mt-2 text-xl font-semibold text-foreground">{resetRemaining}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {quota ? `por volta de ${formatResetDate(quota.resetAt)}` : "Horário indisponível"}
+              {currentQuota ? `por volta de ${formatResetDate(currentQuota.resetAt)}` : "Horário indisponível"}
             </p>
           </div>
         </div>

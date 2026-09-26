@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
@@ -56,20 +56,70 @@ export function Navbar() {
   const { data: session } = useSession()
   const pathname = usePathname()
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/")
+  const [isLeavingAdmin] = useState(() => {
+    if (typeof window === "undefined" || isAdmin) {
+      return false
+    }
+
+    const shouldAnimate = window.sessionStorage.getItem("grind-admin-exit") === "1"
+
+    if (shouldAnimate) {
+      window.sessionStorage.removeItem("grind-admin-exit")
+    }
+
+    return shouldAnimate
+  })
+  const shouldAnimateRoute = isAdmin || isLeavingAdmin
+  const [isRouteReady, setIsRouteReady] = useState(!shouldAnimateRoute)
+  const [isRouteMotionStarted, setIsRouteMotionStarted] = useState(false)
+  const [isRouteTransitionActive, setIsRouteTransitionActive] = useState(shouldAnimateRoute)
+
+  useEffect(() => {
+    if (!shouldAnimateRoute) {
+      return
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setIsRouteReady(true)
+      setIsRouteMotionStarted(true)
+    })
+    const timeout = window.setTimeout(() => {
+      setIsRouteTransitionActive(false)
+    }, 620)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(timeout)
+    }
+  }, [shouldAnimateRoute])
+
+  const showAdminHeaderLayout = isAdmin ? isRouteReady : isLeavingAdmin && !isRouteReady
+  const headerMotionClass = isRouteMotionStarted
+    ? isAdmin
+      ? "navbar-route-motion-admin"
+      : "navbar-route-motion-public"
+    : ""
+  const logoMotionClass = isRouteMotionStarted
+    ? isAdmin
+      ? "navbar-logo-motion-admin"
+      : "navbar-logo-motion-public"
+    : ""
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div
         className={cn(
-          "transition-[padding,max-width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          isAdmin
+          "",
+          isRouteTransitionActive &&
+            "transition-[padding,max-width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          showAdminHeaderLayout
             ? "max-w-none px-4 sm:px-6 lg:pr-8 lg:pl-[var(--admin-sidebar-offset,20rem)]"
             : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
         )}
       >
         <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className={cn("flex items-center gap-2", logoMotionClass)}>
             <GiIciclesAura className="h-8 w-8 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">
               <span className="text-foreground">Grind </span>
@@ -81,7 +131,8 @@ export function Navbar() {
           <div
             className={cn(
               "hidden items-center gap-6 lg:flex",
-              isAdmin ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
+              showAdminHeaderLayout ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
+              headerMotionClass,
             )}
           >
             {navLinks.map((link) => (

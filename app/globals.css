@@ -162,6 +162,96 @@
   display: none;
 }
 
+@keyframes navbar-route-to-admin {
+  from {
+    opacity: 0.8;
+    transform: translateX(-12rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes navbar-route-to-public {
+  from {
+    opacity: 0.8;
+    transform: translateX(12rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes navbar-logo-to-admin {
+  from {
+    opacity: 0.85;
+    transform: translateX(-1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes navbar-logo-to-public {
+  from {
+    opacity: 0.85;
+    transform: translateX(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes admin-sidebar-to-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes admin-sidebar-to-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.navbar-route-motion-admin {
+  animation: navbar-route-to-admin 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.navbar-route-motion-public {
+  animation: navbar-route-to-public 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.navbar-logo-motion-admin {
+  animation: navbar-logo-to-admin 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.navbar-logo-motion-public {
+  animation: navbar-logo-to-public 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-sidebar-motion-enter {
+  animation: admin-sidebar-to-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-sidebar-motion-exit {
+  animation: admin-sidebar-to-exit 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
 @media (min-width: 640px) {
   .admin-document-editing main {
     padding-left: 2rem !important;

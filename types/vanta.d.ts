@@ -16,6 +16,7 @@ declare module "vanta/dist/vanta.dots.min" {
     minWidth?: number
     scale?: number
     scaleMobile?: number
+    forceAnimate?: boolean
   }
 
   export type VantaDotsEffect = {

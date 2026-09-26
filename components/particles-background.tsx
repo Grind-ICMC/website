@@ -49,12 +49,13 @@ export function ParticlesBackground() {
         color2: VANTA_COLORS.lines,
         backgroundColor: VANTA_COLORS.background,
         backgroundAlpha: 1,
-        size: 2.4,
-        spacing: 34,
-        showLines: true,
-        mouseControls: true,
-        touchControls: true,
+        size: 1.6,
+        spacing: 46,
+        showLines: false,
+        mouseControls: false,
+        touchControls: false,
         gyroControls: false,
+        forceAnimate: true,
         minHeight: 200,
         minWidth: 200,
         scale: 1,
@@ -83,9 +84,9 @@ export function ParticlesBackground() {
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#07111f]"
       style={{
         backgroundImage:
-          "radial-gradient(circle, rgba(34, 211, 238, 0.28) 1px, transparent 1.5px), radial-gradient(circle, rgba(14, 165, 233, 0.14) 1px, transparent 1.5px)",
+          "radial-gradient(circle, rgba(34, 211, 238, 0.24) 0.8px, transparent 1.3px), radial-gradient(circle, rgba(14, 165, 233, 0.12) 0.8px, transparent 1.3px)",
         backgroundPosition: "0 0, 17px 17px",
-        backgroundSize: "34px 34px, 68px 68px",
+        backgroundSize: "46px 46px, 92px 92px",
       }}
     >
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.08),transparent_42%),linear-gradient(180deg,rgba(7,17,31,0.18),rgba(7,17,31,0.62))]" />
