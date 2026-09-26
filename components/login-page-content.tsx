@@ -47,7 +47,7 @@ export function LoginPageContent({
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-8">
               <section className="space-y-7">
-                <div className="liquid-glass glass-reading space-y-7 rounded-2xl border p-5 sm:p-8">
+                <div className="reading-copy space-y-7">
                   <div className="inline-flex">
                     <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
                       <ShieldCheck className="h-4 w-4" aria-hidden="true" />

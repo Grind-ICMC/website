@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useEffect, useMemo, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { FaGithub } from "react-icons/fa"
 import { useLanguage } from "@/components/language-context"
 import { Button } from "@/components/ui/button"
@@ -85,7 +85,7 @@ export function TeamSection({ members }: TeamSectionProps) {
     setCurrentPage(nextPage)
     requestAnimationFrame(() => {
       document.getElementById("team")?.scrollIntoView({
-        behavior: "smooth",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
         block: "start",
       })
     })
@@ -97,20 +97,29 @@ export function TeamSection({ members }: TeamSectionProps) {
   }
 
   return (
-    <section id="team" className="py-12 lg:py-20">
+    <section id="team" className="scroll-mt-24 py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="liquid-glass glass-reading glass-reading-heading text-center mb-12">
+        <div className="reading-copy mb-10 max-w-2xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+            {language === "pt" ? "Quem faz acontecer" : "The people behind Grind"}
+          </p>
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {t("team.title")}
           </h2>
-          <div className="mt-2 mx-auto w-24 h-1 bg-primary rounded-full" />
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            {language === "pt"
+              ? "Gente que aprende junto, compartilha experiências e abre caminhos. Conheça quem constrói o Grind."
+              : "Learning together, sharing experiences, and opening doors. Meet the people building Grind."}
+          </p>
         </div>
 
         {hasAlumni ? (
-          <div className="flex justify-center mb-12">
+          <div className="flex mb-8">
             <div className="liquid-glass inline-flex rounded-xl border p-1">
               <button
+                type="button"
+                aria-pressed={selectedTab === "current"}
                 onClick={() => changeTab("current")}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   selectedTab === "current"
@@ -121,6 +130,8 @@ export function TeamSection({ members }: TeamSectionProps) {
                 {t("team.currentMembers")}
               </button>
               <button
+                type="button"
+                aria-pressed={selectedTab === "alumni"}
                 onClick={() => changeTab("alumni")}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   selectedTab === "alumni"
@@ -137,50 +148,41 @@ export function TeamSection({ members }: TeamSectionProps) {
         {/* Team Grid */}
         {visibleMembers.length ? (
           <>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="reading-copy grid gap-x-12 md:grid-cols-2" aria-label={t("team.title")}>
               {paginatedMembers.map((member) => (
-                <div
+                <a
                   key={member.id}
-                  className="liquid-glass group relative overflow-hidden rounded-xl border p-6 text-center transition-all hover:border-primary/50"
+                  href={member.htmlUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={language === "pt" ? `Perfil de ${member.login} no GitHub (nova aba)` : `${member.login} on GitHub (new tab)`}
+                  className="group flex min-w-0 items-center gap-4 border-b border-white/10 py-6 transition-colors hover:bg-white/[0.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:gap-5"
                 >
-                  {/* Alumni Badge */}
-                  {member.isAlumni && (
-                    <div className="absolute top-3 right-3">
-                      <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                        Alumni
-                      </span>
-                    </div>
-                  )}
-
                   {/* Avatar */}
                   <img
                     src={member.avatarUrl}
-                    alt={`Avatar de ${member.login}`}
-                    className="mx-auto mb-4 h-20 w-20 rounded-full border border-primary/20 bg-primary/10 object-cover"
+                    alt=""
+                    loading="lazy"
+                    width={80}
+                    height={80}
+                    className="size-16 shrink-0 rounded-full bg-primary/10 object-cover ring-1 ring-white/10 sm:size-20"
                   />
 
                   {/* Info */}
-                  <h3 className="text-lg font-semibold text-foreground">
-                    @{member.login}
-                  </h3>
-                  <p className="text-sm text-primary font-medium">
-                    {language === "pt" ? member.role.pt : member.role.en}
-                  </p>
-
-                  {/* Social Links */}
-                  <div className="mt-4 flex justify-center gap-3">
-                    <a
-                      href={member.htmlUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex h-8 items-center justify-center gap-2 rounded-lg bg-secondary px-3 text-sm text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-                      aria-label={`Perfil de ${member.login} no GitHub`}
-                    >
-                      <FaGithub className="h-4 w-4" />
-                      GitHub
-                    </a>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="break-words text-lg font-semibold text-foreground transition-colors group-hover:text-primary">
+                      @{member.login}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {language === "pt" ? member.role.pt : member.role.en}
+                      {member.isAlumni ? " · Alumni" : ""}
+                    </p>
+                    <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <FaGithub className="size-3.5" aria-hidden="true" /> GitHub
+                    </span>
                   </div>
-                </div>
+                  <ArrowUpRight className="size-5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" aria-hidden="true" />
+                </a>
               ))}
             </div>
 

@@ -163,28 +163,41 @@
   box-shadow: none;
 }
 
-/* Reading surfaces soften the particles locally and raise body-text contrast.
-   Keep optical distortion on the decorative cards, away from long passages. */
-.liquid-glass.glass-reading {
-  --glass-tint: rgb(6 15 27 / 86%);
+/* Feathered local contrast protects copy without introducing another card.
+   Only the decorative layer is blurred; the text remains crisp. */
+.reading-copy {
+  position: relative;
+  isolation: isolate;
   --muted-foreground: oklch(0.83 0.015 250);
-  -webkit-backdrop-filter: blur(16px) saturate(125%);
-  backdrop-filter: blur(16px) saturate(125%);
-  border-color: rgb(180 207 230 / 10%);
-  box-shadow: 0 8px 24px rgb(0 5 16 / 10%);
+  text-shadow: 0 2px 12px rgb(0 5 16 / 70%);
 }
 
-.glass-reading-heading {
+.reading-copy::before {
+  content: "";
+  position: absolute;
+  inset: -1.5rem -0.5rem;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 20%;
+  background: rgb(6 15 27 / 90%);
+  filter: blur(24px);
+}
+
+.reading-heading {
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  border-width: 1px;
-  border-radius: 1rem;
 }
 
-.high-contrast .glass-reading {
+.high-contrast .reading-copy {
   --muted-foreground: oklch(1 0 0);
+  text-shadow: none;
+}
+
+.high-contrast .reading-copy::before {
+  background: var(--background);
+  filter: none;
+  border-radius: 0;
 }
 
 .liquid-glass-section {

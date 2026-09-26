@@ -56,7 +56,7 @@ export function HowItWorksSection() {
     <section id="how-it-works" className="py-12 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="liquid-glass glass-reading glass-reading-heading text-center mb-16">
+        <div className="reading-copy reading-heading text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             {language === "pt" ? "Como Funciona" : "How It Works"}
           </h2>
@@ -80,7 +80,7 @@ export function HowItWorksSection() {
                 </div>
 
                 {/* Content */}
-                <div className="liquid-glass glass-reading relative rounded-xl border p-5">
+                <div className="reading-copy">
                   <h3 className="mb-2 text-lg font-semibold text-foreground">
                     {step.title}
                   </h3>
