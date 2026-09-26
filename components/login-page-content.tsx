@@ -39,7 +39,7 @@ export function LoginPageContent({
     : missingGitHubAuthEnvVars.join(language === "pt" ? " e " : " and ")
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative isolate min-h-screen overflow-hidden">
       <ParticlesBackground />
       <Navbar />
       <main className="relative z-10">

@@ -164,13 +164,15 @@ function ParticiparContent() {
 
 export default function ParticiparPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative isolate min-h-screen overflow-hidden">
       <ParticlesBackground />
       <Navbar />
-      <main className="pt-24">
+      <main className="relative z-10 pt-24">
         <ParticiparContent />
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   )
 }

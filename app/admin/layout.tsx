@@ -37,12 +37,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const repositoryTrees = Object.fromEntries(repositoryTreeEntries)
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative isolate min-h-screen overflow-hidden">
       <ParticlesBackground />
       <Navbar />
-      <AdminShell userName={userName} userEmail={session.user.email} repositoryTrees={repositoryTrees}>
-        {children}
-      </AdminShell>
+      <div className="relative z-10">
+        <AdminShell userName={userName} userEmail={session.user.email} repositoryTrees={repositoryTrees}>
+          {children}
+        </AdminShell>
+      </div>
     </div>
   )
 }

@@ -62,8 +62,10 @@ export function ParticlesBackground() {
       })
     }
 
-    void initializeVanta().catch(() => {
-      // The CSS fallback remains visible if WebGL is unavailable.
+    void initializeVanta().catch((error) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Não foi possível inicializar o fundo Vanta DOTS.", error)
+      }
     })
 
     return () => {
@@ -78,7 +80,13 @@ export function ParticlesBackground() {
     <div
       ref={backgroundRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-[#07111f]"
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#07111f]"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle, rgba(34, 211, 238, 0.28) 1px, transparent 1.5px), radial-gradient(circle, rgba(14, 165, 233, 0.14) 1px, transparent 1.5px)",
+        backgroundPosition: "0 0, 17px 17px",
+        backgroundSize: "34px 34px, 68px 68px",
+      }}
     >
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.08),transparent_42%),linear-gradient(180deg,rgba(7,17,31,0.18),rgba(7,17,31,0.62))]" />
     </div>
