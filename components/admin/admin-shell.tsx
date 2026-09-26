@@ -138,11 +138,13 @@ export function AdminShell({ children, userName, userEmail, repositoryTrees }: A
       isSidebarExpanded ? "20rem" : "7rem",
     )
     localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isCollapsed))
+  }, [hasHydrated, isCollapsed, isSidebarExpanded])
 
+  useEffect(() => {
     return () => {
       document.documentElement.style.removeProperty("--admin-sidebar-offset")
     }
-  }, [hasHydrated, isCollapsed, isSidebarExpanded])
+  }, [])
 
   useEffect(() => {
     function handleAdminExit(event: globalThis.MouseEvent) {

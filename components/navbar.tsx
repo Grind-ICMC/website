@@ -109,7 +109,7 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div
         className={cn(
-          "",
+          "transition-[padding-left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isRouteTransitionActive &&
             "transition-[padding,max-width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           showAdminHeaderLayout
@@ -131,7 +131,7 @@ export function Navbar() {
           <div
             className={cn(
               "hidden items-center gap-6 lg:flex",
-              showAdminHeaderLayout ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
+              isAdmin ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
               headerMotionClass,
             )}
           >
