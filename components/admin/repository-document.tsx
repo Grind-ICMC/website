@@ -11,6 +11,7 @@ import {
   GitHubContentNotFoundError,
   InvalidMeetingPathError,
   getParentPath,
+  getRepositoryDocumentHistory,
   getRepositoryFolderHref,
   getRepositoryMarkdown,
 } from "@/lib/github-meetings"
@@ -36,6 +37,7 @@ export async function RepositoryDocument({
 
   try {
     const document = await getRepositoryMarkdown(repository, documentPath)
+    const history = await getRepositoryDocumentHistory(repository, document.path).catch(() => [])
     const frontmatter = getMeetingFrontmatterForForm(
       document.frontmatter,
       document.title,
@@ -62,6 +64,8 @@ export async function RepositoryDocument({
             title: document.title,
             frontmatter,
             content: document.content,
+            history,
+            addedAt: history.at(-1)?.date || "",
           }}
         />
       </article>

@@ -12,7 +12,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import Link from "next/link"
-import { formatDocumentDate, getDocumentDate } from "@/lib/meeting-cms"
 import { notFound, redirect } from "next/navigation"
 
 import { CreateFolderDialog } from "@/components/admin/create-folder-dialog"
@@ -215,13 +214,6 @@ export async function RepositoryExplorer({ repository, path, rawSearchTerm }: Re
                 <h2 className="truncate text-base font-semibold text-foreground group-hover:text-primary">
                   {item.title}
                 </h2>
-                <p
-                  className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"
-                  title={getDocumentDate(item.path) ? "Data do documento" : "Data não informada"}
-                >
-                  <CalendarDays className="size-3.5" aria-hidden="true" />
-                  {formatDocumentDate(getDocumentDate(item.path))}
-                </p>
               </div>
             </div>
           </Link>

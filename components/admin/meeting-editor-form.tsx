@@ -11,9 +11,8 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { Image as ImageIcon, FileText, Code2, Pencil } from "lucide-react"
+import { Image as ImageIcon, FileText, Code2, GitCommitHorizontal, Pencil } from "lucide-react"
 import dynamic from "next/dynamic"
-import { DocumentDateField } from "@/components/admin/document-date-field"
 import { Switch } from "@/components/ui/switch"
 import type { VisualDocumentEditorHandle } from "@/components/admin/visual-document-editor"
 
@@ -44,6 +43,7 @@ type MeetingEditorFormProps = {
   onCancel?: () => void
   onSubmit: (values: MeetingEditorValues) => Promise<void>
   compactHeader?: boolean
+  addedAt?: string
   formId?: string
   onDirtyChange?: (dirty: boolean) => void
   compactActions?: ReactNode
@@ -134,13 +134,13 @@ export function MeetingEditorForm({
   onCancel,
   onSubmit,
   compactHeader = false,
+  addedAt,
   formId,
   onDirtyChange,
   compactActions,
 }: MeetingEditorFormProps) {
   const [title, setTitle] = useState(initialValues.title)
   const [author, setAuthor] = useState(initialValues.author)
-  const [date, setDate] = useState(initialValues.date)
   const [advanced, setAdvanced] = useState(false)
   const modeId = useId()
   const visualEditorRef = useRef<VisualDocumentEditorHandle>(null)
@@ -165,11 +165,10 @@ export function MeetingEditorForm({
   useEffect(() => {
     onDirtyChange?.(
       title !== initialValues.title ||
-        date !== initialValues.date ||
         author !== initialValues.author ||
         content !== initialValues.content,
     )
-  }, [author, content, date, initialValues, onDirtyChange, title])
+  }, [author, content, initialValues, onDirtyChange, title])
 
   useLayoutEffect(() => {
     resizeMarkdownTextarea()
@@ -398,7 +397,7 @@ export function MeetingEditorForm({
         {
           title,
           author: hideAuthorField ? "" : author,
-          date,
+          date: "",
         },
         {
           requireAuthor: !hideAuthorField,
@@ -455,9 +454,12 @@ export function MeetingEditorForm({
               placeholder="Título do documento"
             />
           </label>
-          <div className="w-44 shrink-0">
-            <DocumentDateField value={date} onChange={setDate} disabled={busy} hideLabel />
-          </div>
+          {addedAt ? (
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <GitCommitHorizontal className="size-3.5 text-primary" aria-hidden="true" />
+              Adicionado em {addedAt}
+            </span>
+          ) : null}
           {compactActions ? <div className="flex shrink-0 items-center gap-2">{compactActions}</div> : null}
         </div>
       ) : (
@@ -488,7 +490,6 @@ export function MeetingEditorForm({
               />
             </label>
           )}
-          <DocumentDateField value={date} onChange={setDate} disabled={busy} />
         </fieldset>
       )}
 

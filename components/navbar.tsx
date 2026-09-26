@@ -69,7 +69,7 @@ export function Navbar() {
       >
         <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className={cn("flex items-center gap-2", isAdmin && "lg:hidden")}>
+          <Link href="/" className="flex items-center gap-2">
             <GiIciclesAura className="h-8 w-8 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold">
               <span className="text-foreground">Grind </span>
@@ -80,8 +80,8 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div
             className={cn(
-              "absolute hidden -translate-x-1/2 items-center gap-6 lg:flex",
-              isAdmin ? "left-[50vw]" : "left-1/2",
+              "hidden items-center gap-6 lg:flex",
+              isAdmin ? "ml-auto mr-4" : "absolute left-1/2 -translate-x-1/2",
             )}
           >
             {navLinks.map((link) => (
@@ -97,15 +97,6 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {isAdmin ? (
-              <Link href="/" className="hidden items-center gap-2 lg:flex lg:mr-2" aria-label="Grind ICMC">
-                <GiIciclesAura className="h-7 w-7 text-primary" aria-hidden="true" />
-                <span className="text-lg font-bold">
-                  <span className="text-foreground">Grind </span>
-                  <span className="text-primary">ICMC</span>
-                </span>
-              </Link>
-            ) : null}
             {/* Language Switcher */}
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>

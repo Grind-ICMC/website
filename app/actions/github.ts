@@ -4,7 +4,6 @@ import matter from "gray-matter"
 import { revalidatePath } from "next/cache"
 
 import { auth } from "@/auth"
-import { renameGitHubDocument } from "@/lib/github-document-rename"
 import {
   getAdminRepositoryConfig,
   type AdminRepositoryConfig,
@@ -21,7 +20,6 @@ import {
   getRepositoryFolderHref,
 } from "@/lib/github-meetings"
 import {
-  getDatedDocumentPath,
   normalizeMeetingFrontmatter,
   type MeetingFrontmatterData,
 } from "@/lib/meeting-cms"
@@ -42,6 +40,13 @@ type GitHubContentsResponseItem = {
 type GitHubFileToDelete = {
   path: string
   sha: string
+}
+
+type GitHubRevisionFile = {
+  content?: string
+  encoding?: string
+  name?: string
+  sha?: string
 }
 
 async function requireSession() {
@@ -207,6 +212,38 @@ function stripDataUrlPrefix(base64Content: string) {
   return content
 }
 
+async function getDocumentRevisionContent(
+  repository: AdminRepositoryConfig,
+  path: string,
+  revision: string,
+) {
+  const response = await fetch(
+    `${getContentsUrl(repository)}/${encodeGitHubPath(path)}?ref=${encodeURIComponent(revision)}`,
+    {
+      cache: "no-store",
+      headers: getGitHubHeaders(),
+    },
+  )
+
+  await assertGitHubResponse(response)
+  const file = (await response.json()) as GitHubRevisionFile
+
+  if (file.encoding !== "base64" || !file.content) {
+    throw new Error("O GitHub não retornou o conteúdo desta versão.")
+  }
+
+  const raw = Buffer.from(file.content.replace(/\n/g, ""), "base64").toString(
+    "utf8",
+  )
+  const parsed = matter(raw)
+
+  return {
+    raw,
+    content: parsed.content,
+    frontmatter: parsed.data as Record<string, unknown>,
+  }
+}
+
 function assertValidImageRelativePath(path: string) {
   const normalized = joinGitHubPath(path)
   const segments = normalized.split("/")
@@ -298,9 +335,8 @@ export async function createRepositoryDocument(
   assertValidMarkdownPath(path)
   normalizeMeetingFrontmatter(frontmatterData, {
     requireAuthor: config.repo !== "psel-empresas",
-    requireDate: true,
+    requireDate: false,
   })
-  path = getDatedDocumentPath(path, frontmatterData.date)
 
   const response = await fetch(
     `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
@@ -352,21 +388,6 @@ export async function updateRepositoryDocument(
     frontmatterData,
     markdownContent,
   )
-  const nextPath = getDatedDocumentPath(path, frontmatterData.date)
-  if (nextPath !== path) {
-    const result = await renameGitHubDocument({
-      apiUrl: `https://api.github.com/repos/${config.owner}/${config.repo}`,
-      headers: getActionHeaders(),
-      path,
-      date: frontmatterData.date,
-      sha,
-      content,
-    })
-    revalidateDocument(repository, path)
-    revalidateDocument(repository, result.path)
-    return result
-  }
-
   const response = await fetch(
     `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
     {
@@ -394,6 +415,69 @@ export async function updateRepositoryDocument(
   return {
     path: result.content?.path ?? path,
     sha: nextSha,
+  }
+}
+
+function assertValidRevision(revision: string) {
+  if (!/^[a-f0-9]{7,64}$/i.test(revision)) {
+    throw new Error("Versão do documento inválida.")
+  }
+}
+
+export async function getRepositoryDocumentVersion(
+  repository: AdminRepositorySlug,
+  path: string,
+  revision: string,
+) {
+  await requireSession()
+  const config = getRepositoryConfig(repository)
+  assertValidMarkdownPath(path)
+  assertValidRevision(revision)
+
+  return getDocumentRevisionContent(config, path, revision)
+}
+
+export async function restoreRepositoryDocumentVersion(
+  repository: AdminRepositorySlug,
+  path: string,
+  currentSha: string,
+  revision: string,
+) {
+  await requireSession()
+  const config = getRepositoryConfig(repository)
+  assertValidMarkdownPath(path)
+  assertValidSha(currentSha)
+  assertValidRevision(revision)
+
+  const version = await getDocumentRevisionContent(config, path, revision)
+  const response = await fetch(
+    `${getContentsUrl(config)}/${encodeGitHubPath(path)}`,
+    {
+      method: "PUT",
+      headers: getActionHeaders(),
+      body: JSON.stringify({
+        message: `Restore ${config.repo} document ${path} to ${revision.slice(0, 7)}`,
+        content: Buffer.from(version.raw, "utf8").toString("base64"),
+        sha: currentSha,
+      }),
+    },
+  )
+
+  await assertGitHubResponse(response)
+  const result = (await response.json()) as GitHubWriteResponse
+  const nextSha = result.content?.sha
+
+  if (!nextSha) {
+    throw new Error("O GitHub não retornou o SHA do documento restaurado.")
+  }
+
+  revalidateDocument(repository, path)
+
+  return {
+    path,
+    sha: nextSha,
+    content: version.content,
+    frontmatter: version.frontmatter,
   }
 }
 

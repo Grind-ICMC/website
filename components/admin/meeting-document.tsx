@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { CalendarDays, Edit3, FileText, FolderTree, Save, Trash2, UserRound } from "lucide-react"
+import { Edit3, FileText, FolderTree, GitCommitHorizontal, Save, Trash2, UserRound } from "lucide-react"
 
 import { deleteRepositoryDocument, updateRepositoryDocument } from "@/app/actions/github"
+import { DocumentVersionsDialog } from "@/components/admin/document-versions-dialog"
 import { MeetingEditorForm } from "@/components/admin/meeting-editor-form"
 import { MarkdownContent } from "@/components/admin/markdown-content"
 import {
@@ -20,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { getAdminRepositoryConfig, getRepositoryFullName, type AdminRepositorySlug } from "@/lib/admin-repositories"
-import { formatDocumentDate, type MeetingEditorValues, type MeetingFrontmatterData } from "@/lib/meeting-cms"
+import type { RepositoryDocumentVersion } from "@/lib/github-meetings"
+import type { MeetingEditorValues, MeetingFrontmatterData } from "@/lib/meeting-cms"
 import { getMeetingDocumentDirectory, getRepositoryImageSrc } from "@/lib/meeting-image-src"
 
 type MeetingDocumentState = {
@@ -29,6 +31,8 @@ type MeetingDocumentState = {
   title: string
   frontmatter: MeetingFrontmatterData
   content: string
+  history: RepositoryDocumentVersion[]
+  addedAt: string
 }
 
 type MeetingDocumentProps = {
@@ -43,6 +47,15 @@ function getErrorMessage(error: unknown) {
 
 function capitalizeLabel(label: string) {
   return label.charAt(0).toLocaleUpperCase("pt-BR") + label.slice(1)
+}
+
+function formatAddedAt(value: string) {
+  if (!value) return ""
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value))
 }
 
 export function MeetingDocument({ repository, initialMeeting, parentFolderHref }: MeetingDocumentProps) {
@@ -110,6 +123,35 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
     router.refresh()
   }
 
+  async function handleRestore(result: {
+    path: string
+    sha: string
+    content: string
+    frontmatter: Record<string, unknown>
+  }) {
+    const restoredTitle =
+      typeof result.frontmatter.title === "string" && result.frontmatter.title.trim()
+        ? result.frontmatter.title.trim()
+        : meeting.title
+    const restoredAuthor =
+      typeof result.frontmatter.author === "string" ? result.frontmatter.author.trim() : ""
+
+    setMeeting({
+      ...meeting,
+      sha: result.sha,
+      title: restoredTitle,
+      frontmatter: {
+        title: restoredTitle,
+        ...(restoredAuthor ? { author: restoredAuthor } : {}),
+        date: "",
+      },
+      content: result.content,
+    })
+    setIsEditing(false)
+    setHasUnsavedChanges(false)
+    router.refresh()
+  }
+
   async function handleDelete() {
     setDeleteError(null)
     setIsDeleting(true)
@@ -172,14 +214,15 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
             )}
             {!isEditing && (
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <span
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
-                  title={meeting.frontmatter.date ? "Data do documento" : "Data não informada"}
-                >
-                  <CalendarDays className="size-4 text-primary" aria-hidden="true" />
-                  <span className="sr-only">Data do documento: </span>
-                  {formatDocumentDate(meeting.frontmatter.date)}
-                </span>
+                {meeting.addedAt ? (
+                  <span
+                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2"
+                    title="Data do primeiro commit conhecido"
+                  >
+                    <GitCommitHorizontal className="size-4 text-primary" aria-hidden="true" />
+                    <span>Adicionado em {formatAddedAt(meeting.addedAt)}</span>
+                  </span>
+                ) : null}
                 {meeting.frontmatter.author && (
                   <span className="inline-flex items-center gap-2">
                     <UserRound className="size-4" aria-hidden="true" />
@@ -279,9 +322,18 @@ export function MeetingDocument({ repository, initialMeeting, parentFolderHref }
           }}
           submitLabel="Salvar alterações"
           compactHeader
+          addedAt={meeting.addedAt ? formatAddedAt(meeting.addedAt) : undefined}
           formId={editorFormId}
           compactActions={
             <>
+              <DocumentVersionsDialog
+                repository={repository}
+                path={meeting.path}
+                currentSha={meeting.sha}
+                versions={meeting.history}
+                resolveImageSrc={(src) => getRepositoryImageSrc(repository, documentDirectory, src ?? "")}
+                onRestore={handleRestore}
+              />
               <Button
                 type="button"
                 size="sm"

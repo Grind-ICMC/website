@@ -10,7 +10,6 @@ import {
 } from "@/lib/admin-repositories"
 import {
   getGeneratedMeetingPath,
-  getTodayInputDate,
   type MeetingEditorValues,
 } from "@/lib/meeting-cms"
 
@@ -49,7 +48,7 @@ export function MeetingCreateForm({
       initialValues={{
         title: "",
         author: defaultAuthor,
-        date: getTodayInputDate(),
+        date: "",
         content: "",
       }}
       submitLabel={repositoryConfig.createSubmitLabel}

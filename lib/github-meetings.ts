@@ -37,6 +37,13 @@ export type RepositoryMarkdownDocument = RepositoryDocumentSummary & {
   sha: string
 }
 
+export type RepositoryDocumentVersion = {
+  sha: string
+  message: string
+  author: string
+  date: string
+}
+
 export type RepositoryDirectoryContents = {
   path: string
   directories: GitHubContentItem[]
@@ -65,6 +72,12 @@ function getContentsUrl(repository: AdminRepositorySlug) {
   const config = getRepositoryConfig(repository)
 
   return `https://api.github.com/repos/${config.owner}/${config.repo}/contents`
+}
+
+function getRepositoryApiUrl(repository: AdminRepositorySlug) {
+  const config = getRepositoryConfig(repository)
+
+  return `https://api.github.com/repos/${config.owner}/${config.repo}`
 }
 
 export function getGitHubHeaders() {
@@ -379,6 +392,58 @@ export async function getRepositoryMarkdown(
     frontmatter,
     sha: file.sha,
   }
+}
+
+export async function getRepositoryDocumentHistory(
+  repository: AdminRepositorySlug,
+  path: string,
+): Promise<RepositoryDocumentVersion[]> {
+  assertValidMarkdownPath(path)
+  const response = await fetch(
+    `${getRepositoryApiUrl(repository)}/commits?path=${encodeURIComponent(path)}&per_page=50`,
+    {
+      cache: "no-store",
+      headers: getGitHubHeaders(),
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(`GitHub history request failed with status ${response.status}`)
+  }
+
+  const commits = (await response.json()) as Array<{
+    sha?: unknown
+    commit?: {
+      message?: unknown
+      author?: { name?: unknown; date?: unknown } | null
+      committer?: { name?: unknown; date?: unknown } | null
+    }
+    author?: { login?: unknown; name?: unknown } | null
+  }>
+
+  return commits.flatMap((commit) => {
+    const sha = typeof commit.sha === "string" ? commit.sha : ""
+    const message =
+      typeof commit.commit?.message === "string"
+        ? commit.commit.message.split("\n")[0]
+        : "Commit sem mensagem"
+    const author =
+      typeof commit.author?.login === "string"
+        ? commit.author.login
+        : typeof commit.commit?.author?.name === "string"
+          ? commit.commit.author.name
+          : typeof commit.commit?.committer?.name === "string"
+            ? commit.commit.committer.name
+            : "GitHub"
+    const date =
+      typeof commit.commit?.author?.date === "string"
+        ? commit.commit.author.date
+        : typeof commit.commit?.committer?.date === "string"
+          ? commit.commit?.committer.date
+          : ""
+
+    return sha ? [{ sha, message, author, date }] : []
+  })
 }
 
 export function getMeetingHref(path: string) {
