@@ -105,7 +105,7 @@ export async function getOrganizationMembers(
     throw new Error("GitHub members response is not an array")
   }
 
-  return members
+  const normalizedMembers = members
     .map((member) => {
       const login = normalizeHandle(member.login)
 
@@ -118,5 +118,18 @@ export async function getOrganizationMembers(
         role: getMemberRole(login),
       } satisfies OrganizationMember
     })
-    .sort((left, right) => left.login.localeCompare(right.login))
+  const knownMembers = new Set(normalizedMembers.map((member) => normalizeHandle(member.login)))
+  const leadershipMembers = Object.entries(teamRoles as TeamRoleConfig)
+    .filter(([, role]) => /president|presidente/i.test(`${role.pt} ${role.en ?? ""}`))
+    .filter(([login]) => !knownMembers.has(normalizeHandle(login)))
+    .map(([login, role], index) => ({
+      id: -(index + 1),
+      login,
+      avatarUrl: `https://github.com/${login}.png`,
+      htmlUrl: `https://github.com/${login}`,
+      isAlumni: alumni.has(normalizeHandle(login)),
+      role: { pt: role.pt, en: role.en ?? role.pt },
+    } satisfies OrganizationMember))
+
+  return [...normalizedMembers, ...leadershipMembers].sort((left, right) => left.login.localeCompare(right.login))
 }

@@ -155,6 +155,11 @@ export function TeamSection({ members }: TeamSectionProps) {
         {/* Team Grid */}
         {visibleMembers.length ? (
           <>
+            {pageCount > 1 && (
+              <p className="mb-2 text-xs text-muted-foreground" aria-live="polite">
+                {language === "pt" ? "Exibindo" : "Showing"} {(currentPage - 1) * MEMBERS_PER_PAGE + 1}–{Math.min(currentPage * MEMBERS_PER_PAGE, visibleMembers.length)} {language === "pt" ? "de" : "of"} {visibleMembers.length} {language === "pt" ? "pessoas" : "people"}
+              </p>
+            )}
             <div className="reading-copy grid gap-x-12 md:grid-cols-2" aria-label={t("team.title")}>
               {paginatedMembers.map((member) => (
                 <a
@@ -194,19 +199,19 @@ export function TeamSection({ members }: TeamSectionProps) {
             </div>
 
             {pageCount > 1 ? (
-              <Pagination className="mt-8" aria-label={t("team.pagination")}>
+              <Pagination className="team-pagination mt-8" aria-label={t("team.pagination")}>
                 <PaginationContent className="gap-1.5">
                   <PaginationItem>
                     <Button
                       variant="ghost"
                       size="default"
-                      className="team-pagination-control h-10 gap-1 rounded-full px-3 text-muted-foreground transition-colors hover:text-foreground sm:pl-3"
+                      className="team-pagination-control h-10 gap-2 rounded-full border border-white/10 px-4 text-foreground transition-colors hover:text-foreground sm:pl-4 max-[480px]:size-10 max-[480px]:gap-0 max-[480px]:px-0"
                       onClick={() => changePage(currentPage - 1)}
                       disabled={currentPage === 1}
                       aria-label={t("team.previousPage")}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      <span className="hidden sm:block">
+                      <span className="max-[480px]:sr-only">
                         {t("team.previous")}
                       </span>
                     </Button>
@@ -248,12 +253,12 @@ export function TeamSection({ members }: TeamSectionProps) {
                     <Button
                       variant="ghost"
                       size="default"
-                      className="team-pagination-control h-10 gap-1 rounded-full px-3 text-muted-foreground transition-colors hover:text-foreground sm:pr-3"
+                      className="team-pagination-control h-10 gap-2 rounded-full border border-white/10 px-4 text-foreground transition-colors hover:text-foreground sm:pr-4 max-[480px]:size-10 max-[480px]:gap-0 max-[480px]:px-0"
                       onClick={() => changePage(currentPage + 1)}
                       disabled={currentPage === pageCount}
                       aria-label={t("team.nextPage")}
                     >
-                      <span className="hidden sm:block">{t("team.next")}</span>
+                      <span className="max-[480px]:sr-only">{t("team.next")}</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </PaginationItem>
